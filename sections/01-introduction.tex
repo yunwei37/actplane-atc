@@ -27,7 +27,7 @@ behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agen
 harnesses also require runtime policy mechanisms to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
 costa2025fides,debenedetti2025camel}.
 
-% ¶3: Empirical — the problem is pervasive; LLMs can't self-enforce
+% ¶3: Empirical — the problem is common; LLMs can't self-enforce
 Many of these policies constrain system-level actions. Our
 empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
 of instruction-file statements are behavioral directives, and 83\% of
@@ -51,14 +51,21 @@ mechanisms~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} observe all system actions but expect pre-defined
 static policy and return only system events without semantic context; yet
 74\% of system-level directives require project or
-task context that only the agent possesses in its natural language intent.
+task context that is absent from low-level OS events.
 
 % ¶4: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be
 programmable by the agent itself and take effect at OS level: it should let the agent use live project and
-task context to enforce its own actions. This creates three challenges: policies must be
-concrete enough for OS enforcement while expressive enough to handle real-world directives, preserve cross-event execution state,
-and evolve dynamically without allowing agents or sub-agents to weaken inherited constraints.
+task context to enforce its own actions. This creates three challenges.
+First, policy specification must find the right granularity: natural-language
+directives carry project intent but are too ambiguous to enforce, while
+raw OS events are enforceable but too low-level and brittle to express
+agent-facing policy. Second, cross-event enforcement must be efficient:
+policy-relevant history spans tools, subprocesses, files, and network
+endpoints, but checks still run on the syscall path. Third,
+programmability must not become an authority
+bypass: agents need to add context-specific constraints, but neither they
+nor their sub-agents should be able to weaken inherited policy.
 
 % ¶5: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
@@ -80,9 +87,9 @@ We make three contributions:
 
 \begin{enumerate}
 \item An \textbf{empirical study} of instruction files from 64~projects,
-showing that cross-event information-flow policies are pervasive (81\% of
+showing that cross-event system-level directives are common (81\% of
 repositories) and that 74\% of system-level directives require project or
-task context that only the agent can supply (\S\ref{sec:empirical}).
+task context absent from low-level OS events (\S\ref{sec:empirical}).
 
 \item \textbf{\sys{}}, a programmable OS-level runtime policy enforcement
 system for AI agent harnesses. \sys{} compiles behavioral policies into eBPF/BPF-LSM labeled
@@ -94,7 +101,7 @@ terms of AI agent intent and concrete remediation
 \item An \textbf{evaluation} across directive-derived rules,
 system workloads, and a 20-task OctoBench subset. On a 190-trace
 decision-compliance benchmark sampled from 38~directives, \sys{} reaches
-75.8\% DCR, 27.4 percentage points higher than prompt-filter and
+a 75.8\% decision-compliance rate (DCR), 27.4 percentage points higher than prompt-filter and
 30.5 points higher than tool-regex, while adding less than 2\% end-to-end overhead on
 agent workloads
 (\S\ref{sec:evaluation}).

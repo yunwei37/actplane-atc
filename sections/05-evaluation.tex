@@ -462,11 +462,12 @@ and which need project or task context to instantiate.
 
 An empirical study of 64~projects shows that agent instruction files are
 behavioral policies whose enforcement demands OS-level observation,
-cross-event state, and agent-provided context. \sys{} addresses this by
-letting agents author labeled information-flow policies that an eBPF/BPF-LSM
-engine enforces below the tool layer, returning semantic feedback when rules
-match. A layered authority model prevents agents from weakening
-higher-authority constraints. \sys{} does not cover semantic-only
+policy specification at the right granularity, and efficient cross-event
+enforcement. \sys{} addresses this by letting agents author a
+compact policy DSL that compiles to labeled information-flow rules enforced
+below the tool layer by an eBPF/BPF-LSM engine, returning semantic feedback
+when rules match. A layered authority model lets agents specialize policy
+while preventing them from weakening higher-authority constraints. \sys{} does not cover semantic-only
 directives (17\%) or content-inspection directives (38\%) that require a
 linting layer, and the cooperative threat model excludes adversarial
 evasion. Extending coverage to content-level checks and multi-agent
