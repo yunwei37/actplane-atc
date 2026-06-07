@@ -15,8 +15,7 @@ where these effects are easy to observe. Agents operate through an
 \emph{AI agent harness}: software around the model that maintains the
 agent loop and session state, routes tool calls, mediates shell, file,
 and network access, and returns results or feedback to the model,
-improving agent performance while keeping execution within safety,
-security, and compliance
+improving agent performance while enforcing behavioral
 constraints~\cite{langchain-harness,fowler-harness}. A single tool
 invocation can run arbitrary scripts, spawn subprocesses, and touch many
 files and endpoints before control returns to the model. Projects encode
