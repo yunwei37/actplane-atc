@@ -2,12 +2,16 @@
 \label{sec:background}
 
 \textbf{AI agents and harnesses.}
-AI coding agents such as Claude
+AI agents combine model reasoning with external tools and long-running
+state. They may browse untrusted content, call APIs, manipulate files,
+execute code, or coordinate workflows across multiple
+steps~\cite{debenedetti2024agentdojo,zhan2024injecagent,
+chennabasappa2025llamafirewall}. Coding agents such as Claude
 Code~\cite{anthropic2025claudecode}, Codex
-CLI~\cite{openai2025codex}, Cursor~\cite{cursor2025}, and
-Devin~\cite{devin2025}, along with research systems such as
-SWE-agent~\cite{yang2024sweagent} and
-OpenHands~\cite{wang2025openhands}, operate on repositories through an
+CLI~\cite{openai2025codex}, Cursor~\cite{cursor2025}, Devin~\cite{devin2025},
+SWE-agent~\cite{yang2024sweagent}, and
+OpenHands~\cite{wang2025openhands} are a concrete deployment domain
+where these effects are easy to observe. Agents operate through an
 \emph{AI agent harness}: software around the model that maintains the
 agent loop and session state, routes tool calls, mediates shell, file,
 and network access, and returns results or feedback to the model,
