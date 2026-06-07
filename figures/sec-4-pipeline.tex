@@ -1,0 +1,6 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/sec-4-pipeline.pdf}
+\caption{The \lang compilation pipeline. The LLVM backend emits extended opcodes. A lowering stage expands each opcode into its proof sequence of vanilla eBPF, the eBPF verifier checks the lowered program, and a restore stage reinstates the extended opcodes. The eBPF JIT compiler then dispatches each extended opcode to its module-provided native emit callback.}
+\label{fig:pipeline}
+\end{figure}

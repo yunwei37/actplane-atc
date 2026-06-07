@@ -1,0 +1,30 @@
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+%%%
+% message<the eBPF machine-code gap from a small, verifier-checkable ISA>
+% eBPF widely deployed for networking, observability, security on hot paths
+% yet, for one source, eBPF's machine code slower than direct native compilation
+% the gap comes from an instruction set omitting a native compiler's hardware instructions
+% the instruction set stays small so the verifier can check every program
+
+%%%
+% message<\tool, a verified extension mechanism for the eBPF compilation pipeline>
+% \tool extends the eBPF compilation pipeline with verified extensions
+% each extension has a verifier-checked bytecode form and a JIT-emitted native form
+% a proof equates the two forms, so the verifier alone secures safety
+% \lang instantiates \tool as extensions for hardware instruction idioms
+% eval: XX faster than the existing eBPF JIT on x86-64 and ARM64, small kernel change
+
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+% [to-do] zhengjie: switch template
+% [to-do] zhengjie: check terminalogy
+% - kernel JIT -> eBPF JIT compiler
+% - BPF - eBPF
+% - eBPF compilation pipeline with \tool
+
+\begin{abstract}
+eBPF is widely deployed for networking, observability, and security, attaching to hot kernel paths. However, for the same source program, the eBPF pipeline produces machine code that runs slower than a native compiler's machine code. The gap comes from the eBPF instruction set, which omits the hardware instructions a native compiler selects for speed. The eBPF instruction set stays small so that the verifier can check every program before execution.
+%
+We present \tool, which extends the eBPF compilation pipeline with verified extensions. Each \tool extension provides two forms of the same operation: a bytecode form that the existing verifier checks, and a native form that the JIT compiler emits. Because a proof guarantees that the native form behaves like the bytecode form, the existing verifier alone secures safety. We instantiate \tool as \lang, a set of extensions for hardware instruction idioms such as rotation, conditional select, and bitfield extraction. On x86-64 and ARM64, \lang makes eBPF programs run XX\% faster than the existing eBPF JIT compiler with a small kernel change.
+\end{abstract}

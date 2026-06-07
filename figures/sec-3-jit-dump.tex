@@ -1,0 +1,6 @@
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/sec-3-jit-dump.pdf}
+  \caption{Compiling a 64-bit rotate through two paths. The direct path compiles C to x86-64 with LLVM, emitting a single \texttt{ROL}. The eBPF path compiles C to eBPF bytecode and then to x86-64 via the eBPF JIT compiler, emitting a longer sequence because the eBPF ISA has no rotate opcode.}
+  \label{fig:jit-dump}
+\end{figure}

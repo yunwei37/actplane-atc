@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Kernel implementation size by component. \note{fake numbers, need to rerun experiment}}
+\label{tab:kernel-loc}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Component & Lines of code \\
+\midrule
+Verifier & $\sim$\todo{500} \\
+JIT dispatch (x86-64) & $\sim$\todo{65} \\
+JIT dispatch (ARM64) & $\sim$\todo{65} \\
+BTF/registration & $\sim$\todo{200} \\
+Headers & $\sim$\todo{80} \\
+\midrule
+Total kernel core & $\sim$\todo{910} \\
+\bottomrule
+\end{tabular}
+\end{table}

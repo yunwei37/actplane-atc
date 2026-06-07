@@ -1,0 +1,18 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{Pure-bytecode runtime ratios relative to the kernel eBPF JIT. Ratios use median steady-state execution time per benchmark and suite-level geomeans across benchmarks; lower ratio and higher speedup are better.}
+\label{tab:char-micro-summary}
+\begin{tabular}{@{}lllccc@{}}
+\toprule
+Platform & Suite & Runtime & Runtime/kernel & Speedup & Wins/losses/ties \\
+\midrule
+x86-64 KVM & Pure bytecode 29 & Userspace native & 0.583 & 1.716$\times$ & 27/1/1 \\
+x86-64 KVM & Pure bytecode 29 & LLVM-BPF userspace & 0.650 & 1.538$\times$ & 27/1/1 \\
+x86-64 KVM & Pure bytecode 29 & Kernel native & 0.678 & 1.474$\times$ & 24/2/3 \\
+ARM64 AWS & Pure bytecode 29 & Userspace native & 0.467 & 2.141$\times$ & 29/0/0 \\
+ARM64 AWS & Pure bytecode 29 & LLVM-BPF userspace & 0.512 & 1.952$\times$ & 29/0/0 \\
+ARM64 AWS & Pure bytecode 29 & Kernel native & 0.563 & 1.777$\times$ & 27/0/2 \\
+\bottomrule
+\end{tabular}
+\end{table*}

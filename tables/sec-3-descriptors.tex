@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\small
+\caption{The \lang descriptors currently implemented, spanning five categories of hardware operations: bitwise rotation, conditional selection, bitfield extraction, endian-aware memory access, and speculation barriers. Every descriptor is supported on both x86-64 and ARM64.}
+\label{tab:descriptors}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}}llll@{}}
+\toprule
+Descriptor & Proof sequence & x86-64 & ARM64 \\
+\midrule
+\texttt{rotate64} & 2 shifts + OR & \texttt{ROL} & \texttt{ROR} \\
+\texttt{select64} & jump + 2 moves & \texttt{CMOV} & \texttt{CSEL} \\
+\texttt{extract64} & shift + AND & \texttt{BEXTR} & \texttt{UBFX} \\
+\texttt{endian\_load16} & load + bswap & \texttt{MOVBE} & \texttt{REV+LDRH} \\
+\texttt{endian\_load32} & load + bswap & \texttt{MOVBE} & \texttt{REV+LDR} \\
+\texttt{endian\_load64} & load + bswap & \texttt{MOVBE} & \texttt{REV+LDR} \\
+\texttt{spec\_barrier} & identity (nop) & \texttt{LFENCE} & \texttt{DSB+ISB} \\
+\bottomrule
+\end{tabular*}
+\end{table}

@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\small
+\caption{\lang instruction encoding. The call uses opcode \texttt{BPF\_PSEUDO\_KINSN\_CALL}; the sidecar uses \texttt{BPF\_PSEUDO\_KINSN\_SIDECAR}.}
+\label{tab:encoding}
+\begin{tabular}{@{}llcp{0.50\columnwidth}@{}}
+\toprule
+Insn & Field & Bits & Meaning \\
+\midrule
+Call & \texttt{imm} & 32 & BTF ID of the \lang descriptor stub function \\
+ & \texttt{off} & 16 & Index into \texttt{fd\_array} for the module's BTF file descriptor \\
+\midrule
+Sidecar & \texttt{dst\_reg} & [3:0] & Destination register for the operation result \\
+ & \texttt{off} & [19:4] & Offset or auxiliary field per descriptor \\
+ & \texttt{imm} & [51:20] & Immediate value or configuration per descriptor \\
+\bottomrule
+\end{tabular}
+\end{table}

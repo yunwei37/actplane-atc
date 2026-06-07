@@ -1,0 +1,16 @@
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+%%%
+% message<problem → solution → results → future>
+% problem: eBPF ISA cannot express hardware-specific operations, kernel JIT leaves performance on table
+% solution: \lang extends eBPF with opcodes carrying proof sequence (for verifier) + native emit (for JIT)
+% results: recovers TODO% gap on 57 microbenchmarks, TODO× on 18 real programs, both x86-64 and ARM64, negligible overhead
+% future: proof-sequence mechanism generalizes beyond current 7 descriptors to SIMD, prefetch, etc.
+
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented \lang, an extended eBPF bytecode that decouples verification from execution. Each new opcode carries a proof sequence for the verifier and a native emit callback for the JIT, enabling hardware-specific instructions without modifying the verifier or JIT core. 
+\lang recovers \todo{xx\%} of the kernel JIT's performance gap on \todo{xx} micro benchmarks and achieves \todo{xx$\times$} geomean speedup on \todo{xx} production programs across x86-64 and ARM64. The mechanism generalizes beyond the \todo{x} descriptors we implement to any operation expressible as a short vanilla BPF sequence.

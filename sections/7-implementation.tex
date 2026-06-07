@@ -1,0 +1,79 @@
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+%%%
+% message<opening: implementation spans kernel changes, LLVM backend, and per-architecture modules>
+% §6.1 kernel changes, §6.2 LLVM backend, §6.3 modules and descriptors
+
+%%% Section 6.1 Kernel: Encoding, Verification, and JIT Dispatch
+
+%%%
+% message<instruction encoding: each \lang opcode in the bytecode is a two-instruction pair>
+% sidecar pseudo-instruction: BPF_PSEUDO_KINSN_SIDECAR, carries packed payload
+% payload: bits [3:0] dst_reg, bits [19:4] offset, bits [51:20] immediate (52 bits total)
+% call pseudo-instruction: BPF_PSEUDO_KINSN_CALL, imm = BTF ID of descriptor, off = fd_array slot
+% reuses existing eBPF instruction format; no new opcode space needed
+
+%%%
+% message<kernel LOC breakdown by component>
+% verifier lowering/restore: ~500 LOC
+% JIT dispatch: ~60-70 LOC per architecture (x86-64, ARM64)
+% BTF/registration integration: ~200 LOC
+% headers (struct bpf_kinsn, helpers): ~80 LOC
+% total kernel core: ~TODO LOC
+
+%%% Section 6.2 Compiler: LLVM Backend Extension
+
+%%%
+% message<LLVM eBPF backend extended to emit \lang opcodes for recognized idioms>
+% idiom recognition: rotate (shift+OR), conditional move (select), bitfield extract (shift+AND), endian load
+% backend emits sidecar + call pair instead of decomposed eBPF
+% only eBPF backend modified; no changes to LLVM middle-end
+% backward compatible: without the extension, identical vanilla eBPF produced
+% ~TODO LOC added
+
+%%% Section 6.3 Instruction Descriptors
+
+%%%
+% message<per-architecture modules implement the 7 descriptors>
+% each descriptor has one module per architecture (x86-64, ARM64)
+% module provides: instantiate_insn() + architecture-specific emit callback + registration
+% ~TODO LOC per module
+% modules loaded at boot or on demand; kernel core unchanged
+
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+\section{Implementation}
+\label{sec:implementation}
+
+We implement \lang across three components: the Linux kernel (\S\ref{subsec:kernel}), the LLVM compiler (\S\ref{subsec:llvm}), and per-architecture kernel modules (\S\ref{subsec:descriptors}).
+
+\subsection{Kernel: Encoding, Verification, and JIT Dispatch}
+\label{subsec:kernel}
+
+The kernel changes total approximately \todo{910} lines across four areas: instruction encoding, verifier lowering/restore, JIT dispatch, and module registration. Table~\ref{tab:kernel-loc} breaks down the size by component.
+
+\input{tables/sec-5-kernel-loc}
+
+\noindent\textbf{Instruction encoding.}
+Each \lang opcode in the bytecode is encoded as a two-instruction pair, as shown in Table~\ref{tab:encoding}. The call instruction identifies which \lang descriptor to use; the sidecar carries a packed 52-bit payload with the operands specific to that descriptor. Both reuse the existing eBPF instruction format; no new opcode space is required. For example, a \texttt{rotate64} opcode stores the target register and shift amount in the sidecar payload, while the call points to the rotate module's BTF ID with \texttt{fd\_array} slot 1.
+
+\input{tables/sec-5-encoding}
+
+\noindent\textbf{Verifier.}
+The lowering and restore stages described in \S\ref{subsec:pipeline} are implemented as two new functions inserted before and after the verifier's main analysis loop. The lowering function walks the program backward, expanding each \lang opcode into its proof sequence via \texttt{instantiate\_insn()} and recording the original two instructions for later restoration. The restore function reverses this process after verification succeeds. Together with proof-sequence validation, detection of \lang opcodes in existing verifier functions, and bookkeeping data structures, these changes add approximately \todo{500} lines to the verifier.
+
+\noindent\textbf{JIT.}
+The x86-64 and ARM64 JIT backends each gain a dispatch case for \lang opcodes. When the JIT encounters a \lang call instruction, it retrieves the descriptor, decodes the sidecar payload, and invokes the descriptor's native emit callback. If the descriptor does not provide a callback for the current architecture, a fallback path replaces the \lang opcode with its proof sequence. This adds approximately \todo{60--70} lines per architecture.
+
+\noindent\textbf{Module registration.}
+When a \lang module is loaded, it registers its descriptors with the kernel so that the verifier and JIT can discover them. The registration piggybacks on the existing BTF and kfunc infrastructure: each module exports a stub kfunc as a BTF anchor and provides its \texttt{struct bpf\_kinsn} descriptor in a parallel array. The kernel's BTF lookup and per-program descriptor caching are extended by approximately \todo{200} lines. An additional \todo{80} lines of header definitions introduce the \texttt{struct bpf\_kinsn} type and helper functions.
+
+\subsection{Compiler: LLVM Backend Extension}
+\label{subsec:llvm}
+
+The standard LLVM eBPF backend compiles C to vanilla eBPF bytecode. We extend it to detect patterns that correspond to \lang descriptors and emit \lang opcodes directly. The backend matches four idiom families: rotate (two shifts and an OR), conditional move (a select operation), bitfield extract (a shift followed by a mask), and endian-aware load (a load followed by a byte swap). When an idiom is matched, the backend emits the corresponding sidecar and call pair with the appropriate packed payload. The matching uses LLVM's existing DAG pattern infrastructure; no changes to LLVM's middle-end optimization passes are needed. Programs compiled without the \lang extension produce identical vanilla eBPF bytecode. The extension adds approximately \todo{N} lines to the eBPF backend.
+
+\subsection{Instruction Descriptors}
+\label{subsec:descriptors}
+
+We implement \todo{seven} \lang descriptors on both x86-64 and ARM64 (Table~\ref{tab:descriptors}). Each descriptor is implemented as a pair of kernel modules, one per architecture. A module contains three components: an \texttt{instantiate\_insn()} function that generates the proof sequence from the payload, a native emit callback that writes architecture-specific machine code into the JIT image, and registration boilerplate that exports the descriptor through BTF. The \texttt{instantiate\_insn()} function is identical across architectures; the emit callback differs. Each module is approximately \todo{N} lines of code. Modules are loaded at boot or on demand; the kernel core requires no recompilation.

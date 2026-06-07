@@ -1,0 +1,88 @@
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+%%%
+% message<eBPF: safe kernel extension via static verification and JIT>
+% eBPF widely used for safe kernel extension
+% safety via static verification of eBPF bytecode
+% LLVM compiles programs to eBPF bytecode
+% verifier checks bytecode at load
+% JIT translates verified bytecode to native
+% program attaches to hook point and runs
+
+%%%
+% message<eBPF's safety has a fundamental performance cost>
+% turn: safety has performance cost
+% eBPF ISA small for verifier, excludes hardware capabilities
+% LLVM cannot emit operations outside eBPF ISA
+% C through eBPF is 3× slower than C directly to native
+
+%%%
+% message<root cause: a single bytecode serves verification and execution>
+% root cause: one bytecode, two conflicting roles
+% verification needs simple, architecture-independent representation
+% execution needs rich representation
+% demands contradict: easy to verify is hard to optimize
+% current design forces both onto single ISA, causing gap
+
+%%%
+% message<\lang: extended eBPF bytecode decoupling verification from execution>
+% insight: verification and execution can use different bytecode representations
+% introduce \lang
+% \lang adds opcodes for hardware-specialized operations
+% extend LLVM eBPF backend to emit \lang
+% verify path: \lang lowered to vanilla eBPF, checked by original verifier
+% execute path: eBPF JIT emits native instructions for each \lang opcode using arch-specific code from a kernel module
+% closer: eBPF JIT improves performance while preserving existing eBPF safety model
+
+%%%
+% message<formally prove \lang preserves eBPF's safety guarantees>
+% formally prove \lang preserves eBPF's safety
+% local refinement: native emit agrees with proof sequence on observable state
+% local composes into whole-program refinement
+% LLVM bug cannot break safety: verifier re-checks lowered program on load
+
+%%%
+% message<\lang closes performance gap with negligible overhead>
+% implement \lang pipeline in Linux kernel
+% evaluation: XX% speedup over eBPF JIT baseline
+% closes XX% of eBPF-to-native gap
+% verification time and binary size overhead negligible
+
+%%%
+% message<contributions>
+% introduce \lang, extended eBPF bytecode decoupling verification from execution
+% formally prove lowering pass and eBPF JIT extension preserve semantics
+% implement and evaluate eBPF compilation pipeline with \lang on Linux kernel workloads
+
+%%%%%%%%%%%%Outline%%%%%%%%%%%%%%%%%%
+
+% [addressed] Yusheng: Prior work [ 8 ] shows that an LLVM-based === 这个是我们要做的，不是 prior work
+% [addressed] Yusheng: intro里面还得说verify verifier 和 verify jit, 不破坏已经被形式化验证的 jit / verifier 的安全性是我们非常重要的设计约束，不是“在 kernel 里面写那么多代码会导致 bug”那么简单
+
+\section{Introduction}
+\label{sec:introduction}
+
+Extended Berkeley Packet Filter (eBPF) is widely used for safely extending OS kernels across diverse domains, including networking~\cite{cilium,katran}, observability~\cite{tracee}, security enforcement~\cite{krsi_lwn}, and scheduling~\cite{sched_ext_lwn}. eBPF's safety comes from static verification of eBPF bytecode. Developers write eBPF programs in high-level languages such as C or Rust, and LLVM~\cite{lattner2004llvm} compiles the programs to eBPF bytecode. At load time, the eBPF verifier statically checks the bytecode for safety properties such as memory safety and termination. After verification, the eBPF just-in-time (JIT) compiler translates the bytecode to native machine code. The compiled program is then attached to a kernel hook point and runs in the kernel.
+
+While eBPF guarantees safe in-kernel execution, eBPF's safety comes at a fundamental performance cost. The eBPF instruction set architecture (ISA) is kept small enough for the verifier to analyze, excluding entire classes of hardware capability that native code uses for performance. LLVM's eBPF backend runs standard optimization passes but cannot emit operations that the eBPF ISA does not define. C code compiled through eBPF runs 3$\times$ slower on average than the same code compiled directly to native code by LLVM (\S\ref{subsec:gap}).
+
+The root cause of eBPF's performance gap is that a single bytecode serves two conflicting roles: verification and execution. Verification needs a simple, architecture-independent representation that the eBPF verifier can statically analyze. Execution needs a rich representation that the eBPF JIT compiler can translate into efficient native machine code. Verification and execution have contradictory needs: what makes verification easy is what makes optimization hard. The current eBPF architecture forces both roles onto a single ISA, causing the performance gap.
+% Yusheng: add related work
+
+Our key insight is that verification and execution can be split into two distinct bytecode representations. 
+% Yusheng: Add challenge
+
+We introduce \lang, an extended eBPF bytecode that decouples verification from execution. \lang adds opcodes that map to hardware-specialized operations such as bit manipulation, conditional selection, and endian-aware memory access. We extend LLVM's eBPF backend to emit \lang, giving the compiler access to hardware-specialized optimizations that vanilla eBPF cannot express directly. For verification, a \lang program is lowered to vanilla eBPF bytecode and checked by the original eBPF verifier. For execution, the eBPF JIT compiler emits native instructions directly for each \lang opcode, using architecture-specific code from a kernel module. With \lang, the eBPF JIT compiler improves performance while preserving eBPF's existing safety model.
+
+% \note{[unsure about this]} 
+We formally prove that \lang preserves eBPF's safety guarantees. We prove local refinement at each extended opcode: the native emit callback produces the same observable program state as the lowered eBPF sequence the verifier checked. Local refinement composes into a whole-program theorem: the lowered program and the JIT-compiled program agree on final register and memory state. A bug in the extended LLVM backend cannot compromise kernel safety, since the eBPF verifier re-checks the lowered program on every load.
+ 
+We implement the full eBPF compilation pipeline with \lang in the Linux kernel, covering the extended LLVM backend, the verifier lowering pass, and the eBPF JIT extension. Evaluation on real eBPF workloads shows that \lang achieves XX\% speedup over the eBPF JIT compiler baseline. The speedup closes XX\% of the performance gap between eBPF and direct native compilation. eBPF verification time and binary size overhead remain negligible.
+
+\noindent\textbf{Contribution.}
+We make the following contributions:
+\begin{itemize}
+    \item We introduce \lang, an extended eBPF bytecode that decouples verification from execution.
+    \item We formally prove that the \lang lowering pass and eBPF JIT extension preserve semantics.
+    \item We implement and evaluate the eBPF compilation pipeline with \lang on kernel workloads.
+\end{itemize}

@@ -1,0 +1,68 @@
+\section{Evaluation}
+\label{sec:eval}
+
+This section evaluates \lang on the two workloads needed to support the paper
+claim: pure-bytecode microbenchmarks that isolate kinsn opportunities, and two
+production datapath case studies, Cilium and Katran. We answer four questions:
+\begin{itemize}
+\item \textbf{RQ1:} Does the x86 LLVM-kinsn candidate expose the expected microbenchmark speedup?
+\item \textbf{RQ2:} Does a matched ARM64 ReJIT run apply kinsn sites and improve the same microbenchmark suite?
+\item \textbf{RQ3:} Does \lang improve a large policy datapath, Cilium?
+\item \textbf{RQ4:} Does \lang improve a packet load balancer datapath, Katran?
+\end{itemize}
+
+\subsection{RQ1: x86 Microbenchmark Signal}
+\label{subsec:eval-x86-micro}
+
+Figure~\ref{fig:eval-kinsn-micro-x86} reports the best local raw LLVM-kinsn
+candidate on x86-64 KVM against the latest stock kernel eBPF baseline. Both
+runs use the 29 pure-bytecode microbenchmarks from \S\ref{subsec:char-percase},
+three samples, and \texttt{INNER\_REPEAT=100000}. The candidate has zero
+correctness mismatches and reaches a 1.216$\times$ geomean speedup across all
+29 cases. This result is useful as a selector and code-generation signal, but
+we do not treat it as a matched compiler-control comparison because the kinsn
+candidate and stock baseline come from different compiler/runtime
+configurations.
+
+\input{figures/sec-6-kinsn-micro-x86}
+
+\subsection{RQ2: ARM64 Matched ReJIT Microbenchmark}
+\label{subsec:eval-arm64-micro}
+
+Figure~\ref{fig:eval-kinsn-micro-arm64} reports the matched ARM64 AWS ReJIT
+follow-up after fixing the selector for the pure-bytecode suite. This is the
+direct comparison: the same run
+contains the baseline kernel JIT measurements and the post-ReJIT measurements.
+The selector applies 308/308 matched sites in the median sample and 924/924
+raw matched/applied calls across the three samples. The all-29 geomean speedup
+is 1.208$\times$, while the kinsn-bearing subset reaches 1.222$\times$ over
+27 benchmarks with zero correctness mismatches.
+
+\input{tables/sec-6-kinsn-micro}
+\input{figures/sec-6-kinsn-micro-arm64}
+
+\subsection{RQ3: Cilium Case Study}
+\label{subsec:eval-cilium}
+
+Cilium exercises a large packet-policy datapath with dense address arithmetic,
+endian conversion, prefetch, bulk copy, and conditional-select opportunities.
+The x86-64 full policy applies 4697 kinsn sites in Cilium and improves the
+workload by 1.114$\times$. The retained BPF-counter population is small
+(two rows), but both retained rows improve and the post-ReJIT BPF cost is
+0.776$\times$ of baseline. We therefore report Cilium as a high-coverage
+case study rather than as a broad fleet result.
+
+\subsection{RQ4: Katran Case Study}
+\label{subsec:eval-katran}
+
+Katran is the cleanest production datapath for the missing-rotate story from
+\S\ref{subsec:char-rotate}. On x86-64, the best local policy disables
+\texttt{bulk\_memory} for Katran and keeps the scalar kinsn families that
+match packet parsing and hashing: \texttt{lea}, rotate, endian fusion,
+prefetch, and extract. This applies 77 sites, improves workload throughput by
+1.032$\times$, and reduces BPF cost to 0.932$\times$ of baseline. On ARM64,
+the conservative policy applies 21 sites, dominated by 20 rotate lowers to
+\texttt{extr}, and improves workload throughput by 1.073$\times$ with BPF cost
+at 0.941$\times$ of baseline.
+
+\input{tables/sec-6-kinsn-case-studies}

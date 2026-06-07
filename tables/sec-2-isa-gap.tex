@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Five classes of hardware instructions with no eBPF opcode. Each row gives the number of eBPF instructions needed to emulate the operation and the corresponding native instructions on x86-64 and ARM64.}
+\label{tab:isa-gap}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Capability & \# eBPF insns & x86-64 & ARM64 \\
+\midrule
+Conditional move & 3 & \texttt{CMOV} & \texttt{CSEL} \\
+Rotate & 8 & \texttt{ROL} & \texttt{ROR} \\
+Bitfield extract & 8 & \texttt{SHR+AND} & \texttt{UBFX} \\
+Endian load & 10 & \texttt{MOVBE} & \texttt{REV+LDR} \\
+Wide recompose & 22 & \texttt{MOV} & \texttt{LDR} \\
+\bottomrule
+\end{tabular}
+\end{table}
