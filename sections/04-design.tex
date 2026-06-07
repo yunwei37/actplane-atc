@@ -57,6 +57,17 @@ state across OS objects at object granularity; and a layered authority
 model (C3) that allows runtime policy adaptation while ensuring monotonic
 tightening. When a rule match occurs, \sys{} returns semantic
 feedback to the agent: the rule name, reason, and remediation.
+Figure~\ref{fig:architecture} shows the end-to-end pipeline.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/architecture.pdf}
+\caption{\sys{} architecture: policy generation, compilation, kernel
+enforcement, and feedback loop.}
+\Description{Three-layer diagram: agent (directives, LLM), userspace
+(compiler, feedback), kernel (hooks, IFC engine, authority checker).}
+\label{fig:architecture}
+\end{figure}
 
 \subsection{Policy DSL}
 \label{sec:dsl}

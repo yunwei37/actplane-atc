@@ -1,0 +1,58 @@
+\documentclass[border=5pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+\begin{tikzpicture}[
+  >=Stealth,
+  box/.style={draw, rounded corners=2pt, minimum height=0.7cm,
+              minimum width=2.0cm, align=center, font=\small},
+  arr/.style={->, thick},
+  pathlbl/.style={font=\small\bfseries, anchor=east},
+]
+
+% Start
+\node[box, fill=gray!15, minimum width=2.6cm] (nl) {Natural-Language\\Rule};
+
+% Path labels on the LEFT of NL
+\node[pathlbl] at ([xshift=-0.8cm, yshift=1.1cm]nl.west) {prompt-filter};
+\node[pathlbl] at ([xshift=-0.8cm]nl.west) {tool-regex};
+\node[pathlbl] at ([xshift=-0.8cm, yshift=-1.1cm]nl.west) {\textsc{ActPlane}};
+
+% Artifacts (middle column)
+\node[box, fill=blue!10, right=2.8cm of nl, yshift=1.1cm] (prompt) {Prompt\\Classifier};
+\node[box, fill=blue!10, right=2.8cm of nl] (regex) {Regex\\Artifact};
+\node[box, fill=blue!10, right=2.8cm of nl, yshift=-1.1cm] (dsl) {DSL Policy};
+
+% Enforcement (right column)
+\node[box, fill=orange!12, right=1.4cm of prompt] (e1) {LLM allow/block};
+\node[box, fill=orange!12, right=1.4cm of regex] (e2) {Tool-call match};
+\node[box, fill=orange!12, right=1.4cm of dsl] (e3) {Kernel enforce\\+ feedback};
+
+% Agent + Judge
+\node[box, fill=green!12, minimum width=2.4cm, right=1.8cm of e2] (agent) {Agent\\(decisions)};
+\node[box, fill=red!8, below=0.5cm of agent] (judge) {Judge};
+\node[font=\scriptsize, right=0.15cm of judge] {$\to$ DCR};
+
+% NL → artifacts (with Translation Agent labels on arrows)
+\draw[arr] (nl.east) -- ++(0.4,0) |- (prompt.west);
+\draw[arr] (nl.east) -- ++(0.4,0) |- node[above, font=\scriptsize, pos=0.75] {translation agent} (regex.west);
+\draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\scriptsize, pos=0.75] {translation agent} (dsl.west);
+
+% artifacts → enforcement
+\draw[arr] (prompt) -- (e1);
+\draw[arr] (regex) -- (e2);
+\draw[arr] (dsl) -- (e3);
+
+% enforcement → agent
+\draw[arr] (e1.east) -- ++(0.3,0) |- (agent);
+\draw[arr] (e2.east) -- ++(0.3,0) |- (agent);
+\draw[arr] (e3.east) -- ++(0.3,0) |- (agent);
+
+% agent → judge
+\draw[arr] (agent) -- (judge);
+
+\end{tikzpicture}
+\end{document}

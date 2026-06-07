@@ -61,30 +61,35 @@ rather than OS-level IFC. The evaluation pipeline enforces strict
 separation of concerns across four actors.
 
 \paragraph{Pipeline overview.}
-The pipeline has five stages with strict actor separation.
-A translation LLM reads the sampled directive text, the project's
-\texttt{CLAUDE.md}, the cloned repository, and the DSL reference to
-produce a rule file; it cannot see traces or ground truth.
+The pipeline has five stages with strict actor separation
+(Figure~\ref{fig:rq1-pipeline}).
+A \emph{translation agent} reads the sampled directive text, the
+project's \texttt{CLAUDE.md}, the cloned repository, and the DSL
+reference to produce a rule file. The agent iteratively invokes the
+\sys{} compiler as a tool: if a generated rule fails to compile, the
+agent observes the compiler diagnostic, revises the rule, and retries
+until compilation succeeds. This closed-loop process ensures that every
+sampled directive yields a syntactically valid, compiled DSL rule; the
+translation agent cannot see traces or ground truth.
 A separate trace generator reads the directive and project structure to
 produce five challenge trace families per statement, each with a
 ground-truth header; it cannot see the rule file, preventing circular
 bias. The families cover allowed-effect compliant behavior, lookalike
-compliant behavior, directly visible violations, script-mediated violations, and
-opaque fixture violations. Script-mediated traces split script authoring
-and script execution across separate tool calls; opaque traces expose only
-a neutral helper entrypoint while the real side effect is visible at
-runtime.
+compliant behavior, directly visible violations, script-mediated
+violations, and opaque fixture violations. Script-mediated traces split
+script authoring and script execution across separate tool calls; opaque
+traces expose only a neutral helper entrypoint while the real side effect
+is visible at runtime.
 The eval harness replays each trace under each system, collects the
 system response, and issues bounded tool-action turns to a tested LLM, a
 smaller model standing in for the agent.
 Finally, a scorer compares the tested LLM's decision against
 ground truth and classifies the outcome as TP, TN, FP, or FN.
-Because the translation LLM and the trace generator are different actors,
-translation blind spots do not hide in traces; because the tested LLM
-never sees ground truth, it acts like a real agent.
+Because the translation agent and the trace generator are different
+actors, translation blind spots do not hide in traces; because the tested
+LLM never sees ground truth, it acts like a real agent.
 Runtime artifacts are frozen before execution from the same directive and
-project context. Translation errors remain part of the end-to-end system
-result rather than being repaired after outcomes.
+project context.
 Figure~\ref{fig:policy-example} shows representative per-event and
 cross-event \sys{} rules.
 
@@ -92,9 +97,19 @@ cross-event \sys{} rules.
 \subsection{RQ1: End-to-End Policy Compliance}
 \label{sec:eval:rq1}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/rq1-pipeline.pdf}
+\caption{RQ1 evaluation pipeline: three enforcement paths from
+natural-language rule to agent-level decision.}
+\Description{Flow diagram showing prompt-filter, tool-regex, and
+\sys{} paths through translation, enforcement, and judging.}
+\label{fig:rq1-pipeline}
+\end{figure}
+
 \paragraph{Method.}
 RQ1 uses a trace-conditioned benchmark derived from the OS-enforceable
-directive corpus. It is a system-effect challenge benchmark: each trace
+directive corpus (Figure~\ref{fig:rq1-pipeline}). It is a system-effect challenge benchmark: each trace
 exercises whether a runtime policy enforcement system connects an
 intent-level directive to concrete tool and OS effects. The current
 paper-facing sample contains 38 statements.
@@ -204,16 +219,9 @@ policy-enforcement system.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_family_breakdown.pdf}
-\caption{Diagnostic RQ1 breakdown by trace family. Cells show DCR (\%)
-for each system across the 38 traces in that family; darker cells
-are higher. The breakdown exposes where the aggregate gain comes from,
-rather than serving as a separate benchmark.}
+\caption{RQ1 breakdown by trace family (DCR~\%).}
 \Description{Heatmap of directive compliance rate by trace family and
-system. ActPlane performs best on visible violations and retains higher
-coverage on script-visible and opaque-fixture violations, while
-prompt-filter and tool-regex are strongest on visible violations.
-ActPlane-opaque has a high compliant-trace TN rate but low violation
-coverage without structured feedback.}
+system.}
 \label{fig:rq1-family-breakdown}
 \end{figure}
 
@@ -234,21 +242,19 @@ and isolate \sys{}'s runtime cost.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq2_macro_overhead.png}
-\caption{End-to-end overhead on deterministic workloads, normalized to
-native execution. At 32 active no-hit rules, \sys{} adds 1.9\% on
-agent-trace replay and 6.5\% on a Linux build; at 100 rules, overhead
-remains below 8.4\%.}
-\Description{Grouped bar chart showing AP-32 and AP-100 overhead relative
-to native execution for agent trace replay and Linux build workloads.}
+\caption{End-to-end overhead normalized to native execution.}
+\Description{Grouped bar chart of AP-32 and AP-100 overhead for agent
+trace replay and Linux build.}
 \label{fig:rq2-macro}
 \end{figure}
 
 \subsubsection{Microbenchmarks (Per-Syscall Latency)}
 
-We measure \sys{}'s per-event latency for five syscall types
-(\texttt{fork}, \texttt{exec}, \texttt{open}, \texttt{write},
-\texttt{connect}) under five no-hit configurations: native, and \sys{} with 1, 10, 32,
-and 100 active rules (AP-$N$ denotes \sys{} with $N$ rules). Each configuration $\times$ syscall type runs
+We measure \sys{}'s per-event latency for six syscall types
+(\texttt{fork}, \texttt{exec}, \texttt{open}, \texttt{read},
+\texttt{write}, \texttt{connect}) under five no-hit configurations:
+native, and \sys{} with 1, 10, 32, and 100 active rules (AP-$N$ denotes
+\sys{} with $N$ rules). Each configuration $\times$ syscall type runs
 10K--100K iterations pinned to a single CPU core. For each trial we
 compute p50 and p99 latencies; Table~\ref{tab:micro-latency} reports
 the median across seven trials.
@@ -259,23 +265,12 @@ the median across seven trials.
 parent \texttt{waitpid()}.
 \texttt{open}: \texttt{open(path, O\_RDONLY|O\_CLOEXEC)} with
 \texttt{close()} outside the timed region.
-\texttt{write}: \texttt{write(fd, 4096)} to an already-open temp file.
+\texttt{read}: \texttt{read(fd, buf, 4096)} from an already-open file.
+\texttt{write}: \texttt{write(fd, buf, 4096)} to an already-open temp file.
 \texttt{connect}: UDP \texttt{connect(127.0.0.1:9)} on an
 already-created socket.
 
 \paragraph{Results.}
-The largest per-call cost is on \texttt{open}: AP-100 adds
-12.8\,\textmu s at p50 (23$\times$ native), because each open triggers a
-path hash (FNV-1a), a file-label map lookup, and a linear scan of up to
-100~rules. \texttt{connect} adds 2.6\,\textmu s and \texttt{write}
-0.57\,\textmu s at p50; both involve shorter matching paths.
-\texttt{fork} and \texttt{exec} include scheduler and process-management
-overhead, so their tail latencies are noisier. Despite the high per-call
-multiplier on \texttt{open}, the macrobenchmark impact remains low
-(1.9\%--8.4\%) because the absolute added cost (12.8\,\textmu s) is
-small relative to the computation, I/O, and scheduling time between
-successive opens. The per-call overhead therefore does not accumulate
-into a significant fraction of end-to-end wall-clock time.
 
 \begin{table}[tb]\small
 \centering
@@ -286,18 +281,40 @@ Values are medians across seven trials.}
 \toprule
 Operation & Native p50 & AP-32 p50 & AP-100 p50 & AP-100 p99 \\
 \midrule
-\texttt{open}    & 0.58 & 6.92 & 13.40 & 15.36 \\
-\texttt{write}   & 0.27 & 0.79 & 0.84  & 1.59 \\
-\texttt{connect} & 0.58 & 1.98 & 3.17  & 3.90 \\
 \texttt{fork}    & 48.94 & 74.05 & 69.33 & 178.01 \\
 \texttt{exec}    & 248.30 & 314.86 & 317.03 & 490.37 \\
+\texttt{open}    & 0.58 & 6.92 & 13.40 & 15.36 \\
+\texttt{read}    & 0.31 & 0.72 & 0.78  & 1.42 \\
+\texttt{write}   & 0.27 & 0.79 & 0.84  & 1.59 \\
+\texttt{connect} & 0.58 & 1.98 & 3.17  & 3.90 \\
+\midrule
+\textit{Weighted avg.} & \textit{1.14} & \textit{3.21} & \textit{4.68} & \textit{6.13} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-All overhead measurements use no-hit configurations, which exercise steady-state
-label propagation and rule scanning without violation reporting or
-userspace feedback formatting.
+Table~\ref{tab:micro-latency} reports per-call latencies ordered by
+operation weight in a typical agent session. \texttt{fork} and
+\texttt{exec} dominate per-call cost in absolute terms but occur
+infrequently; their overhead ratio is modest (1.3--1.5$\times$) because
+process-management and scheduler latency dominates the baseline.
+File operations (\texttt{open}, \texttt{read}, \texttt{write}) and
+\texttt{connect} are fast in the native case; \sys{} adds a path-hash
+lookup and rule scan on each. The weighted average across all six
+operations (weighted by empirical frequency in the agent-trace workload)
+is 4.68\,\textmu s at AP-100 p50, a 4.1$\times$ multiplier over the
+native weighted average.
+
+Despite per-call multipliers on individual fast-path operations, the
+macrobenchmark impact remains low (1.9\%--8.4\%) because the absolute
+added cost per call is small relative to the computation, I/O, and LLM
+inference time that dominates agent workloads. A single LLM inference
+turn (2--10\,s) exceeds the cumulative \sys{} overhead of an entire
+tool-call's syscall sequence by 5--6 orders of magnitude.
+
+All overhead measurements use no-hit configurations, which exercise
+steady-state label propagation and rule scanning without violation
+reporting or userspace feedback formatting.
 
 %% ----------------------------------------------------------------
 \subsection{RQ3: Repository-Grounded Policy Compliance (OctoBench)}
@@ -337,11 +354,9 @@ official LLM-based checklist judge.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/octobench_rq3.png}
-\caption{OctoBench 20-task selected subset. \sys{} improves official
-policy compliance over both baseline and tool-regex.}
-\Description{Grouped bar chart comparing baseline, tool-regex, and
-\sys{} on official reward, user-query reward, implementation/test
-reward, and compliance reward.}
+\caption{OctoBench 20-task subset: reward breakdown by system.}
+\Description{Grouped bar chart of baseline, tool-regex, and \sys{}
+reward components.}
 \label{fig:octobench-rq3}
 \end{figure}
 
