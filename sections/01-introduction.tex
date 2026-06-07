@@ -17,28 +17,28 @@ part that enforces behavioral constraints over the agent's concrete
 actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
 (\texttt{CLAUDE.md},
-\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}.
-Harnesses surface these instructions to the model and rely on runtime
-policy engines for deterministic compliance.
+\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}, so
+harnesses can provide these instructions to the model.
+Because agents comply with instructions
+probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
+and can violate them through planning errors, shell-script side effects,
+prompt-injection drift, and opaque tool
+behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo},
+harnesses also require runtime policy mechanisms to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
+costa2025fides,debenedetti2025camel}.
 
 % ¶3: Empirical — the problem is pervasive; LLMs can't self-enforce
-Many of these policies constrain system-level actions and demand deterministic enforcement. Our
+Many of these policies constrain system-level actions. Our
 empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
 of instruction-file statements are behavioral directives, and 83\% of
 those involve system-level behavior: commands executed, files accessed,
-and network connections made. Because LLM compliance is inherently
-probabilistic~\cite{liu2024lost,jiang2024followbench,qi2025agentif},
-policy cannot reside inside the model alone: even cooperative agents
-routinely violate declared constraints through planning errors,
-shell-script side effects, prompt-injection drift, and opaque tool
-behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
+and network connections made.
 
 % ¶3: Semantic gap — existing deterministic mechanisms also fail
 Yet existing policy engines in agent harnesses leave a \emph{semantic gap}:
-\emph{AI agent intent and directives} is expressed through natural-language, but enforcement must decide over
+\emph{AI agent intent and directives} is expressed through natural-language under project or task context, but enforcement must decide over
 \emph{system actions}: concrete commands, file operations, network
-connections, and subprocess effects, 
-plus project and task context. Runtime prompt, agent-action, and
+connections, and subprocess effect. Runtime prompt, agent-action, and
 tool-call policy
 systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel}
@@ -50,17 +50,15 @@ provide. OS-level
 mechanisms~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} observe all system actions but expect pre-defined
 static policy and return only system events without semantic context; yet
-74\% of system-level directives require AI agent intent and project or
-task context that only the agent possesses.
+74\% of system-level directives require project or
+task context that only the agent possesses in its natural language intent.
 
 % ¶4: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be
-programmable by the agent: it should let the agent use live project and
-task context to instantiate runtime policies for its own system-level
-actions. This programmability creates three challenges: policies must be
-concrete enough for OS enforcement, preserve cross-event execution state,
-and evolve dynamically without allowing agents or sub-agents to weaken
-inherited constraints.
+programmable by the agent itself and take effect at OS level: it should let the agent use live project and
+task context to enforce its own actions. This creates three challenges: policies must be
+concrete enough for OS enforcement while expressive enough to handle real world directives, preserve cross-event execution state,
+and evolve dynamically without allowing agents or sub-agents to weaken inherited constraints.
 
 % ¶5: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
