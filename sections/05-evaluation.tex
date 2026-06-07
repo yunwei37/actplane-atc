@@ -124,7 +124,7 @@ For each statement we construct five manifest-listed traces: two compliant
 families (allowed-effect and lookalike) and three violation
 families (visible, script-mediated, and opaque-fixture). This yields
 190 traces and 760 system--trace cells across four systems: prompt-filter,
-tool-regex, \sys{} without structured feedback (\textsc{AgPlane-opaque}),
+tool-regex, \sys{} without structured feedback (\textsc{\sys{}-opaque}),
 and full \sys{}.
 
 RQ1 is an end-to-end runtime enforcement measurement: given the same
@@ -180,7 +180,7 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \midrule
 \textsc{Prompt-filter} & 48.4\% & 44 & 48 & 28 & 70 & 190 \\
 \textsc{Tool-regex} & 45.3\% & 38 & 48 & 28 & 76 & 190 \\
-\textsc{AgPlane-opaque} & 53.7\% & 27 & \textbf{75} & \textbf{1} & 87 & 190 \\
+\textsc{\sys{}-opaque} & 53.7\% & 27 & \textbf{75} & \textbf{1} & 87 & 190 \\
 \sys{} & \textbf{75.8\%} & \textbf{86} & 58 & 18 & \textbf{28} & 190 \\
 \bottomrule
 \end{tabular}
@@ -197,11 +197,11 @@ baselines, though this margin is smaller: full \sys{} has 18 FPs,
 compared with 28 for both prompt-filter and tool-regex.
 
 The feedback ablation isolates the value of semantic recovery information.
-\textsc{AgPlane-opaque} enforces the same kernel-level rules but returns
+\textsc{\sys{}-opaque} enforces the same kernel-level rules but returns
 no structured feedback: the agent sees only a raw \texttt{EPERM} or
 process termination. Without a feedback channel, the system never
 actively communicates with the agent on compliant traces, which explains
-its near-zero FP~(1) and high TN~(75)---not because enforcement is more
+its near-zero FP~(1) and high TN~(75), not because enforcement is more
 precise, but because the agent receives no enforcement signal on
 compliant traces.
 Conversely, on violation traces the kernel does block the offending
@@ -213,8 +213,8 @@ recall substantially (FN drops from 87 to 28, TP rises from 27 to
 86) but introduces a tradeoff on compliant traces: the active feedback
 channel occasionally triggers agent over-correction on boundary cases,
 raising FP from 1 to 18 and lowering TN from 75 to 58.
-The net effect is positive---correct responses rise from 102 to
-144---because the mechanism is not additional detection alone; the
+The net effect is positive (correct responses rise from 102 to
+144) because the mechanism is not additional detection alone; the
 feedback channel converts kernel-level observation into agent-level
 recovery.
 
@@ -230,8 +230,8 @@ system.}
 
 Figure~\ref{fig:rq1-family-breakdown} breaks down DCR by trace family.
 On the two compliant families (allowed-effect and lookalike), all systems
-except \textsc{AgPlane-opaque} show comparable performance;
-\textsc{AgPlane-opaque}'s near-zero FP rate gives it the highest
+except \textsc{\sys{}-opaque} show comparable performance;
+\textsc{\sys{}-opaque}'s near-zero FP rate gives it the highest
 compliant-trace DCR. The difference emerges on violation families. On directly
 visible violations, prompt-filter and tool-regex detect some cases, but
 \sys{} detects substantially more because it observes the actual system
@@ -241,7 +241,7 @@ tool-call interception cannot see effects that occur inside a subprocess
 or behind a neutral entrypoint. \sys{} retains detection through
 kernel-level label propagation, which follows the effect regardless of
 how the agent invoked it. The feedback ablation confirms that detection
-alone is insufficient: \textsc{AgPlane-opaque} observes the same kernel
+alone is insufficient: \textsc{\sys{}-opaque} observes the same kernel
 events but produces low violation-family DCR because the agent cannot
 recover without a structured corrective payload.
 
@@ -460,15 +460,17 @@ and which need project or task context to instantiate.
 \section{Conclusion}
 \label{sec:conclusion}
 
-An empirical study of 64~projects shows that agent instruction files are
-behavioral policies whose enforcement demands OS-level observation,
-expressive yet enforceable policy specification, and efficient cross-event
-enforcement. \sys{} addresses this by letting agents author a
-compact policy DSL that compiles to labeled information-flow rules enforced
-below the tool layer by an eBPF/BPF-LSM engine, returning semantic feedback
-when rules match. A layered authority model lets agents specialize policy
-while preventing them from weakening higher-authority constraints. \sys{} does not cover semantic-only
-directives (17\%) or content-inspection directives (38\%) that require a
-linting layer, and the cooperative threat model excludes adversarial
-evasion. Extending coverage to content-level checks and multi-agent
-domains are natural next steps.
+Agent instruction files are behavioral policies, and most of them
+constrain system-level actions that span multiple events. \sys{} makes
+these policies enforceable by compiling a compact DSL into labeled
+information-flow rules that run in an eBPF/BPF-LSM engine below the tool
+layer, and by returning semantic feedback that enables agent recovery.
+On a 190-trace benchmark the system achieves 75.8\% decision-compliance
+rate, 27--30 percentage points above prompt-filter and tool-regex
+baselines, while adding less than 2\% end-to-end overhead. The current
+scope is limited to OS-observable directives (45\% of the corpus);
+content-inspection and semantic-only directives require complementary
+mechanisms. By placing enforcement at the syscall boundary with
+agent-facing feedback, \sys{} provides a foundation for harness-level
+policy that remains effective regardless of how tools, subprocesses, or
+sub-agents invoke system operations.

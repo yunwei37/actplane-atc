@@ -258,7 +258,7 @@ evaluates the compiled rules on each observed event. Userspace does not
 re-detect violations: it loads the policy, starts the target process, and
 formats kernel-reported matches into semantic feedback.
 
-The runner (\texttt{agplane run -- <cmd>}) discovers the project policy
+The runner (\texttt{\sys{} run -- <cmd>}) discovers the project policy
 file, compiles and loads it before the target starts, seeds the target
 process tree with the agent label, and records kernel matches in a
 feedback file. Compatible agent hooks relay this feedback into the model's
