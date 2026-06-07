@@ -4,7 +4,7 @@
 We evaluate \sys{} along three axes. RQ1 measures end-to-end policy
 compliance on directive-derived rules from the empirical corpus;
 RQ2 quantifies per-event and end-to-end overhead; RQ3 tests
-repository-grounded coding tasks on an OctoBench subset with the official
+real-world coding tasks on an OctoBench subset with the official
 judge.
 
 \begin{description}
@@ -14,9 +14,9 @@ judge.
   execution paths?
 \item[RQ2 (Overhead)] What is the per-event and end-to-end overhead of
   \sys{}'s label propagation and rule checking?
-\item[RQ3 (Repository-grounded feedback)] On a scaffold-aware
-  repository-grounded coding benchmark, does \sys{}'s OS-level
-  enforcement and semantic feedback improve official policy compliance?
+\item[RQ3 (Real-world coding tasks)] On complete coding-agent tasks in
+  real repositories, does \sys{}'s OS-level enforcement and semantic
+  feedback improve policy compliance?
 \end{description}
 
 %% ----------------------------------------------------------------
@@ -59,7 +59,7 @@ directives can be represented at process, file, or network hooks.
 Semantic-only and content directives are excluded: the former have no
 system-observable counterpart; the latter require file-content inspection
 rather than OS-level IFC. The evaluation pipeline enforces strict
-separation of concerns across four actors.
+separation of concerns across independent actors.
 
 \paragraph{Pipeline overview.}
 The pipeline has five stages with strict actor separation
@@ -73,11 +73,11 @@ until compilation succeeds. This closed-loop process ensures that every
 sampled directive yields a syntactically valid, compiled DSL rule; the
 translation agent cannot see traces or ground truth.
 A separate trace generator reads the directive and project structure to
-produce five challenge trace families per statement, each with a
+produce five trace families per statement, each with a
 ground-truth header; it cannot see the rule file, preventing circular
 bias. The families cover allowed-effect compliant behavior, lookalike
 compliant behavior, directly visible violations, script-mediated
-violations, and opaque fixture violations. Script-mediated traces split
+violations, and opaque-fixture violations. Script-mediated traces split
 script authoring and script execution across separate tool calls; opaque
 traces expose only a neutral helper entrypoint while the real side effect
 is visible at runtime.
@@ -117,11 +117,11 @@ We evaluate 38 manifest-selected statements, sampling 2--3 from each of
 15 repositories to cover both
 per-event and cross-event rules, project- and task-context requirements,
 and common repository policy themes. The final manifest contains 20
-per-event-like and 18 cross-event-like rules, proportional to the 65\%/35\%
+per-event and 18 cross-event rules, proportional to the 65\%/35\%
 split in the full corpus. No system outcome is used to select statements
 or repair policy artifacts.
 For each statement we construct five manifest-listed traces: two compliant
-challenge families (allowed-effect and lookalike) and three violation
+families (allowed-effect and lookalike) and three violation
 families (visible, script-mediated, and opaque-fixture). This yields
 190 traces and 760 system--trace cells across four systems: prompt-filter,
 tool-regex, \sys{} without structured feedback (\textsc{ActPlane-opaque}),
@@ -192,9 +192,9 @@ violation recall. Full \sys{} reduces FNs to 28, compared with 70 for
 prompt-filter and 76 for tool-regex, because it observes runtime side
 effects below the tool layer and can detect script- and fixture-mediated
 violations that are not available to prompt or raw tool-input filters.
-It also reduces compliant-trace overblocking relative to the baselines,
-though this margin is smaller: full \sys{} has 18 FPs, compared with 28 for
-both prompt-filter and tool-regex.
+It also reduces false positives on compliant traces relative to the
+baselines, though this margin is smaller: full \sys{} has 18 FPs,
+compared with 28 for both prompt-filter and tool-regex.
 
 The feedback ablation isolates the value of semantic recovery information.
 \textsc{ActPlane-opaque} enforces the same kernel-level rules but returns
@@ -202,7 +202,8 @@ no structured feedback: the agent sees only a raw \texttt{EPERM} or
 process termination. Without a feedback channel, the system never
 actively communicates with the agent on compliant traces, which explains
 its near-zero FP~(1) and high TN~(75)---not because enforcement is more
-precise, but because the agent is simply never interfered with.
+precise, but because the agent receives no enforcement signal on
+compliant traces.
 Conversely, on violation traces the kernel does block the offending
 syscall, yet the agent cannot diagnose the cause or recover, so the
 judge classifies most blocked violations as FN~(87~FNs).
@@ -231,7 +232,7 @@ Figure~\ref{fig:rq1-family-breakdown} breaks down DCR by trace family.
 On the two compliant families (allowed-effect and lookalike), all systems
 except \textsc{ActPlane-opaque} show comparable performance;
 \textsc{ActPlane-opaque}'s near-zero FP rate gives it the highest
-compliant-trace DCR. The gap opens on violation families. On directly
+compliant-trace DCR. The difference emerges on violation families. On directly
 visible violations, prompt-filter and tool-regex detect some cases, but
 \sys{} detects substantially more because it observes the actual system
 effect rather than the proposed tool input. On script-mediated and
@@ -270,9 +271,9 @@ trace replay and Linux build.}
 \paragraph{Results.}
 At 32 active no-hit rules, \sys{} adds 1.9\% overhead on the agent-trace
 replay and 6.5\% on the Linux kernel build. At 100 rules, overhead
-remains below 8.4\%. The agent-trace workload is lighter because tool
+remains below 8.4\%. The agent-trace workload exhibits lower overhead because tool
 actions are interspersed with model inference pauses that dwarf syscall
-overhead; the kernel build stresses sustained I/O and process creation,
+cost; the kernel build stresses sustained I/O and process creation,
 exposing more of \sys{}'s per-event cost.
 
 \subsubsection{Microbenchmarks (Per-Syscall Latency)}
@@ -337,28 +338,27 @@ over the native average.
 Despite per-call multipliers on individual fast-path operations, the
 macrobenchmark impact remains low (1.9\%--8.4\%) because the absolute
 added cost per call is small relative to the computation, I/O, and LLM
-inference time that dominates agent workloads. A single LLM inference
-turn (2--10\,s) exceeds the cumulative \sys{} overhead of an entire
-tool-call's syscall sequence by 5--6 orders of magnitude.
+inference time that dominates agent workloads. The cumulative \sys{} overhead of an entire tool-call's syscall
+sequence is 5--6 orders of magnitude smaller than a single LLM inference
+turn (2--10\,s).
 
 All overhead measurements use no-hit configurations, which exercise
 steady-state label propagation and rule scanning without violation
 reporting or userspace feedback formatting.
 
 %% ----------------------------------------------------------------
-\subsection{RQ3: Repository-Grounded Policy Compliance (OctoBench)}
+\subsection{RQ3: Real-World Coding Tasks (OctoBench)}
 \label{sec:eval:rq3}
 
 \paragraph{Goal.}
 Unlike RQ1, which isolates single decision points, RQ3 evaluates
-\sys{} on complete coding-agent tasks in real repository environments,
-scored by the official OctoBench whole-case checklist judge.
+\sys{} on complete coding-agent tasks in real repositories,
+scored by the official OctoBench checklist judge.
 
 \paragraph{Benchmark and subset.}
-OctoBench~\cite{octobench} is a scaffold-aware repository-grounded
-benchmark with 217~Dockerized tasks spanning system prompts, tool
-schemas, project files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and
-user queries. We use the official evaluator unchanged. Because \sys{}
+OctoBench~\cite{octobench} is a repository-grounded coding benchmark
+with 217~Dockerized tasks spanning system prompts, tool schemas, project
+files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries. We use the official evaluator unchanged. Because \sys{}
 cannot observe purely semantic checks (e.g., tone), we select a 20-task
 OS-observable subset. A task is eligible when at least one checklist item maps to a
 concrete command, file operation, generated artifact, or tool-execution
@@ -394,11 +394,11 @@ reward components.}
 \paragraph{Results.}
 On the 20-task subset, official reward is 0.788 (baseline), 0.818
 (tool-regex), and 0.888 (\sys{}): a 10.0-point gain over baseline and
-7.0~points over tool-regex. The improvement extends beyond generic
-compliance: user-query reward rises by 28.2~points and
+7.0~points over tool-regex. The improvement is not limited to compliance-typed checks:
+user-query reward rises by 28.2~points and
 implementation/test reward by 25.0~points over baseline. These results
 support the claim that OS-level enforcement with semantic feedback
-improves policy compliance in repository-grounded coding agents. We note
+improves policy compliance on real coding-agent tasks. We note
 that OctoBench uses an LLM checklist judge rather than deterministic test
 scripts, so we do not claim deterministic task completion.
 
