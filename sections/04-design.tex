@@ -102,22 +102,30 @@ rule no-push-main:
 # Cross-event: from chenhg5/cc-connect
 rule tests-before-commit:
   block exec "git" "commit"
-    if AGENT unless after exec "go" since write "**/*.go"
+    if AGENT unless after exec "go"
+      since write "**/*.go"
   because "Run `go test ./...` before committing."
+
+# Authority exception gate
+rule no-force-push:
+  block exec "git" "push" "--force"
+    if AGENT unless after write
+      ".actplane/force-push-necessary"
+  because "Write a justification before force-pushing."
 \end{verbatim}
-\caption{Two \sys{} rules drawn from real projects. The first is a
-per-event rule; the second is a cross-event rule that requires temporal
-state.}
-\Description{Code listing of two \sys{} rules from real projects.}
+\caption{Three \sys{} rules drawn from real projects: a per-event rule,
+a cross-event ordering gate, and an authority exception gate.}
+\Description{Code listing of three \sys{} rules from real projects.}
 \label{fig:policy-example}
 \end{figure}
 
-Figure~\ref{fig:policy-example} illustrates the two main rule shapes. The
-first is per-event: if the agent process pushes to \texttt{main}, the
+Figure~\ref{fig:policy-example} illustrates the three main rule shapes.
+The first is per-event: if the agent process pushes to \texttt{main}, the
 event matches immediately. The second is cross-event: committing is
 compliant only if the required test command ran after the most recent
-source write. This distinction motivates the DSL's two predicate
-classes: per-event matches and cross-event gates.
+source write. The third uses the same temporal gate for authority
+exceptions: force-pushing is blocked unless the agent first writes a
+declaration file, which higher-authority policy can further constrain.
 
 The DSL is intentionally narrower than a general mandatory access-control
 language. It targets the policy shapes that recur in agent instruction
@@ -174,38 +182,43 @@ sub-task should operate under tighter constraints, and the current task
 may require an exception to a standing rule; but adaptation must never
 weaken platform or project constraints.
 
-\sys{} organizes policy as a layered authority stack:
-platform/operator, project-maintainer, and agent/session. Policy
-evolution is \emph{monotonically tightening}: each layer may add rules,
-specialize targets, introduce labels, or narrow scope, but no layer may
-delete, rewrite, or weaken rules from a higher-authority
-layer. When an agent forks a sub-agent, the child inherits the parent's
-label set and effective rules; the sub-agent may add further restrictions
-but cannot shed inherited constraints.
+\sys{} organizes policy around a \emph{domain tree}. A domain is the
+runtime policy boundary for a process tree: every pid maps to a domain,
+and every domain maps to an effective policy set. The core data model is:
 
-Higher-authority rules that admit exceptions use the same gate mechanism
-as cross-event rules: the rule names an explicit action the agent must
-perform to satisfy the condition. For example, a project rule ``do not
-force-push unless necessary'' can require the agent to write a
-declaration file (e.g., \texttt{.actplane/force-push-necessary}) before
-the push is allowed. The agent satisfies the gate by creating the file, which the IFC
-engine tracks like any other label-propagating event. Higher-authority policy can further constrain
-which processes may write the declaration file, keeping exception paths
-under platform or project authority.
+\begin{small}
+\begin{verbatim}
+pid    -> domain
+domain -> parent + policy(domain)
+policy(D) = policy(parent(D)) + local(D)
+\end{verbatim}
+\end{small}
 
-The prototype resolves the initial authority stack at compile or load
-time. Each compiled policy blob carries an authority tag (platform,
-project, or agent); the kernel authority checker accepts a new blob only
-if it is additive with respect to all higher-tagged blobs already
-installed. Concretely, the checker rejects any update that deletes an
-existing rule, widens a target pattern, or introduces a gate that clears
-a label from a higher authority level. Runtime policy additions
-(sub-agent restrictions, task-specific rules) are loaded as additive
-overlays through a userspace ring buffer; the kernel merges them with the
-existing rule tables after the authority check passes. The kernel does
-not parse configuration or resolve project context on the event path;
-agents supply context and policy structure, while the OS engine enforces
-the compiled result uniformly across tools and subprocesses.
+\noindent Policy evolution is \emph{monotonically tightening}: a child
+domain inherits all parent rules and may add local rules, labels, or
+gates, but cannot remove, disable, or weaken any inherited rule.
+When an agent forks a sub-agent, the child process enters a child domain
+that inherits the parent's full policy; the sub-agent may add further
+restrictions but cannot shed inherited constraints.
+
+The root domains correspond to platform/operator and project-maintainer
+policy; the agent creates session and sub-agent domains below them.
+Higher-authority rules that admit exceptions use the same temporal gate
+as cross-event workflow rules
+(Figure~\ref{fig:policy-example}, \texttt{no-force-push}): the agent
+satisfies the gate by creating a declaration file, which the IFC engine
+tracks like any other label-propagating event. Higher-authority policy
+can further constrain which processes may write the declaration file,
+keeping exception paths under platform or project authority.
+
+The prototype resolves the initial domain tree at compile or load time.
+Runtime policy additions (sub-agent restrictions, task-specific rules)
+are submitted as precompiled deltas through a userspace ring buffer. The
+kernel authority checker admits a delta only if it is additive: it may
+bind new rules, add labels, or narrow scope, but it cannot remove
+inherited rules or widen scope. Accepted deltas are merged into the
+domain's effective policy; the kernel does not parse configuration or
+resolve project context on the event path.
 
 \section{Implementation}
 \label{sec:implementation}

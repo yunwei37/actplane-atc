@@ -34,9 +34,9 @@ the exact LSM state used for each performance run.
 \paragraph{Agent environment.}
 The active AI agent harnesses are Claude Code (via the \sys{} feedback
 hook) and OpenAI Codex CLI (via tool-error feedback). The tested LLM for
-RQ1 trace replay is GPT-5.5; the translation agent, trace generator, and
-trajectory judge each use Claude Sonnet. Harness versions are pinned in
-the artifact metadata.
+RQ1 trace replay is Qwen-2.5-27B; the translation agent uses GPT-5.5 to
+generate policy artifacts. The trace generator and trajectory judge each
+use Claude Sonnet. Harness versions are pinned in the artifact metadata.
 
 \paragraph{Compared systems.}
 RQ1 uses four runtime policy enforcement systems on the same
