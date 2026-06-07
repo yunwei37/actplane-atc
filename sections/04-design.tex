@@ -75,7 +75,7 @@ enforcement, and feedback loop.}
 The DSL mediates between AI agent intent and enforceable system actions.
 A policy contains \emph{sources} that introduce labels,
 \emph{rules} that match labeled events at sinks, and optional
-\emph{gates} that express ordering or controlled declassification. The
+\emph{gates} that express cross-event ordering constraints. The
 DSL restricts expressiveness to source/sink/gate patterns that compile
 to fixed-size rodata, enabling bounded verification cost and
 agent-authorability.
@@ -161,11 +161,10 @@ individual bytes. Object-level labels capture cross-event compliance
 patterns that tool-call filters miss, without incurring the complexity of
 byte-level taint tracking~\cite{kemerlis2012libdft}.
 
-Labels are monotonic by default: propagation adds labels but does not
-remove them. When a policy requires controlled release, the DSL names an
-explicit gate, such as a redaction command or review tool, that clears specified
-labels for subsequent events. Declassification is thus a declared policy
-action, not an implicit side effect of the agent's execution.
+Labels are monotonic: propagation adds labels but never removes them.
+Once an object carries a label, every subsequent consumer inherits it.
+This ensures that cross-event constraints remain checkable for the
+entire session without requiring explicit label cleanup.
 
 \subsection{Layered Policy Authority}
 \label{sec:authority}
@@ -179,7 +178,7 @@ weaken platform or project constraints.
 platform/operator, project-maintainer, and agent/session. Policy
 evolution is \emph{monotonically tightening}: each layer may add rules,
 specialize targets, introduce labels, or narrow scope, but no layer may
-delete, rewrite, declassify, or weaken rules from a higher-authority
+delete, rewrite, or weaken rules from a higher-authority
 layer. When an agent forks a sub-agent, the child inherits the parent's
 label set and effective rules; the sub-agent may add further restrictions
 but cannot shed inherited constraints.
@@ -195,12 +194,18 @@ which processes may write the declaration file, keeping exception paths
 under platform or project authority.
 
 The prototype resolves the initial authority stack at compile or load
-time. Runtime policy additions (sub-agent restrictions, task-specific
-rules) are loaded as additive overlays; the kernel merges them with the
-existing rule tables. The kernel does not parse configuration or resolve
-project context on the event path; agents supply context and policy
-structure, while the OS engine enforces the compiled result uniformly
-across tools and subprocesses.
+time. Each compiled policy blob carries an authority tag (platform,
+project, or agent); the kernel authority checker accepts a new blob only
+if it is additive with respect to all higher-tagged blobs already
+installed. Concretely, the checker rejects any update that deletes an
+existing rule, widens a target pattern, or introduces a gate that clears
+a label from a higher authority level. Runtime policy additions
+(sub-agent restrictions, task-specific rules) are loaded as additive
+overlays through a userspace ring buffer; the kernel merges them with the
+existing rule tables after the authority check passes. The kernel does
+not parse configuration or resolve project context on the event path;
+agents supply context and policy structure, while the OS engine enforces
+the compiled result uniformly across tools and subprocesses.
 
 \section{Implementation}
 \label{sec:implementation}

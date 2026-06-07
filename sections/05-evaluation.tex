@@ -32,10 +32,11 @@ runs require BPF-LSM active (\texttt{bpf} in
 the exact LSM state used for each performance run.
 
 \paragraph{Agent environment.}
-% TODO: Fill in agent versions.
 The active AI agent harnesses are Claude Code (via the \sys{} feedback
-hook) and OpenAI Codex CLI (via tool-error feedback). Exact versions are
-recorded in per-run metadata.
+hook) and OpenAI Codex CLI (via tool-error feedback). The tested LLM for
+RQ1 trace replay is GPT-5.5; the translation agent, trace generator, and
+trajectory judge each use Claude Sonnet. Harness versions are pinned in
+the artifact metadata.
 
 \paragraph{Compared systems.}
 RQ1 uses four runtime policy enforcement systems on the same
@@ -109,11 +110,11 @@ natural-language rule to agent-level decision.}
 
 \paragraph{Method.}
 RQ1 uses a trace-conditioned benchmark derived from the OS-enforceable
-directive corpus (Figure~\ref{fig:rq1-pipeline}). It is a system-effect challenge benchmark: each trace
-exercises whether a runtime policy enforcement system connects an
-intent-level directive to concrete tool and OS effects. The current
-paper-facing sample contains 38 statements.
-The sample is manifest-selected: we select 2--3 statements from each of 15 repositories to cover both
+directive corpus (Figure~\ref{fig:rq1-pipeline}). Each trace exercises
+whether a runtime policy enforcement system connects an intent-level
+directive to concrete tool and OS effects.
+We evaluate 38 manifest-selected statements, sampling 2--3 from each of
+15 repositories to cover both
 per-event and cross-event rules, project- and task-context requirements,
 and common repository policy themes. The final manifest contains 20
 per-event-like and 18 cross-event-like rules, proportional to the 65\%/35\%
@@ -126,31 +127,21 @@ families (visible, script-mediated, and opaque-fixture). This yields
 tool-regex, \sys{} without structured feedback (\textsc{ActPlane-opaque}),
 and full \sys{}.
 
-RQ1 is an end-to-end runtime enforcement measurement. Given the same
-natural-language directive and the same trace-conditioned agent context,
-each system must connect the directive to the proposed action or resulting
-system effects, intervene on violations, and, where feedback is available,
-steer the agent toward a policy-correct outcome. The four systems differ in
-how the directive enters the harness. \textsc{Prompt-filter} has no
-translated policy artifact: before each proposed tool action, a separate
-stateless LLM classifier receives the natural-language directive and the
-proposed action and returns allow, report, or block feedback.
-\textsc{Tool-regex} uses a per-case regex artifact generated before
-execution from the directive and project context, then checks raw Agent SDK
-tool names and arguments. \textsc{ActPlane-opaque} uses the generated
-\sys{} DSL policy below the tool layer but hides structured corrective
-feedback from the agent. Full \sys{} uses the same generated OS policy and
-returns the matched rule reason and remediation. All generated policy
-artifacts are frozen before execution and are not repaired after outcomes.
+RQ1 is an end-to-end runtime enforcement measurement: given the same
+directive and trace-conditioned agent context, each of the four systems
+(\S\ref{sec:eval:setup}) must connect the directive to the proposed
+action or resulting system effects, intervene on violations, and steer
+the agent toward a policy-correct outcome. For prompt-filter and
+tool-regex, a translation agent generates the policy artifact (LLM
+classifier prompt or regex) from the same directive and project context
+used for \sys{} DSL rules; all artifacts are frozen before execution.
 
-Each trace is a JSONL transcript with a ground-truth header followed by a
-user prompt and concrete tool calls that establish the repo state. The
-trace files do not store static tool results; during replay the harness
-executes each tool call on a real copy-on-write repository and records the
-actual result. The tested agent then continues for a bounded number of real
-Agent SDK tool steps. All systems use the same trace, model, Docker
-copy-on-write repo execution, and trajectory judge. Ground truth and policy
-artifacts are not shown to the tested agent.
+Each trace is a JSONL transcript containing a user prompt and concrete
+tool calls that establish the repo state. During replay the harness
+executes each tool call on a copy-on-write repository clone, and the
+tested agent continues for a bounded number of real Agent SDK tool
+steps. Ground truth and policy artifacts are not shown to the tested
+agent.
 
 A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw
 runner result. TP means a valid violation trace received an
@@ -165,11 +156,8 @@ enforcement system: \(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathr
 +\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery;
 it is not detector accuracy in isolation or unguided agent compliance.
-For this snapshot, each
-(\textit{system}, \textit{statement}, \textit{trace}) cell is selected from
-the latest non-stale run for the current five-family manifest; all 760
-runner cells and all 760 trajectory-judge cells are present, with no judge
-parse errors.
+All 760 system--trace cells and all 760 trajectory-judge cells are
+present, with no judge parse errors.
 
 \paragraph{Results.}
 \begin{figure}[tb]
@@ -263,12 +251,12 @@ recover without a structured corrective payload.
 \subsubsection{Macrobenchmarks (End-to-End Workloads)}
 
 We measure end-to-end overhead on two deterministic workloads under
-no-hit \sys{} configurations. The agent trace suite replays
-20~corpus-derived traces (68~tool actions, 20~Bash subprocesses). The
-Linux kernel build compiles \texttt{defconfig}~+~\texttt{vmlinux} with
-\texttt{make~-j24} in a clean output directory. Each workload runs three
-trials per configuration. Fixed workloads eliminate LLM inference variance
-and isolate \sys{}'s runtime cost.
+no-hit \sys{} configurations: (1)~an agent trace suite that replays
+20~corpus-derived traces (68~tool actions, 20~Bash subprocesses), and
+(2)~a Linux kernel build (\texttt{defconfig} + \texttt{vmlinux},
+\texttt{make -j24}, clean output directory). Each workload runs three
+trials per configuration. Fixed workloads eliminate LLM inference
+variance and isolate \sys{}'s runtime cost.
 
 \begin{figure}[tb]
 \centering
@@ -299,15 +287,18 @@ compute p50 and p99 latencies; Table~\ref{tab:micro-latency} reports
 the median across seven trials.
 
 \paragraph{Measured operations.}
-\texttt{fork}: \texttt{fork()} + parent \texttt{waitpid()}.
-\texttt{exec}: \texttt{fork()} + child \texttt{execve("/bin/true")} +
-parent \texttt{waitpid()}.
-\texttt{open}: \texttt{open(path, O\_RDONLY|O\_CLOEXEC)} with
-\texttt{close()} outside the timed region.
-\texttt{read}: \texttt{read(fd, buf, 4096)} from an already-open file.
-\texttt{write}: \texttt{write(fd, buf, 4096)} to an already-open temp file.
-\texttt{connect}: UDP \texttt{connect(127.0.0.1:9)} on an
-already-created socket.
+\begin{itemize}
+\item \texttt{fork}: \texttt{fork()} + parent \texttt{waitpid()}.
+\item \texttt{exec}: \texttt{fork()} + child
+  \texttt{execve("/bin/true")} + parent \texttt{waitpid()}.
+\item \texttt{open}: \texttt{open(O\_RDONLY|O\_CLOEXEC)};
+  \texttt{close()} outside the timed region.
+\item \texttt{read}: \texttt{read(fd, buf, 4096)} from an
+  already-open file.
+\item \texttt{write}: \texttt{write(fd, buf, 4096)} to a temp file.
+\item \texttt{connect}: UDP \texttt{connect(127.0.0.1:9)} on a
+  pre-created socket.
+\end{itemize}
 
 \paragraph{Results.}
 
@@ -327,22 +318,21 @@ Operation & Native p50 & AP-32 p50 & AP-100 p50 & AP-100 p99 \\
 \texttt{write}   & 0.27 & 0.79 & 0.84  & 1.59 \\
 \texttt{connect} & 0.58 & 1.98 & 3.17  & 3.90 \\
 \midrule
-\textit{Weighted avg.} & \textit{1.14} & \textit{3.21} & \textit{4.68} & \textit{6.13} \\
+\textit{Average} & \textit{49.83} & \textit{66.55} & \textit{67.43} & \textit{115.11} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:micro-latency} reports per-call latencies ordered by
-operation weight in a typical agent session. \texttt{fork} and
-\texttt{exec} dominate per-call cost in absolute terms but occur
-infrequently; their overhead ratio is modest (1.3--1.5$\times$) because
+Table~\ref{tab:micro-latency} reports per-call latencies for the six
+measured operations. \texttt{fork} and \texttt{exec} dominate per-call
+cost in absolute terms; their overhead ratio is modest
+(1.3--1.5$\times$) because
 process-management and scheduler latency dominates the baseline.
 File operations (\texttt{open}, \texttt{read}, \texttt{write}) and
 \texttt{connect} are fast in the native case; \sys{} adds a path-hash
-lookup and rule scan on each. The weighted average across all six
-operations (weighted by empirical frequency in the agent-trace workload)
-is 4.68\,\textmu s at AP-100 p50, a 4.1$\times$ multiplier over the
-native weighted average.
+lookup and rule scan on each. The arithmetic average across all six
+operations is 67.43\,\textmu s at AP-100 p50, a 1.4$\times$ multiplier
+over the native average.
 
 Despite per-call multipliers on individual fast-path operations, the
 macrobenchmark impact remains low (1.9\%--8.4\%) because the absolute
