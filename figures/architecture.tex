@@ -28,10 +28,10 @@
 % Agent layer.
 \node[agent] (directive) at (-3.0,3.2) {Project\\directives};
 \node[agent] (agent) at (0.0,3.2) {Agent};
+\node[dsl] (policy) at (3.0,3.2) {DSL\\policy};
 
 % Userspace.
-\node[user] (feedback) at (-3.0,1.35) {Semantic\\feedback};
-\node[dsl] (policy) at (0.0,1.35) {DSL\\policy};
+\node[user] (feedback) at (0.0,1.35) {Semantic\\feedback};
 \node[user] (compiler) at (3.0,1.35) {Compiler\\runner};
 
 % Kernel.
@@ -48,20 +48,24 @@
 
 % Runtime enforcement path.
 \draw[arr] (hooks) -- (engine);
-\draw[arr] (engine.north) -- ++(0,0.45) -| node[pos=0.25,below,lbl] {violation} (feedback.south);
-\draw[arr] (feedback.north) -- ++(0,0.45) -| (agent.south west);
+\draw[arr] (engine) -- node[right,lbl] {violation} (feedback);
+\draw[arr] (feedback) -- (agent);
 
 \begin{scope}[on background layer]
   \node[fit=(directive)(agent), fill=green!4, draw=green!40,
         rounded corners=4pt, inner xsep=11pt, inner ysep=10pt,
         label={[font=\scriptsize\bfseries]above left:Agent}] {};
-  \node[fit=(feedback)(policy)(compiler), fill=blue!4, draw=blue!30,
+  \node[fit=(feedback)(compiler), fill=blue!4, draw=blue!30,
         rounded corners=4pt, inner xsep=11pt, inner ysep=10pt,
         label={[font=\scriptsize\bfseries]left:Userspace}] {};
   \node[fit=(hooks)(authority)(engine), fill=orange!4, draw=orange!30,
         rounded corners=4pt, inner xsep=11pt, inner ysep=10pt,
         label={[font=\scriptsize\bfseries]below left:Kernel}] {};
 \end{scope}
+
+\draw[draw=black!55, line width=0.6pt]
+  (-4.70,1.96) -- (-4.92,1.96) -- (-4.92,-1.18) -- (-4.70,-1.18);
+\node[font=\scriptsize\bfseries, rotate=90] at (-5.20,0.39) {ActPlane};
 
 \end{tikzpicture}
 \end{document}
