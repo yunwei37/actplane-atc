@@ -209,13 +209,25 @@ though this margin is smaller: full \sys{} has 18 FPs, compared with 28 for
 both prompt-filter and tool-regex.
 
 The feedback ablation isolates the value of semantic recovery information.
-\textsc{ActPlane-opaque} has very few false positives, but it misses many
-violations (87 FNs) because the agent receives no structured corrective
-payload after enforcement. Full \sys{} trades some additional compliant-trace
-interventions for a much larger FN reduction, increasing correct responses
-from 102 to 144. Thus, the result is not simply that kernel enforcement can
-stop more effects; model-facing feedback is part of the end-to-end
-policy-enforcement system.
+\textsc{ActPlane-opaque} enforces the same kernel-level rules but returns
+no structured feedback: the agent sees only a raw \texttt{EPERM} or
+process termination. Without a feedback channel, the system never
+actively communicates with the agent on compliant traces, which explains
+its near-zero FP~(1) and high TN~(75)---not because enforcement is more
+precise, but because the agent is simply never interfered with.
+Conversely, on violation traces the kernel does block the offending
+syscall, yet the agent cannot diagnose the cause or recover, so the
+judge classifies most blocked violations as FN~(87~FNs).
+Full \sys{} opens a structured feedback channel: rule name, reason, and
+remediation reach the agent after every match. This dramatically
+improves violation recall (FN drops from 87 to 28, TP rises from 27 to
+86) but introduces a tradeoff on compliant traces: the active feedback
+channel occasionally triggers agent over-correction on boundary cases,
+raising FP from 1 to 18 and lowering TN from 75 to 58.
+The net effect is strongly positive---correct responses rise from 102 to
+144---but the mechanism is not simply ``more detection''; it is the
+feedback loop that converts kernel-level observation into agent-level
+recovery.
 
 \begin{figure}[tb]
 \centering
