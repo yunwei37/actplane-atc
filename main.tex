@@ -21,12 +21,11 @@
 
 \begin{abstract}
 AI agents operate through harnesses that maintain execution, mediate
-tools, and apply behavioral policies for effective and safe operation:
-e.g. do not leak secrets, run tests before committing.
-A central component of such a harness is a runtime policy engine that
-enforces these constraints over the agent's concrete actions.
-Our empirical study of 64 projects shows that while project harness
-instructions are declared in natural language, 64\% are behavioral directives. Yet, existing agent harnesses fail to connect AI agent intent
+tools, and apply behavioral constraints for effective and safe operation. In practice,
+projects often specify these constraints as natural-language harness
+instructions: our empirical study of 64 projects finds that 64\% of
+instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. A central component of such a harness is a runtime policy engine that
+enforces these constraints over the agent's concrete actions. Yet existing policy engines in agent harnesses fail to connect AI agent intent
 to deterministic system-level actions, leaving a \emph{semantic gap} and
 making it difficult to ensure compliance or follow rules.
 While 83\% of directives involve system-level behavior,
