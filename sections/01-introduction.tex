@@ -9,7 +9,7 @@ highly visible instance~\cite{yang2024sweagent,wang2025openhands}. As agents gai
 they require \emph{AI agent harnesses}: software around the model that
 improves agent performance while keeping execution within safety,
 security, and compliance
-constraints~\cite{langchain-harness,fowler-harness}. 
+constraints~\cite{langchain-harness,fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
 A central component of such a harness is a runtime policy engine: the
@@ -36,9 +36,9 @@ and network connections made.
 
 % ¶3: Semantic gap — existing deterministic mechanisms also fail
 Yet existing policy engines in agent harnesses leave a \emph{semantic gap}:
-\emph{AI agent intent and directives} is expressed through natural-language under project or task context, but enforcement must decide over
+\emph{AI agent intent and directives} are expressed in natural language with project or task context, but enforcement must decide over
 \emph{system actions}: concrete commands, file operations, network
-connections, and subprocess effect. Runtime prompt, agent-action, and
+connections, and subprocess effects. Runtime prompt, agent-action, and
 tool-call policy
 systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel}
@@ -57,7 +57,7 @@ task context that only the agent possesses in its natural language intent.
 We argue that an agent-harness policy engine should be
 programmable by the agent itself and take effect at OS level: it should let the agent use live project and
 task context to enforce its own actions. This creates three challenges: policies must be
-concrete enough for OS enforcement while expressive enough to handle real world directives, preserve cross-event execution state,
+concrete enough for OS enforcement while expressive enough to handle real-world directives, preserve cross-event execution state,
 and evolve dynamically without allowing agents or sub-agents to weaken inherited constraints.
 
 % ¶5: System — \sys{}
