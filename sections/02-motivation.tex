@@ -5,17 +5,22 @@
 AI coding agents such as Claude
 Code~\cite{anthropic2025claudecode}, Codex
 CLI~\cite{openai2025codex}, Cursor~\cite{cursor2025}, and
-Devin~\cite{devin2025} operate on repositories through an \emph{AI agent
-harness}: software around the model that maintains the agent loop and
-session state, routes tool calls, mediates shell, file, and network
-access, and returns results or feedback to the model, improving agent
-performance while keeping execution within safety, security, and
-compliance constraints~\cite{langchain-harness,fowler-harness}. A single tool
+Devin~\cite{devin2025}, along with research systems such as
+SWE-agent~\cite{yang2024sweagent} and
+OpenHands~\cite{wang2025openhands}, operate on repositories through an
+\emph{AI agent harness}: software around the model that maintains the
+agent loop and session state, routes tool calls, mediates shell, file,
+and network access, and returns results or feedback to the model,
+improving agent performance while keeping execution within safety,
+security, and compliance
+constraints~\cite{langchain-harness,fowler-harness}. A single tool
 invocation can run arbitrary scripts, spawn subprocesses, and touch many
 files and endpoints before control returns to the model. Projects encode
 behavioral expectations in instruction files
 (\texttt{CLAUDE.md},
-\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}
+\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,
+chatlatanagulchai2025agentreadmes,santos2025claudeconfig,
+lulla2026agentsmd}
 as \emph{AI agent intent}: natural-language constraints over what the agent
 should do, avoid, or condition on project and task context. The harness
 must enforce that intent over \emph{system actions}: concrete commands,
@@ -28,21 +33,25 @@ type systems or language annotations~\cite{myers1999jflow}. Dynamic IFC
 and provenance systems attach labels to OS objects and propagate them at
 runtime: when a process reads a labeled file, the process acquires that
 label; when it forks, the child inherits
-it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow}. Later
+it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow,
+schwartz2010taint}. Later
 operations are checked against the accumulated label state. OS-level IFC
 systems such as Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}
 enforce flow policies across processes and files in the kernel, while
 whole-system provenance frameworks such as
-CamFlow~\cite{pasquier2017camflow} and
+PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
+LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and
 CamQuery~\cite{pasquier2018camquery} record and query cross-event label
 histories. IFC thus captures constraints whose correctness depends on
 execution history; this is exactly the pattern that agent behavioral directives (``run
 tests before committing'') exhibit. More general OS-level mechanisms
 (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
-BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon}) also observe
-system effects below the tool layer, but require statically pre-written
-policies and return opaque errors with no connection to the agent's
-declared directives.
+Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
+BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
+KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
+also observe or restrict system effects below the tool layer, but require
+statically pre-written policies and return opaque errors with no
+connection to the agent's declared directives.
 
 \textbf{AI agent policy enforcement.}
 We use \emph{runtime policy enforcement system} for the part of an AI
@@ -50,13 +59,19 @@ agent harness that enforces safety, security, and compliance constraints
 while the agent executes. Existing AI agent harnesses place such
 enforcement at one of three levels.
 Prompt instructions rely on the model's own compliance,
-which is inherently probabilistic~\cite{liu2024lost}. Programmable rails
-and guard agents can check prompts, responses, or action trajectories at
-runtime~\cite{rebedea2023nemo,xiang2025guardagent}. Tool-call guardrails
-such as AgentSpec~\cite{wang2025agentspec} intercept tool-call names and
-arguments deterministically, while application-level IFC systems such as
-FIDES~\cite{costa2025fides} and CaMeL~\cite{debenedetti2025camel} track
-data flow within the agent loop.
+which is inherently
+probabilistic~\cite{liu2024lost,jiang2024followbench,qi2025agentif}.
+Indirect-prompt-injection benchmarks further show that untrusted tool
+outputs can redirect agents toward unauthorized
+actions~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
+Programmable rails and guard agents can check prompts, responses, or
+action trajectories at
+runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}.
+Tool-call guardrails such as AgentSpec, Progent, and Invariant
+Guardrails~\cite{wang2025agentspec,shi2025progent,invariant-guardrails}
+intercept tool-call names and arguments deterministically, while
+application-level IFC systems such as FIDES~\cite{costa2025fides} and
+CaMeL~\cite{debenedetti2025camel} track data flow within the agent loop.
 These mechanisms observe only the AI agent harness request, not the system-level
 effects that follow once a tool starts executing: a subprocess, a
 shell-out, or a compiled binary can bypass the tool boundary entirely.

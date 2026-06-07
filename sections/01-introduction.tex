@@ -2,7 +2,8 @@
 
 % ¶1: Context — agents are powerful and widely deployed
 AI coding agents operate as long-running processes with access to shells,
-source trees, package managers, and external APIs~\cite{agentsight}. They
+source trees, package managers, and external
+APIs~\cite{agentsight,yang2024sweagent,wang2025openhands}. They
 autonomously write code, run tests, and manage infrastructure across
 extended sessions.
 
@@ -21,10 +22,11 @@ empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
 of instruction-file statements are behavioral directives, and 83\% of
 those involve system-level behavior: commands executed, files accessed,
 and network connections made. Because LLM compliance is inherently
-probabilistic~\cite{liu2024lost}, policy cannot reside inside the model
-alone: even cooperative agents routinely violate declared constraints
-through planning errors, shell-script side effects, and opaque tool
-behavior.
+probabilistic~\cite{liu2024lost,jiang2024followbench,qi2025agentif},
+policy cannot reside inside the model alone: even cooperative agents
+routinely violate declared constraints through planning errors,
+shell-script side effects, prompt-injection drift, and opaque tool
+behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
 Yet existing harness enforcement mechanisms leave a \emph{semantic gap}:
@@ -32,17 +34,19 @@ Yet existing harness enforcement mechanisms leave a \emph{semantic gap}:
 plus project and task context, but enforcement must decide over
 \emph{system actions}: concrete commands, file operations, network
 connections, and subprocess effects. Runtime prompt, agent-action, and
-tool-call policy systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec}
+tool-call policy
+systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
+shi2025progent,costa2025fides,debenedetti2025camel}
 lose track of system actions when agents shell out or spawn subprocesses: the
 same \texttt{git~push} can be reached through a tool call, a
 \texttt{bash~-c} wrapper, or a compiled binary; and 81\% of projects
 require cross-event state tracking that tool-level interception cannot
 provide. OS-level
-mechanisms~\cite{ciliumtetragon,flume,pasquier2018camquery} observe all
-system actions but expect pre-defined static policy and return only
-system events without semantic context; yet 74\% of system-level directives
-require AI agent intent and project or task context that only the agent
-possesses.
+mechanisms~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
+pasquier2018camquery} observe all system actions but expect pre-defined
+static policy and return only system events without semantic context; yet
+74\% of system-level directives require AI agent intent and project or
+task context that only the agent possesses.
 
 % ¶5: Insight — agent authors policy, OS enforces it
 The key insight is to split policy authoring from policy enforcement. A
