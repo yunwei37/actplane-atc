@@ -6,36 +6,36 @@ AI agent intent and project or task context to deterministic OS-level
 enforcement.
 Achieving this raises three design challenges.
 
-\textbf{C1: Policy specification at the right granularity}
+\textbf{C1: Expressive yet enforceable policy specification}
 (\S\ref{sec:dsl}).
 Instruction-file directives are written over repository and task concepts
 such as ``the test suite,'' ``approved endpoints,'' or ``do not push to
-main.'' Kernel enforcement operates over a much lower-level vocabulary:
+main.'' Kernel enforcement operates over primitive operations:
 exec, open, write, and connect events with paths, arguments, processes,
 and endpoints. A specification that stays at the directive level is too
-ambiguous to enforce deterministically; one written directly at the OS
-event level is verbose, brittle, and exposes kernel machinery that agents
-and humans cannot reliably inspect. The challenge is to define a compact
-policy vocabulary at the right granularity: close enough to system events
-to compile, but high enough to preserve the directive's context, scope,
-and rationale.
+ambiguous to enforce deterministically; one written directly at the
+syscall level is verbose, brittle, and exposes kernel internals that
+agents and operators cannot reliably audit. The DSL must be
+\emph{concrete} enough to lower to fixed-size kernel predicates, yet
+\emph{expressive} enough to preserve the directive's scope, context, and
+rationale.
 
-\textbf{C2: Stateful enforcement at syscall speed} (\S\ref{sec:ifc}).
+\textbf{C2: Efficient cross-event enforcement} (\S\ref{sec:ifc}).
 81\% of repositories require policies that span multiple
 operations: ``run tests before committing'' depends on whether a test
 execution occurred after the last source change. No single event reveals
-the full behavior, but enforcement cannot afford to reconstruct or query
-complete execution traces on every syscall. The challenge is to maintain
-enough policy-relevant history across tools, subprocesses, files, and
-network endpoints for deterministic checks without imposing prohibitive
-per-syscall overhead.
+the full behavior, yet enforcement must avoid reconstructing or querying
+complete execution traces on every syscall. The enforcement layer must
+maintain sufficient policy-relevant history across tools, subprocesses,
+files, and network endpoints for deterministic checks without imposing
+prohibitive per-syscall overhead.
 
 \textbf{C3: Authority-safe agent programmability}
 (\S\ref{sec:authority}).
 Agents must be able to adapt policy at runtime: a sub-agent may need a
-narrower scope, or the current task may need a pre-authorized exception
-path through a standing rule. Letting the constrained actor write or
-specialize policy creates a self-modification problem: the agent must be
+narrower scope, or the current task may require a sanctioned exception to
+an inherited constraint. Letting the constrained actor write or
+specialize policy introduces a privilege-weakening risk: the agent must be
 able to add task-specific constraints, but this programmability must not
 become an authority bypass. Agents and sub-agents may add rules,
 specialize targets, or narrow scope, but must never weaken platform or
@@ -199,7 +199,7 @@ entire session without requiring explicit label cleanup.
 
 Agents must adapt policy at runtime: a sub-agent spawned for a narrow
 sub-task should operate under tighter constraints, and the current task
-may need a pre-authorized exception path through a standing rule; but
+may require a sanctioned exception to an inherited constraint; but
 adaptation must never weaken platform or project constraints.
 
 \sys{} organizes policy around a \emph{domain tree}. A domain is the

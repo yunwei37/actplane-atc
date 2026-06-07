@@ -4,8 +4,8 @@
 AI agents increasingly operate as long-running actors with access to
 tools, files, shells, browsers, package managers, and external
 APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,
-chennabasappa2025llamafirewall,agentsight}. Coding agents are one
-highly visible instance~\cite{yang2024sweagent,wang2025openhands}. As agents gain autonomy,
+chennabasappa2025llamafirewall,agentsight}. Coding agents are a
+prominent example~\cite{yang2024sweagent,wang2025openhands}. As agents gain autonomy,
 they require \emph{AI agent harnesses}: software around the model that
 improves agent performance while keeping execution within safety,
 security, and compliance
@@ -56,16 +56,14 @@ task context that is absent from low-level OS events.
 % ¶4: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be
 programmable by the agent itself and take effect at OS level: it should let the agent use live project and
-task context to enforce its own actions. This creates three challenges.
-First, policy specification must find the right granularity: natural-language
-directives carry project intent but are too ambiguous to enforce, while
-raw OS events are enforceable but too low-level and brittle to express
-agent-facing policy. Second, cross-event enforcement must be efficient:
-policy-relevant history spans tools, subprocesses, files, and network
-endpoints, but checks still run on the syscall path. Third,
-programmability must not become an authority
-bypass: agents need to add context-specific constraints, but neither they
-nor their sub-agents should be able to weaken inherited policy.
+task context to enforce its own actions. This creates three challenges. First, policy specification must be \emph{expressive} enough to
+capture directive intent yet \emph{concrete} enough to compile to
+deterministic kernel checks. Second, enforcement must track
+policy-relevant state across tools, subprocesses, files, and network
+endpoints without imposing prohibitive per-syscall overhead. Third,
+programmability must not become an authority bypass: agents must be able
+to add context-specific constraints, but neither they nor their
+sub-agents may weaken inherited policy.
 
 % ¶5: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
