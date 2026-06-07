@@ -116,8 +116,9 @@ paper-facing sample contains 38 statements.
 The sample is manifest-selected: we select 2--3 statements from each of 15 repositories to cover both
 per-event and cross-event rules, project- and task-context requirements,
 and common repository policy themes. The final manifest contains 20
-per-event-like and 18 cross-event-like rules. No system outcome is used to
-select statements or repair policy artifacts.
+per-event-like and 18 cross-event-like rules, proportional to the 65\%/35\%
+split in the full corpus. No system outcome is used to select statements
+or repair policy artifacts.
 For each statement we construct five manifest-listed traces: two compliant
 challenge families (allowed-effect and lookalike) and three violation
 families (visible, script-mediated, and opaque-fixture). This yields
@@ -226,6 +227,23 @@ system.}
 \label{fig:rq1-family-breakdown}
 \end{figure}
 
+Figure~\ref{fig:rq1-family-breakdown} breaks down DCR by trace family.
+On the two compliant families (allowed-effect and lookalike), all systems
+except \textsc{ActPlane-opaque} show comparable performance;
+\textsc{ActPlane-opaque}'s near-zero FP rate gives it the highest
+compliant-trace DCR. The gap opens on violation families. On directly
+visible violations, prompt-filter and tool-regex detect some cases, but
+\sys{} detects substantially more because it observes the actual system
+effect rather than the proposed tool input. On script-mediated and
+opaque-fixture violations, prompt-filter and tool-regex largely fail:
+tool-call interception cannot see effects that occur inside a subprocess
+or behind a neutral entrypoint. \sys{} retains detection through
+kernel-level label propagation, which follows the effect regardless of
+how the agent invoked it. The feedback ablation confirms that detection
+alone is insufficient: \textsc{ActPlane-opaque} observes the same kernel
+events but produces low violation-family DCR because the agent cannot
+recover without a structured corrective payload.
+
 %% ----------------------------------------------------------------
 \subsection{RQ2: Overhead}
 \label{sec:eval:rq2}
@@ -248,6 +266,14 @@ and isolate \sys{}'s runtime cost.
 trace replay and Linux build.}
 \label{fig:rq2-macro}
 \end{figure}
+
+\paragraph{Results.}
+At 32 active no-hit rules, \sys{} adds 1.9\% overhead on the agent-trace
+replay and 6.5\% on the Linux kernel build. At 100 rules, overhead
+remains below 8.4\%. The agent-trace workload is lighter because tool
+actions are interspersed with model inference pauses that dwarf syscall
+overhead; the kernel build stresses sustained I/O and process creation,
+exposing more of \sys{}'s per-event cost.
 
 \subsubsection{Microbenchmarks (Per-Syscall Latency)}
 
@@ -338,7 +364,9 @@ constraint that can be expressed as a case-specific policy before
 execution. The selected subset spans \texttt{CLAUDE.md},
 \texttt{AGENTS.md}, and user-query policy sources, two agent scaffolds,
 and seven Docker images. Pure style, tone, and natural-language-only
-cases are excluded.
+cases are excluded; the remaining 197~tasks lack an OS-observable
+checklist item (e.g., ``respond in a friendly tone'') and fall outside
+\sys{}'s enforcement scope.
 Each task runs under three conditions: baseline (no enforcement),
 tool-regex (case-specific tool-call hooks), and \sys{} (OS-level hooks
 plus semantic feedback).
@@ -405,8 +433,11 @@ and AgentSpec~\cite{wang2025agentspec} enforces deterministic guards at
 the tool-call boundary; \sys{} complements them below the tool API, where
 shell-outs and subprocesses remain visible. FIDES and
 CaMeL~\cite{costa2025fides,debenedetti2025camel} apply typed IFC within
-the agent loop but do not expose a layered authority stack that separates
-platform, project, and agent policy; Flume~\cite{flume} provides
+the agent loop, which catches data-flow violations at the API boundary
+but cannot observe effects that escape through shell-outs, subprocesses,
+or compiled binaries; they also do not expose a layered authority stack
+that separates platform, project, and agent policy.
+Flume~\cite{flume} provides
 decentralized labels with explicit capabilities but requires
 per-application integration rather than a compile-time authority
 hierarchy. \sys{} applies information-flow reasoning at the OS boundary
