@@ -1,20 +1,21 @@
 \section{Introduction}
 
-% ¶1: Context — agents are powerful and widely deployed
+% ¶1: Context — agents are powerful and widely deployed through harnesses
 AI agents increasingly operate as long-running actors with access to
 tools, files, shells, browsers, package managers, and external
 APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,
 chennabasappa2025llamafirewall,agentsight}. Coding agents are one
-highly visible instance~\cite{yang2024sweagent,wang2025openhands}.
+highly visible instance~\cite{yang2024sweagent,wang2025openhands}. As agents gain autonomy,
+they require \emph{AI agent harnesses}: software around the model that
+improves agent performance while keeping execution within safety,
+security, and compliance
+constraints~\cite{langchain-harness,fowler-harness}. 
 
-% ¶2: Agents need harnesses; instruction files are behavioral policy
-As agents gain autonomy, they require \emph{AI agent harnesses}: software
-around the model that improves agent performance while keeping execution
-within safety, security, and compliance
-constraints~\cite{langchain-harness,fowler-harness}. A central component
-of such a harness is a runtime policy engine: the part that enforces them
-over the agent's concrete actions. Projects encode many
-such constraints as behavioral policies in instruction files
+% ¶2: Policy engines; instruction files are behavioral policy
+A central component of such a harness is a runtime policy engine: the
+part that enforces behavioral constraints over the agent's concrete
+actions. In practice, projects encode many such constraints as
+behavioral policies in instruction files
 (\texttt{CLAUDE.md},
 \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}.
 
@@ -30,8 +31,8 @@ routinely violate declared constraints through planning errors,
 shell-script side effects, prompt-injection drift, and opaque tool
 behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
 
-% ¶4: Semantic gap — existing deterministic mechanisms also fail
-Yet existing harness enforcement mechanisms leave a \emph{semantic gap}:
+% ¶3: Semantic gap — existing deterministic mechanisms also fail
+Yet existing policy engines in agent harnesses leave a \emph{semantic gap}:
 \emph{AI agent intent} is expressed through natural-language directives
 plus project and task context, but enforcement must decide over
 \emph{system actions}: concrete commands, file operations, network
@@ -50,16 +51,14 @@ static policy and return only system events without semantic context; yet
 74\% of system-level directives require AI agent intent and project or
 task context that only the agent possesses.
 
-% ¶5: Insight — agent authors policy, OS enforces it
-The key insight is to split policy authoring from policy enforcement. A
-project directive such as ``run the relevant tests before committing'' is
-not a complete OS rule by itself: the relevant test command, generated
-files, helper scripts, and task-specific exceptions depend on live
-repository and user-task context. The agent is the component that has this
-context, so it should instantiate natural-language directives into
-concrete runtime policy. But the same agent must not be trusted to enforce
-that policy during execution. Instead, the agent authors the policy, and
-the OS enforces it below the tool layer.
+% ¶4: Insight — programmable policy engine below the tool layer
+We argue that an agent-harness policy engine should be
+programmable by the agent: it should let the agent use live project and
+task context to instantiate runtime policies for its own system-level
+actions. This programmability creates three challenges: policies must be
+concrete enough for OS enforcement, preserve cross-event execution state,
+and evolve dynamically without allowing agents or sub-agents to weaken
+inherited constraints.
 
 % ¶5: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
