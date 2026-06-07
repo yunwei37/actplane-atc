@@ -124,7 +124,7 @@ For each statement we construct five manifest-listed traces: two compliant
 families (allowed-effect and lookalike) and three violation
 families (visible, script-mediated, and opaque-fixture). This yields
 190 traces and 760 system--trace cells across four systems: prompt-filter,
-tool-regex, \sys{} without structured feedback (\textsc{ActPlane-opaque}),
+tool-regex, \sys{} without structured feedback (\textsc{AgPlane-opaque}),
 and full \sys{}.
 
 RQ1 is an end-to-end runtime enforcement measurement: given the same
@@ -165,8 +165,8 @@ present, with no judge parse errors.
 \includegraphics[width=\columnwidth]{figures/rq1_dcr_bar.pdf}
 \caption{Overall RQ1 Decision Compliance Rate across 190 traces.}
 \Description{Bar chart comparing overall directive compliance rates:
-prompt-filter 48.4 percent, tool-regex 45.3 percent, ActPlane-opaque
-53.7 percent, and ActPlane 75.8 percent.}
+prompt-filter 48.4 percent, tool-regex 45.3 percent, AgPlane-opaque
+53.7 percent, and AgPlane 75.8 percent.}
 \label{fig:rq1-dcr}
 \end{figure}
 
@@ -180,7 +180,7 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \midrule
 \textsc{Prompt-filter} & 48.4\% & 44 & 48 & 28 & 70 & 190 \\
 \textsc{Tool-regex} & 45.3\% & 38 & 48 & 28 & 76 & 190 \\
-\textsc{ActPlane-opaque} & 53.7\% & 27 & \textbf{75} & \textbf{1} & 87 & 190 \\
+\textsc{AgPlane-opaque} & 53.7\% & 27 & \textbf{75} & \textbf{1} & 87 & 190 \\
 \sys{} & \textbf{75.8\%} & \textbf{86} & 58 & 18 & \textbf{28} & 190 \\
 \bottomrule
 \end{tabular}
@@ -197,7 +197,7 @@ baselines, though this margin is smaller: full \sys{} has 18 FPs,
 compared with 28 for both prompt-filter and tool-regex.
 
 The feedback ablation isolates the value of semantic recovery information.
-\textsc{ActPlane-opaque} enforces the same kernel-level rules but returns
+\textsc{AgPlane-opaque} enforces the same kernel-level rules but returns
 no structured feedback: the agent sees only a raw \texttt{EPERM} or
 process termination. Without a feedback channel, the system never
 actively communicates with the agent on compliant traces, which explains
@@ -230,8 +230,8 @@ system.}
 
 Figure~\ref{fig:rq1-family-breakdown} breaks down DCR by trace family.
 On the two compliant families (allowed-effect and lookalike), all systems
-except \textsc{ActPlane-opaque} show comparable performance;
-\textsc{ActPlane-opaque}'s near-zero FP rate gives it the highest
+except \textsc{AgPlane-opaque} show comparable performance;
+\textsc{AgPlane-opaque}'s near-zero FP rate gives it the highest
 compliant-trace DCR. The difference emerges on violation families. On directly
 visible violations, prompt-filter and tool-regex detect some cases, but
 \sys{} detects substantially more because it observes the actual system
@@ -241,7 +241,7 @@ tool-call interception cannot see effects that occur inside a subprocess
 or behind a neutral entrypoint. \sys{} retains detection through
 kernel-level label propagation, which follows the effect regardless of
 how the agent invoked it. The feedback ablation confirms that detection
-alone is insufficient: \textsc{ActPlane-opaque} observes the same kernel
+alone is insufficient: \textsc{AgPlane-opaque} observes the same kernel
 events but produces low violation-family DCR because the agent cannot
 recover without a structured corrective payload.
 

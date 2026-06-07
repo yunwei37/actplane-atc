@@ -123,7 +123,7 @@ rule tests-before-commit:
 rule no-force-push:
   block exec "git" "push" "--force"
     if AGENT unless after write
-      ".actplane/force-push-necessary"
+      ".agent/force-push-necessary"
   because "Write a justification before force-pushing."
 \end{verbatim}
 \caption{Three \sys{} rules drawn from real projects: a per-event rule,
@@ -258,10 +258,10 @@ evaluates the compiled rules on each observed event. Userspace does not
 re-detect violations: it loads the policy, starts the target process, and
 formats kernel-reported matches into semantic feedback.
 
-The runner (\texttt{actplane run -- <cmd>}) discovers the project policy
+The runner (\texttt{agplane run -- <cmd>}) discovers the project policy
 file, compiles and loads it before the target starts, seeds the target
 process tree with the agent label, and records kernel matches in a
 feedback file. Compatible agent hooks relay this feedback into the model's
-next turn. The runner is intentionally thin: the policy decision stays in
-the kernel, while the runner only connects policy, execution, and
-agent-facing diagnostics.
+next turn. The runner is intentionally thin: policy decisions remain in
+the kernel; the runner mediates between the compiled policy, the target
+process, and agent-facing diagnostics.

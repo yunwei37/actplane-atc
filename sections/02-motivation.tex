@@ -10,8 +10,8 @@ chennabasappa2025llamafirewall}. Coding agents such as Claude
 Code~\cite{anthropic2025claudecode}, Codex
 CLI~\cite{openai2025codex}, Cursor~\cite{cursor2025}, Devin~\cite{devin2025},
 SWE-agent~\cite{yang2024sweagent}, and
-OpenHands~\cite{wang2025openhands} are a concrete deployment domain
-where these effects are easy to observe. Agents operate through an
+OpenHands~\cite{wang2025openhands} are a representative deployment domain
+where these effects are readily observable. Agents operate through an
 \emph{AI agent harness}: software around the model that maintains the
 agent loop and session state, routes tool calls, mediates shell, file,
 and network access, and returns results or feedback to the model,
@@ -46,8 +46,8 @@ PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
 LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and
 CamQuery~\cite{pasquier2018camquery} record and query cross-event label
 histories. IFC thus captures constraints whose correctness depends on
-execution history; this is exactly the pattern that agent behavioral directives (``run
-tests before committing'') exhibit. More general OS-level mechanisms
+execution history---the same pattern that agent behavioral directives
+(``run tests before committing'') exhibit. More general OS-level mechanisms
 (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
 Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
 BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
@@ -78,9 +78,10 @@ CaMeL~\cite{debenedetti2025camel} track data flow within the agent loop.
 These mechanisms observe only the AI agent harness request, not the system-level
 effects that follow once a tool starts executing: a subprocess, a
 shell-out, or a compiled binary can bypass the tool boundary entirely.
-The missing piece is the bridge: connecting AI agent intent and project
-or task context to deterministic OS-level observation and enforcement. The empirical
-study below asks whether real project instructions demand this bridge.
+What remains missing is the connection between AI agent intent and
+project or task context on one side, and deterministic OS-level
+observation and enforcement on the other. The empirical study below asks
+whether real project instructions require this connection.
 
 \section{Empirical Study}
 \label{sec:empirical}
