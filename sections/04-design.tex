@@ -48,19 +48,45 @@ Because the agent is both policy author and constrained subject (C3),
 original intent is honest and it aims to follow project constraints. But
 execution may diverge due to planning errors, shell-script side effects,
 opaque tool behavior, or prompt injection~\cite{perez2022prompt} that
-causes the agent to act against its declared policy. Higher-authority policies (platform, project)
-are authored by trusted principals and cannot be weakened by the agent;
-they guard against both unreliable execution and hijacked agent-level
-declarations. The system does not target a malicious process that attacks
-the kernel, exploits the loader, or deliberately evades policy through
-adversarial obfuscation.
+causes the agent to act against its declared policy. Divergence includes
+both accidental violations and prompt-injection-driven actions that
+systematically probe policy boundaries; higher-authority rules cover both
+cases because they are enforced independently of the agent's intent.
 
-The trusted computing base (TCB) consists of the compiler, the eBPF
-enforcement engine, the runner, and higher-authority policies. The agent's
-entire process tree, including tools, shells, subprocesses, and
+\textbf{Security properties.}
+The adversary may cause the agent to violate its declared policy:
+exfiltrating sensitive data (e.g., \texttt{.env} secrets reaching the
+network), modifying files outside the permitted scope, executing
+forbidden commands, or bypassing required workflow steps (e.g.,
+committing without running tests). Against these goals, \sys{} enforces
+two properties:
+(1)~\emph{monotonic authority}: agent-authored rules can only tighten,
+never weaken, constraints inherited from higher-authority principals
+(platform or project); and
+(2)~\emph{enforcement completeness}: every syscall on a monitored path
+is checked against the current label state and rule set.
+Enforcement is synchronous within the syscall path, eliminating
+TOCTOU gaps between policy check and action.
+
+\textbf{Trust boundaries.}
+Higher-authority policies (platform, project) are authored by trusted
+principals and cannot be weakened by the agent; they guard against both
+unreliable execution and hijacked agent-level declarations. The system
+does not target a malicious process that attacks the kernel, exploits the
+loader, or deliberately evades policy through adversarial obfuscation
+(e.g., crafting novel binaries or encoding schemes to bypass pattern
+matching).
+
+The trusted computing base (TCB) consists of the eBPF enforcement engine
+and pre-compiled higher-authority policy blobs, which are assumed to be
+signed and loaded through a trusted path. The runtime compiler and runner
+handle only agent-authored rules; bugs in these components can weaken the
+agent's own constraints but cannot affect higher-authority policy. The
+agent's entire process tree, including tools, shells, subprocesses, and
 sub-agents, constitutes the monitored domain. Kernel compromise, root or
 \texttt{CAP\_BPF} compromise, deliberate side channels, and semantic
-content checks not observable at syscall boundaries are out of scope.
+content checks not observable at syscall boundaries (e.g., whether a
+written file contains a credential) are out of scope.
 
 \subsection{System Overview}
 
