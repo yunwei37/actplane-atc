@@ -59,25 +59,21 @@ connection to the agent's declared directives.
 \textbf{AI agent policy enforcement.}
 We use \emph{runtime policy enforcement system} for the part of an AI
 agent harness that enforces safety, security, and compliance constraints
-while the agent executes. Existing AI agent harnesses place such
-enforcement at one of three levels.
+while the agent executes. Existing enforcement operates at one of three levels.
 Prompt instructions rely on the model's own compliance,
 which is inherently
-probabilistic~\cite{liu2024lost,jiang2024followbench,qi2025agentif}.
-Indirect-prompt-injection benchmarks further show that untrusted tool
-outputs can redirect agents toward unauthorized
-actions~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
-Programmable rails and guard agents can check prompts, responses, or
+probabilistic~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
+and vulnerable to indirect prompt
+injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
+Programmable rails and guard agents check prompts, responses, or
 action trajectories at
 runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}.
-Tool-call guardrails such as AgentSpec, Progent, and Invariant
-Guardrails~\cite{wang2025agentspec,shi2025progent,invariant-guardrails}
-intercept tool-call names and arguments deterministically, while
-application-level IFC systems such as FIDES~\cite{costa2025fides} and
-CaMeL~\cite{debenedetti2025camel} track data flow within the agent loop.
-These mechanisms observe only the AI agent harness request, not the system-level
-effects that follow once a tool starts executing: a subprocess, a
-shell-out, or a compiled binary can bypass the tool boundary entirely.
+Tool-call guardrails and application-level IFC
+systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}
+intercept at the harness boundary deterministically.
+All three levels observe only harness-mediated requests, not the
+system-level effects that follow once a tool starts executing: a subprocess,
+a shell-out, or a compiled binary can bypass the tool boundary entirely.
 What remains missing is the connection between AI agent intent and
 project or task context on one side, and deterministic OS-level
 observation and enforcement on the other. The empirical study below

@@ -3,15 +3,14 @@
 % ¶1: Context — agents are powerful and widely deployed through harnesses
 AI agents increasingly operate as long-running actors with access to
 tools, files, shells, browsers, package managers, and external
-APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,
-chennabasappa2025llamafirewall,agentsight}. Coding agents are a
+APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. Coding agents are a
 prominent example~\cite{yang2024sweagent,wang2025openhands}. As agents gain autonomy,
 they require \emph{AI agent harnesses}: software around the model that
 improves agent performance while enforcing behavioral constraints for
-safety, security, and compliance~\cite{langchain-harness,fowler-harness}.
+safety, security, and compliance~\cite{fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
-A central component of such a harness is a policy engine: the
+A central component of such a harness is a policy engine~\cite{langchain-harness}: the
 part that enforces constraints over the agent's concrete
 actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
@@ -24,8 +23,7 @@ and may violate them through planning errors,
 prompt-injection drift, and opaque tool or script
 behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo},
 harnesses also require deterministic policy engines to enforce compliance
-at runtime~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
-costa2025fides,debenedetti2025camel}.
+at runtime~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
 Many of these policies constrain system-level actions, yet existing policy engines leave a \emph{semantic gap}:
@@ -37,7 +35,7 @@ of instruction-file statements are behavioral directives, and 83\% of
 those involve system-level behavior: commands executed, files accessed,
 and network connections made.
 Existing approaches cannot close this gap.
-Tool-call-based policy systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
+Tool-call-based policy systems~\cite{xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel} in agent
 runtimes such as Claude Code and Codex, whether LLM
 guardrails or regex-like checkers, lose track of indirect system actions when
@@ -52,8 +50,7 @@ OS-level enforcement with static policy is also insufficient: most directives re
 We find that 74\% of system-level directives
 require project or task context absent from low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
-software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
-pasquier2018camquery} can observe all system actions but expect
+software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon} can observe all system actions but expect
 pre-defined static policy and return only system events without semantic
 context, leaving the agent unable to follow its behavioral directives.
 
