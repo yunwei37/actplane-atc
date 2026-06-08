@@ -36,9 +36,10 @@ empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
 of instruction-file statements are behavioral directives, and 83\% of
 those involve system-level behavior: commands executed, files accessed,
 and network connections made.
+Existing approaches cannot close this gap.
 Tool-call-based policy systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
-shi2025progent,costa2025fides,debenedetti2025camel}  in agent
-runtimes like claude code or codex, whether LLM
+shi2025progent,costa2025fides,debenedetti2025camel} in agent
+runtimes such as Claude Code and Codex, whether LLM
 guardrails or regex-like checkers, lose track of system actions when
 agents shell out or spawn subprocesses: the same \texttt{git~push} can
 be reached through a tool call, a \texttt{bash~-c} wrapper, or a
@@ -47,16 +48,15 @@ level, 81\% of projects contain cross-event directives that single
 tool-level interception cannot enforce (e.g., ``run tests before
 commit'').
 
-Static policy is also insufficient: the policy engine must define and
-evaluate policies at runtime, allowing the agent to adapt them based on
-project or task context. We find that 74\% of system-level directives
-require project or task context that is absent from low-level OS events.
+OS-level enforcement with static policy is also insufficient: most directives reference project or task concepts that static pre-defined rules cannot resolve (e.g., ``never modify upstream source(what is upstream source?)'' ``do not update dependencies unless requested,'' ``the reviewer sub-agent only writes to its project directory'').
+We find that 74\% of system-level directives
+require such project or task context that is absent from low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
 software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} can observe all system actions but expect
 pre-defined static policy and return only system events without semantic
-context, leaving the agent unable to follow the instructions or adapt
-rules.
+context, leaving the agent unable to follow its behavioral directives or unsafe to adapt
+rules at runtime based on project or task context.
 
 % ¶5: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be programmable by
