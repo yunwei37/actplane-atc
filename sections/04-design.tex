@@ -85,7 +85,7 @@ enforcement, and feedback loop.}
 \subsection{Policy DSL}
 \label{sec:dsl}
 
-The DSL bridges AI agent intent and enforceable system actions.
+To address C1, the DSL bridges AI agent intent and enforceable system actions.
 A policy contains \emph{sources} that introduce labels,
 \emph{rules} that match labeled events at sinks, and optional
 \emph{gates} that express cross-event ordering constraints. The
@@ -151,7 +151,7 @@ about BPF maps, verifier constraints, or binary layout.
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
 
-\sys{} represents policy state as labels on OS objects. Processes, files,
+To address C2, \sys{} represents policy state as labels on OS objects. Processes, files,
 and network endpoints each carry a 64-bit label mask, enabling
 cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
 not reach a network endpoint''). A source declaration adds labels when an
@@ -196,10 +196,11 @@ entire session without requiring explicit label cleanup.
 \subsection{Layered Policy Authority}
 \label{sec:authority}
 
-Agents must adapt policy at runtime: a sub-agent spawned for a narrow
-sub-task should operate under tighter constraints, and the current task
-may require a sanctioned exception to an inherited constraint; but
-adaptation must never weaken platform or project constraints.
+To address C3, agents must adapt policy at runtime: a sub-agent spawned
+for a narrow sub-task should operate under tighter constraints, and the
+current task may require a sanctioned exception to an inherited
+constraint; but adaptation must never weaken platform or project
+constraints.
 
 \sys{} organizes policy around a \emph{domain tree}. A domain is the
 runtime policy boundary for a process tree: every pid maps to a domain,

@@ -80,8 +80,9 @@ effects that follow once a tool starts executing: a subprocess, a
 shell-out, or a compiled binary can bypass the tool boundary entirely.
 What remains missing is the connection between AI agent intent and
 project or task context on one side, and deterministic OS-level
-observation and enforcement on the other. The empirical study below asks
-whether real project instructions require this connection.
+observation and enforcement on the other. The empirical study below
+characterizes how strongly real project instructions demand this
+connection.
 
 \section{Empirical Study}
 \label{sec:empirical}
@@ -224,8 +225,6 @@ propagation, and staleness-aware re-arming.
 \noindent\textbf{At the repository level, 81\% of repositories contain
 at least one cross-event directive, and 43\% require all four
 enforcement layers.}
-Cross-event enforcement is not a niche requirement affecting a few
-policy-heavy projects; it is pervasive across the corpus.
 
 \begin{figure}[t]
 \centering
@@ -273,14 +272,14 @@ context; S8 requires task context).
 
 \noindent\textbf{Cross-event directives are 95\% context-dependent,
 compared to 58\% for content directives.}
-Cross-event directives are 95.3\% context-dependent (76.7\% project,
-18.6\% task), compared to 57.5\% for content directives. This compounds
-the enforcement challenge: directives that require cross-event IFC
-almost never specify the concrete commands and paths needed to write the
-rule. Statically authored rules can cover only the self-contained
-fraction; the majority require the agent itself to read the repository,
-interpret the current task, and produce a concrete policy before
-enforcement begins.
+Of cross-event directives, 76.7\% require project context and 18.6\%
+task context (95.3\% total); content directives are only 57.5\%
+context-dependent. This compounds the enforcement challenge: directives
+that require cross-event IFC almost never specify the concrete commands
+and paths needed to write the rule. Statically authored rules can cover
+only the self-contained fraction; the majority require the agent itself
+to read the repository, interpret the current task, and produce a
+concrete policy before enforcement begins.
 
 \begin{figure}[t]
 \centering

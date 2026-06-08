@@ -43,9 +43,9 @@ systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel}
 lose track of system actions when agents shell out or spawn subprocesses: the
 same \texttt{git~push} can be reached through a tool call, a
-\texttt{bash~-c} wrapper, or a compiled binary; and 81\% of projects
-require cross-event state tracking that tool-level interception cannot
-provide. OS-level
+\texttt{bash~-c} wrapper, or a compiled binary; and at the repository level, 81\% of projects
+contain cross-event directives that tool-level interception cannot
+enforce. OS-level
 mechanisms~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} observe all system actions but expect pre-defined
 static policy and return only system events without semantic context; yet

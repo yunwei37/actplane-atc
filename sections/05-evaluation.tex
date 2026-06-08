@@ -1,11 +1,12 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
-We evaluate \sys{} along three axes. RQ1 measures end-to-end policy
-compliance on directive-derived rules from the empirical corpus;
-RQ2 quantifies per-event and end-to-end overhead; RQ3 tests
-real-world coding tasks on an OctoBench subset with the official
-judge.
+We evaluate \sys{} along three evaluation research questions
+(RQ1--RQ3, distinct from the empirical E-RQs in \S\ref{sec:empirical}).
+RQ1 measures end-to-end policy compliance on directive-derived rules
+from the empirical corpus; RQ2 quantifies per-event and end-to-end
+overhead; RQ3 tests real-world coding tasks on an OctoBench subset with
+the official judge.
 
 \begin{description}
 \item[RQ1 (Policy compliance)] Compared with prompt-filter, tool-layer,
@@ -50,51 +51,6 @@ AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the value
 of semantic feedback on top of OS-level observation.
 
 %% ----------------------------------------------------------------
-\subsection{Rule Set Construction}
-\label{sec:eval:ruleset}
-
-The empirical study identifies 607~OS-enforceable directives:
-392~per-event and 215~cross-event. RQ1 uses this subset because these
-directives can be represented at process, file, or network hooks.
-Semantic-only and content directives are excluded: the former have no
-system-observable counterpart; the latter require file-content inspection
-rather than OS-level IFC. The evaluation pipeline enforces strict
-separation of concerns across independent actors.
-
-\paragraph{Pipeline overview.}
-The pipeline has five stages with strict actor separation
-(Figure~\ref{fig:rq1-pipeline}).
-A \emph{translation agent} reads the sampled directive text, the
-project's \texttt{CLAUDE.md}, the cloned repository, and the DSL
-reference to produce a rule file. The agent iteratively invokes the
-\sys{} compiler as a tool: if a generated rule fails to compile, the
-agent observes the compiler diagnostic, revises the rule, and retries
-until compilation succeeds. This closed-loop process ensures that every
-sampled directive yields a syntactically valid, compiled DSL rule; the
-translation agent cannot see traces or ground truth.
-A separate trace generator reads the directive and project structure to
-produce five trace families per statement, each with a
-ground-truth header; it cannot see the rule file, preventing circular
-bias. The families cover allowed-effect compliant behavior, lookalike
-compliant behavior, directly visible violations, script-mediated
-violations, and opaque-fixture violations. Script-mediated traces split
-script authoring and script execution across separate tool calls; opaque
-traces expose only a neutral helper entrypoint while the real side effect
-is visible at runtime.
-The eval harness replays each trace under each system, collects the
-system response, and issues bounded tool-action turns to a tested LLM
-that serves as the evaluated agent.
-Finally, a scorer compares the tested LLM's decision against
-ground truth and classifies the outcome as TP, TN, FP, or FN.
-Because the translation agent and the trace generator are different
-actors, translation blind spots do not hide in traces; because the tested
-LLM never sees ground truth, it acts like a real agent.
-Runtime artifacts are frozen before execution from the same directive and
-project context.
-Figure~\ref{fig:policy-example} shows representative per-event and
-cross-event \sys{} rules.
-
-%% ----------------------------------------------------------------
 \subsection{RQ1: End-to-End Policy Compliance}
 \label{sec:eval:rq1}
 
@@ -108,7 +64,7 @@ natural-language rule to agent-level decision.}
 \label{fig:rq1-pipeline}
 \end{figure}
 
-\paragraph{Method.}
+\paragraph{Motivation for a new benchmark.}
 Existing enforcement benchmarks such as
 ShieldAgent-Bench~\cite{li2025shieldagent} and
 ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall
@@ -119,58 +75,73 @@ measure attack-success-rate reduction on AgentDojo
 scenarios~\cite{debenedetti2024agentdojo}. However, all operate at the
 tool-call boundary: they do not test whether enforcement holds when an
 agent reaches the same system effect through a subprocess, a shell
-script, or a compiled binary. 
+script, or a compiled binary.
 
-We therefore construct a trace-conditioned
-benchmark that derives rules from real instruction-file directives and
-exercises five trace families, including script-mediated and
-opaque-fixture violations that are invisible at the tool-call level
-(Figure~\ref{fig:rq1-pipeline}). Each trace exercises whether a runtime
-policy enforcement system connects an intent-level directive to concrete
-tool and OS effects.
-We evaluate 38 manifest-selected statements, sampling 2--3 from each of
-15 repositories to cover both
-per-event and cross-event rules, project- and task-context requirements,
-and common repository policy themes. The final manifest contains 20
-per-event and 18 cross-event rules, proportional to the 65\%/35\%
-split in the full corpus. No system outcome is used to select statements
-or repair policy artifacts.
-For each statement we construct five manifest-listed traces: two compliant
-families (allowed-effect and lookalike) and three violation
-families (visible, script-mediated, and opaque-fixture). This yields
-190 traces and 760 system--trace cells across four systems: prompt-filter,
-tool-regex, \sys{} without structured feedback (\textsc{\sys{}-opaque}),
-and full \sys{}.
+\paragraph{Rule set and scope.}
+The empirical study identifies 607~OS-enforceable directives:
+392~per-event and 215~cross-event. RQ1 uses this subset because these
+directives can be represented at process, file, or network hooks.
+Semantic-only and content directives are excluded: the former have no
+system-observable counterpart; the latter require file-content inspection
+rather than OS-level IFC.
+We evaluate 38 randomly-selected statements, sampling 2--3 from each of
+15 repositories to cover both per-event and cross-event rules, project-
+and task-context requirements, and common repository policy themes. The
+final manifest contains 20 per-event and 18 cross-event rules,
+proportional to the split in the full corpus.
 
-RQ1 is an end-to-end runtime enforcement measurement: given the same
-directive and trace-conditioned agent context, each of the four systems
-(\S\ref{sec:eval:setup}) must connect the directive to the proposed
-action or resulting system effects, intervene on violations, and steer
-the agent toward a policy-correct outcome. For prompt-filter and
-tool-regex, a translation agent generates the policy artifact (LLM
-classifier prompt or regex) from the same directive and project context
-used for \sys{} DSL rules; all artifacts are frozen before execution.
-
+\paragraph{Pipeline.}
+We construct a trace-conditioned benchmark that exercises five 
+challenging trace
+families, including script-mediated and opaque-fixture violations that
+are invisible at the tool-call level.
+The pipeline has five stages with strict actor separation
+(Figure~\ref{fig:rq1-pipeline}).
+A \emph{translation agent} reads the sampled directive text, the
+project's \texttt{CLAUDE.md}, the cloned repository, and the DSL
+reference to produce a rule file. The agent iteratively invokes the
+\sys{} compiler as a tool: if a generated rule fails to compile, the
+agent observes the compiler diagnostic, revises the rule, and retries
+until compilation succeeds. The translation agent cannot see traces or
+ground truth. For prompt-filter and tool-regex, a translation agent
+generates the corresponding policy artifact (LLM classifier prompt or
+regex) from the same directive and project context; all artifacts are
+frozen before execution.
+A separate \emph{trace generator} reads the directive and project
+structure to produce five trace families per statement, each with a
+ground-truth header; it cannot see the rule file, preventing circular
+bias. The families cover allowed-effect compliant behavior, lookalike
+compliant behavior, directly visible violations, script-mediated
+violations, and opaque-fixture violations. Script-mediated traces split
+script authoring and execution across separate tool calls; opaque traces
+expose only a neutral helper entrypoint while the real side effect is
+visible at runtime.
 Each trace is a JSONL transcript containing a user prompt and concrete
 tool calls that establish the repo state. During replay the harness
 executes each tool call on a copy-on-write repository clone, and the
-tested agent continues for a bounded number of real Agent SDK tool
-steps. Ground truth and policy artifacts are not shown to the tested
-agent.
+tested agent continues for a bounded number of real tool steps. Ground
+truth and policy artifacts are not shown to the tested agent.
+For each statement we construct five traces: two compliant families
+(allowed-effect and lookalike) and three violation families (visible,
+script-mediated, and opaque-fixture). This yields 190 traces and 760
+system--trace cells across four systems: prompt-filter, tool-regex,
+\sys{} without structured feedback (\textsc{\sys{}-opaque}), and full
+\sys{}.
+Figure~\ref{fig:policy-example} shows representative \sys{} rules.
 
+\paragraph{Metric.}
 A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw
-runner result. TP means a valid violation trace received an
-enforcement-visible report, block, failure, intervention, or agent
-awareness; TN means a valid compliant trace completed without wrongful
-enforcement intervention; FP means a compliant trace was wrongly blocked,
-reported, failed, or steered away; FN means a violation trace was missed
-or left without enforcement-visible awareness. We report Decision
-Compliance Rate (DCR), the fraction of trace-conditioned decision points
-whose final outcome is policy-correct under the selected runtime policy
-enforcement system: \(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}
+runner result.
+TP means a violation trace received enforcement-visible intervention or
+agent awareness; TN means a compliant trace completed without wrongful
+intervention; FP means a compliant trace was wrongly blocked or steered;
+FN means a violation trace was missed.
+We report \emph{Decision Compliance Rate} (DCR), the
+fraction of trace-conditioned decision points whose final outcome is
+policy-correct:
+\(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}
 +\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end: it includes policy
-translation, runtime enforcement, feedback delivery, and agent recovery;
-it is not detector accuracy in isolation or unguided agent compliance.
+translation, runtime enforcement, feedback delivery, and agent recovery.
 All 760 system--trace cells and all 760 trajectory-judge cells are
 present, with no judge parse errors.
 
