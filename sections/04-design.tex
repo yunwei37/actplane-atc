@@ -233,6 +233,12 @@ Labels are monotonic: propagation adds labels but never removes them.
 Once an object carries a label, every subsequent consumer inherits it.
 This ensures that cross-event constraints remain checkable for the
 entire session without requiring explicit label cleanup.
+As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
+record an irrevocable fact. An agent may declassify labels it authored
+by submitting a narrowing delta to its own domain; labels governed by
+higher-authority rules cannot be declassified, and the recommended
+mitigation is process-level isolation (fork a subprocess for the
+sensitive read, confining acquired labels to that subtree).
 
 \subsection{Layered Policy Authority}
 \label{sec:authority}
