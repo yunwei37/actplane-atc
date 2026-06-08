@@ -264,28 +264,14 @@ exposing more of \sys{}'s per-event cost.
 
 \subsubsection{Microbenchmarks (Per-Syscall Latency)}
 
-We measure \sys{}'s per-event latency for six syscall types
-(\texttt{fork}, \texttt{exec}, \texttt{open}, \texttt{read},
-\texttt{write}, \texttt{connect}) under five no-hit configurations:
-native, and \sys{} with 1, 10, 32, and 100 active rules (AP-$N$ denotes
-\sys{} with $N$ rules). Each configuration $\times$ syscall type runs
-10K--100K iterations pinned to a single CPU core. For each trial we
-compute p50 and p99 latencies; Table~\ref{tab:micro-latency} reports
-the median across seven trials.
-
-\paragraph{Measured operations.}
-\begin{itemize}
-\item \texttt{fork}: \texttt{fork()} + parent \texttt{waitpid()}.
-\item \texttt{exec}: \texttt{fork()} + child
-  \texttt{execve("/bin/true")} + parent \texttt{waitpid()}.
-\item \texttt{open}: \texttt{open(O\_RDONLY|O\_CLOEXEC)};
-  \texttt{close()} outside the timed region.
-\item \texttt{read}: \texttt{read(fd, buf, 4096)} from an
-  already-open file.
-\item \texttt{write}: \texttt{write(fd, buf, 4096)} to a temp file.
-\item \texttt{connect}: UDP \texttt{connect(127.0.0.1:9)} on a
-  pre-created socket.
-\end{itemize}
+We measure \sys{}'s per-event latency for five syscall types
+(\texttt{fork}, \texttt{exec}, \texttt{open}, \texttt{write},
+\texttt{connect}) under five no-hit configurations: native, and \sys{}
+with 1, 10, 32, and 100 active rules (AP-$N$ denotes \sys{} with $N$
+rules). Each configuration $\times$ syscall type runs 10K--100K
+iterations pinned to a single CPU core. For each trial we compute p50
+and p99 latencies; Table~\ref{tab:micro-latency} reports the median
+across seven trials.
 
 \paragraph{Results.}
 
@@ -296,42 +282,35 @@ Values are medians across seven trials.}
 \label{tab:micro-latency}
 \begin{tabular}{lrrrr}
 \toprule
-Operation & Native p50 & AP-32 p50 & AP-100 p50 & AP-100 p99 \\
+Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
 \midrule
-\texttt{fork}    & 48.94 & 74.05 & 69.33 & 178.01 \\
-\texttt{exec}    & 248.30 & 314.86 & 317.03 & 490.37 \\
-\texttt{open}    & 0.58 & 6.92 & 13.40 & 15.36 \\
-\texttt{read}    & 0.31 & 0.72 & 0.78  & 1.42 \\
-\texttt{write}   & 0.27 & 0.79 & 0.84  & 1.59 \\
-\texttt{connect} & 0.58 & 1.98 & 3.17  & 3.90 \\
-\midrule
-\textit{Average} & \textit{49.83} & \textit{66.55} & \textit{67.43} & \textit{115.11} \\
+\texttt{fork}    & 48.94 & 52.06 & 74.05 & 69.33 \\
+\texttt{exec}    & 248.30 & 263.95 & 314.86 & 317.03 \\
+\texttt{open}    & 0.58 & 1.24 & 6.92 & 13.40 \\
+\texttt{write}   & 0.27 & 0.78 & 0.79 & 0.84 \\
+\texttt{connect} & 0.58 & 0.61 & 1.98 & 3.17 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Per-call overhead is dominated by process operations, while file and
 network operations add single-digit microseconds
-(Table~\ref{tab:micro-latency}). \texttt{fork} and \texttt{exec} have
-the highest absolute cost but a modest overhead ratio
-(1.3--1.5$\times$) because process-management and scheduler latency
-dominates the baseline.
-File operations (\texttt{open}, \texttt{read}, \texttt{write}) and
-\texttt{connect} are fast in the native case; \sys{} adds a path-hash
-lookup and rule scan on each. The arithmetic average across all six
-operations is 67.43\,\textmu s at AP-100 p50, a 1.4$\times$ multiplier
-over the native average.
+(Table~\ref{tab:micro-latency}). \texttt{fork} and \texttt{exec} incur
+the highest absolute added cost (3--69\,\textmu s at AP-100) but remain
+modest relative to their native latency because process-management and
+scheduler latency dominates the baseline.
+File operations (\texttt{open}, \texttt{write}) and \texttt{connect} are
+sub-microsecond natively; \sys{} adds a path-hash lookup and rule scan,
+raising \texttt{open} to 13.4\,\textmu s at AP-100.
 
-Despite per-call multipliers on individual fast-path operations, the
-macrobenchmark impact remains low (1.9\%--8.4\%) because the absolute
-added cost per call is small relative to the computation, I/O, and LLM
-inference time that dominates agent workloads. The cumulative \sys{} overhead of an entire tool-call's syscall
-sequence is 5--6 orders of magnitude smaller than a single LLM inference
-turn (2--10\,s).
-
-All overhead measurements use no-hit configurations, which exercise
-steady-state label propagation and rule scanning without violation
-reporting or userspace feedback formatting.
+Despite these per-call additions, the macrobenchmark impact remains low
+(1.9\%--8.4\%) because absolute added cost is small relative to the
+computation, I/O, and LLM inference time that dominates agent workloads.
+The cumulative \sys{} overhead of an entire tool-call's syscall sequence
+is 5--6 orders of magnitude smaller than a single LLM inference turn
+(2--10\,s). All overhead measurements use no-hit configurations, which
+exercise steady-state label propagation and rule scanning without
+violation reporting or userspace feedback formatting.
 
 %% ----------------------------------------------------------------
 \subsection{RQ3: Real-World Coding Tasks (OctoBench)}
