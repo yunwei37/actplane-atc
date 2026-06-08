@@ -31,8 +31,8 @@ Our key observation is that the required context is mainly within the agent itse
 We introduce \sys{}, a policy engine that allows agents to declare cross-event
 behavior as labeled information-flow control (IFC) policies under
 a layered authority model that ensures higher-authority rules cannot be
-weakened by agent-authored policy,
-observing and enforcing the agents' actions across process, file, and
+weakened by agent-authored policy.
+\sys{} observes and enforces actions across process, file, and
 network boundaries with semantic feedback.
 We implement \sys{} with eBPF and evaluate it across empirically studied
 policies, system workloads, and coding tasks, showing improved policy
