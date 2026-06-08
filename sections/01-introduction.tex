@@ -55,9 +55,7 @@ OS-level enforcement systems and sandboxes for traditional
 software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} can observe all system actions but expect
 pre-defined static policy and return only system events without semantic
-context, leaving the agent unable to follow its behavioral directives
-and runtime policy adaptation unconstrained, increasing safety and
-security risks.
+context, leaving the agent unable to follow its behavioral directives.
 
 % ¶5: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be programmable by
@@ -68,9 +66,9 @@ capture directive intent yet \emph{concrete} enough to compile to
 deterministic kernel checks. Second, enforcement must track
 policy-relevant state across tools, subprocesses, files, and network
 endpoints without imposing prohibitive per-syscall overhead. Third,
-programmability must not become an authority bypass: agents must be able
-to add context-specific constraints safely, but neither they nor their
-sub-agents may weaken inherited policy.
+programmability must not become an authority bypass, which requires a different threat model: traditional
+sandboxes requires a trusted administrator authors policy, agents are
+both policy author and constrained subject, they need a interfaceto add constraints safely while not weaken inherited policy set by trusted administrators or parent agents.
 
 % ¶6: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
