@@ -146,7 +146,7 @@ policy-correct:
 directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
 All 760 system--trace cells and all 760 primary trajectory-judge cells
-are present, with no judge parse errors. If a replication judge returns
+are present, with no judge parse errors. If a model-setting run yields
 \textsc{unclear}, we exclude that cell from the DCR denominator and
 report the unclear count in the artifact table; the DeepSeek-Pro V4 run
 marked 39 of 760 cells unclear.
@@ -160,10 +160,10 @@ two end-to-end model settings. In each setting, the tested agent,
 prompt-filter classifier, and trajectory judge use the indicated model.}
 \Description{Grouped bar chart comparing overall directive compliance
 rates under two model settings. With Qwen3.6-27B, prompt-filter is
-48.4 percent, tool-regex is 45.3 percent, ActPlane-opaque is 53.7
-percent, and ActPlane is 75.8 percent. With DeepSeek-Pro V4,
+48.4 percent, tool-regex is 45.3 percent, AgPlane-opaque is 53.7
+percent, and AgPlane is 75.8 percent. With DeepSeek-Pro V4,
 prompt-filter is 52.5 percent, tool-regex is 43.7 percent,
-ActPlane-opaque is 61.7 percent, and ActPlane is 77.4 percent.}
+AgPlane-opaque is 61.7 percent, and AgPlane is 77.4 percent.}
 \label{fig:rq1-dcr}
 \end{figure}
 
