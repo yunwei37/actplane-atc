@@ -45,65 +45,49 @@ project constraints.
 
 Given the dual role described in C3,
 \sys{} targets a \emph{cooperative but unreliable} agent: its
-original intent is honest and it aims to follow project constraints. But
-execution may diverge due to planning errors, shell-script side effects,
-opaque tool behavior, or prompt injection~\cite{perez2022prompt} that
-causes the agent to act against its declared policy. Divergence includes
-both accidental violations and prompt-injection-driven actions that
-systematically probe policy boundaries. \sys{} does not detect or
-prevent prompt injection itself; it enforces loaded rules independently
-of the agent's intent, providing defense-in-depth for actions that
-higher-authority rules happen to cover.
+original intent is honest, but execution may diverge due to planning
+errors, shell-script side effects, opaque tool behavior, or prompt
+injection~\cite{perez2022prompt}. \sys{} does not detect prompt
+injection; it enforces loaded rules independently of agent intent,
+providing defense-in-depth for actions that rules cover.
 The adversary can control prompt content, tool outputs, browser pages,
-and API responses, and can thereby induce the agent to issue arbitrary
-tool calls or shell commands; the adversary cannot compromise the kernel,
-the eBPF loader, the runner, or higher-authority policy blobs.
+and API responses, inducing the agent to issue arbitrary tool calls or
+shell commands; the adversary cannot compromise the kernel, the eBPF
+loader, the runner, or higher-authority policy blobs.
 
 \textbf{Security properties.}
-The adversary may cause the agent to violate its declared policy:
-exfiltrating sensitive data (e.g., \texttt{.env} secrets reaching the
-network), modifying files outside the permitted scope, executing
-forbidden commands, or bypassing required workflow steps (e.g.,
-committing without running tests). Given correctly authored rules that
-cover these actions, \sys{} enforces two kernel-level properties:
+The adversary may cause the agent to exfiltrate sensitive data, modify
+out-of-scope files, execute forbidden commands, or bypass required
+workflow steps. Given correctly authored rules that cover these actions,
+\sys{} enforces two kernel-level properties:
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
-never weaken, constraints inherited from higher-authority principals
-(platform or project); and
+never weaken, inherited higher-authority constraints; and
 (2)~\emph{mediation completeness}: no event at a \sys{} hook
 (exec, open, read, write, unlink, connect, fork) bypasses the rule
-check. This guarantees that every hooked operation is mediated, not that
-all policy-violating behaviors are caught: detection depends on whether
-the loaded rules and accumulated labels cover the violation.
-Block effects are synchronous at pre-operation hooks, eliminating
-TOCTOU gaps between policy check and action. Kill effects are
-post-operation: the triggering syscall completes (e.g., data may be
-written or a connection established), but the process is terminated
-immediately, preventing any subsequent action. Rules that must prevent
-a single operation's side effects (e.g., exfiltration via connect)
-should use block; kill is appropriate when the goal is to halt a
-multi-step sequence after the first observable violation. Notify effects
-are observation-only and do not prevent the triggering syscall.
+check. Mediation guarantees that every hooked operation is checked, not
+that all policy-violating behaviors are caught: detection depends on
+rule coverage and accumulated label state.
+Block effects are synchronous at pre-operation hooks (no TOCTOU gap).
+Kill effects are post-operation: the triggering syscall completes, but
+the process is terminated immediately; exfiltration-preventing rules
+should therefore use block. Notify effects are observation-only.
 
 \textbf{Trust boundaries.}
 Higher-authority policies (platform, project) are authored by trusted
-principals and enforced per the monotonic-authority property above.
-\sys{} covers alternate execution paths (subprocesses, shell wrappers,
-compiled binaries) that still manifest as monitored OS events; it does
-not cover semantic equivalence outside the specified policy vocabulary
-(e.g., a custom Git-protocol client that avoids \texttt{git push} while
-achieving the same effect). The system does not target a malicious
-process that attacks the kernel or exploits the loader.
+principals. \sys{} covers alternate execution paths (subprocesses,
+shell wrappers, compiled binaries) that manifest as monitored OS events;
+it does not cover semantic equivalence outside the policy vocabulary
+(e.g., a custom Git-protocol client bypassing \texttt{git push}).
 
-The trusted computing base (TCB) consists of the eBPF enforcement engine
-and pre-compiled higher-authority policy blobs, which are assumed to be
-signed and loaded through a trusted path. The runtime compiler and runner
-handle only agent-authored rules; bugs in these components can weaken the
-agent's own constraints but cannot affect higher-authority policy. The
-agent's entire process tree, including tools, shells, subprocesses, and
-sub-agents, constitutes the monitored domain. Kernel compromise, root or
-\texttt{CAP\_BPF} compromise, deliberate side channels, and semantic
-content checks not observable at syscall boundaries (e.g., whether a
-written file contains a credential) are out of scope.
+The TCB consists of the eBPF enforcement engine and pre-compiled
+higher-authority policy blobs, assumed signed and loaded through a
+trusted path. The compiler and runner handle only agent-authored rules
+and are outside the TCB: bugs in these components can weaken the agent's
+own constraints but cannot affect higher-authority policy. The monitored domain is the agent's entire
+process tree. Kernel compromise, \texttt{CAP\_BPF} compromise,
+deliberate side channels, and semantic content checks not observable at
+syscall boundaries (e.g., whether a written file contains a credential)
+are out of scope.
 
 \subsection{System Overview}
 
