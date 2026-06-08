@@ -43,7 +43,7 @@ project constraints.
 
 \subsection{Threat Model and Assumptions}
 
-Because the agent is both policy author and constrained subject (C3),
+Given the dual role described in C3,
 \sys{} targets a \emph{cooperative but unreliable} agent: its
 original intent is honest and it aims to follow project constraints. But
 execution may diverge due to planning errors, shell-script side effects,
@@ -78,8 +78,8 @@ prevent the triggering syscall.
 
 \textbf{Trust boundaries.}
 Higher-authority policies (platform, project) are authored by trusted
-principals and cannot be weakened by the agent; they guard against both
-unreliable execution and hijacked agent-level declarations. \sys{} covers alternate execution paths (subprocesses, shell wrappers,
+principals and enforced per the monotonic-authority property above.
+\sys{} covers alternate execution paths (subprocesses, shell wrappers,
 compiled binaries) that still manifest as monitored OS events; it does
 not cover semantic equivalence outside the specified policy vocabulary
 (e.g., a custom Git-protocol client that avoids \texttt{git push} while
@@ -235,7 +235,7 @@ entire session without requiring explicit label cleanup.
 To address C3, \sys{} must let agents adapt policy at runtime without
 weakening inherited constraints.
 
-\sys{} organizes policy around a \emph{domain tree}. A domain is the
+\sys{} organizes policy around a \emph{domain hierarchy}. A domain is the
 runtime policy boundary for a process tree: every pid maps to a domain,
 and every domain maps to an effective policy set. The core data model is:
 
@@ -264,7 +264,7 @@ tracks like any other label-propagating event. Higher-authority policy
 can further constrain which processes may write the declaration file,
 keeping exception paths under platform or project authority.
 
-The prototype resolves the initial domain tree at compile or load time.
+The prototype resolves the initial domain hierarchy at compile or load time.
 Runtime policy additions (sub-agent restrictions, task-specific rules)
 are submitted as precompiled deltas through a userspace ring buffer. The
 kernel derives the submitting domain from the caller's pid-to-domain
@@ -309,7 +309,7 @@ next turn. The runner is intentionally thin: policy decisions remain in
 the kernel; the runner mediates between the compiled policy, the target
 process, and agent-facing diagnostics.
 
-The domain tree and authority checker are implemented in the eBPF.
+The domain hierarchy and authority checker are implemented in the eBPF.
 Each pid-to-domain mapping is stored in a BPF map; runtime deltas
 submitted through a userspace ring buffer are validated in-kernel against the
 submitting domain's position in the tree before merging.
