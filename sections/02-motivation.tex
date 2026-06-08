@@ -142,21 +142,29 @@ requirement.}
 
 \subsection{E-RQ1: Are Instruction Files Behavioral Policies?}
 
-\noindent\textbf{Instruction files are predominantly behavioral
-policies: 64\% of statements are directives.}
 A statement is a \emph{directive} if it asks the agent to perform, avoid,
 or condition an action; otherwise it is descriptive context.
 Of the 2{,}116~statements, 1{,}361 (64.3\%) are directives and
-755 (35.7\%) are descriptions. The median repository has 15~directives
-at a 71.0\% directive fraction. This statement-level view diverges from
-line-count analysis: directives tend to be terse, while descriptions
-include long directory listings and architecture notes. A file that looks
-balanced by lines can still contain many independent directives the agent
-must follow.
+755 (35.7\%) are descriptions (Figure~\ref{fig:empirical-rq1}).
+
+\noindent\textbf{Instruction files are predominantly behavioral
+policies: the median repository has 71\% directives.}
+75\% of repositories have a directive fraction above 50\%.
+At the extremes, one repository is entirely descriptive (0\% directives)
+while another is 97\% directives.
+
+\noindent\textbf{Statement-level and line-level analyses yield different
+pictures.}
+Directives average 3.6~lines per statement while descriptions average
+6.8~lines. By statement count, 64.3\% of content is directive; by line
+count, only 48.6\%. A file that appears balanced by lines can contain
+many independent directives hidden inside verbose descriptive context.
+Prior line-level and file-level studies see a balanced document;
+statement-level analysis reveals a directive majority.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/empirical_rq1_directive_fraction.png}
+\includegraphics[width=\columnwidth]{figures/empirical_rq1_directive_fraction.pdf}
 \caption{Directive fraction per repository by statement count. Most
 repositories contain a majority of directive statements.}
 \Description{Sorted bar chart of directive fraction per repository.}
@@ -165,20 +173,25 @@ repositories contain a majority of directive statements.}
 
 \subsection{E-RQ2: Which Topics Contain Directives?}
 
-\noindent\textbf{Directive density varies sharply by topic.}
 Each statement is assigned to one of 12~topic categories adapted from
-prior instruction-file studies, applied at statement granularity rather
-than file granularity.
+prior instruction-file
+studies~\cite{chatlatanagulchai2025agentreadmes},
+applied at statement granularity rather than file granularity
+(Figure~\ref{fig:empirical-rq2}).
+
+\noindent\textbf{Directive density varies sharply by topic, making
+file-level classification misleading for enforcement.}
 Development Process and Implementation Details are directive-heavy
 (86.7\% and 85.2\%, respectively). Architecture is mostly descriptive:
 directory layouts and design summaries make it one of the largest topics
 by line count, yet only 23.0\% of its statements are directives. A file
-classified as ``Architecture'' may mostly describe the project, while a
-shorter Development Process section packs many enforceable rules.
+classified as ``Architecture'' by prior studies may mostly describe the
+project, while a shorter Development Process section packs many
+enforceable rules.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/empirical_rq2_directive_ratio.png}
+\includegraphics[width=\columnwidth]{figures/empirical_rq2_directive_ratio.pdf}
 \caption{Directive ratio by topic.}
 \Description{Bar chart showing directive ratio for each topic.}
 \label{fig:empirical-rq2}
@@ -186,10 +199,9 @@ shorter Development Process section packs many enforceable rules.
 
 \subsection{E-RQ3: Which Directives Require OS-Level Enforcement?}
 
-\noindent\textbf{83\% of directives constrain system-level actions, and
-81\% of repositories require cross-event enforcement.}
 Each directive is classified into the first matching tier of an
-enforcement waterfall: \emph{semantic-only} (reasoning, communication, or
+enforcement waterfall (Figure~\ref{fig:waterfall-enforcement}):
+\emph{semantic-only} (reasoning, communication, or
 output style), \emph{content} (predicates over file contents),
 \emph{per-event} (a single command, file access, or network connection),
 and \emph{cross-event} (history, ordering, lineage, or information flow).
@@ -197,65 +209,98 @@ We call the union of content, per-event, and cross-event directives
 \emph{system-observable}; the per-event and cross-event subset that
 \sys{} can enforce at OS hooks is \emph{OS-enforceable}.
 
-Of 1{,}361~directives, 1{,}127 (82.8\%) involve commands, files,
-network effects, or file contents. Breaking these down: 234 (17.2\%) are
-semantic-only, 520 (38.2\%) require content inspection, 392 (28.8\%)
-match a single OS event, and 215 (15.8\%) require cross-event state. The
-607~per-event and cross-event directives form the OS-enforceable subset
-that \sys{} targets (Table~\ref{tab:examples}, S2--S7, illustrates all
-four levels). Figure~\ref{fig:cumulative} shows the cumulative view:
-content inspection alone covers 55.4\% of directives; adding per-event
+\noindent\textbf{83\% of directives constrain system-level actions.}
+Of 1{,}361~directives, 234 (17.2\%) are semantic-only, 520 (38.2\%)
+require content inspection, 392 (28.8\%) match a single OS event, and
+215 (15.8\%) require cross-event state
+(Table~\ref{tab:examples}, S2--S7 illustrate all four levels).
+Content inspection alone covers 55.4\% of directives; adding per-event
 matching reaches 84.2\%; the remaining 15.8\% require cross-event IFC.
-At the repository level, cross-event policies are common: 81\% of
-repositories contain at least one, and 43\% require all four enforcement
-layers (Figure~\ref{fig:repo-req}).
+
+\noindent\textbf{Cross-event directives concentrate in Development
+Process, which accounts for 39.5\% of all cross-event directives
+(Figure~\ref{fig:enforcement-by-topic}).}
+Four recurring patterns emerge: temporal ordering (``run tests before
+committing''), cross-file consistency (``update docs when behavior
+changes''), multi-step workflows (release checklists with verification
+steps), and conditional triggers (``if you change specs, also update
+SDK''). These map directly to IFC primitives: lineage gates, label
+propagation, and staleness-aware re-arming.
+
+\noindent\textbf{At the repository level, 81\% of repositories contain
+at least one cross-event directive, and 43\% require all four
+enforcement layers.}
+Cross-event enforcement is not a niche requirement affecting a few
+policy-heavy projects; it is pervasive across the corpus.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/cumulative_coverage.png}
-\caption{Cumulative directive coverage by enforcement layer.}
-\Description{Line chart of cumulative coverage by enforcement layer.}
-\label{fig:cumulative}
+\includegraphics[width=0.85\columnwidth]{figures/empirical-waterfall-enforcement.pdf}
+\caption{Enforcement-level waterfall. Each directive exits at the first
+matching tier.}
+\Description{Flowchart showing the enforcement-level waterfall decision
+procedure with four outcomes: semantic-only, content, per-event,
+cross-event.}
+\label{fig:waterfall-enforcement}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/repo_requirements.png}
-\caption{Fraction of repositories requiring each enforcement layer.}
-\Description{Bar chart showing fraction of repos needing each layer.}
-\label{fig:repo-req}
+\includegraphics[width=\columnwidth]{figures/empirical_rq3_enforcement_by_topic.pdf}
+\caption{Enforcement profile by topic (normalized). Topics exhibit
+distinct archetypes; cross-event directives concentrate in Development
+Process.}
+\Description{Stacked horizontal bar chart showing the normalized
+enforcement-level breakdown for each topic category.}
+\label{fig:enforcement-by-topic}
 \end{figure}
 
 \subsection{E-RQ4: What Context Is Needed to Instantiate Rules?}
 
-\noindent\textbf{74\% of system-observable directives require project or
-task context to instantiate as concrete rules.}
-A directive is \emph{self-contained} if all commands, paths, and patterns
-are explicit. It requires \emph{project context} if it references an
-unresolved repository-specific concept (``the full test suite,'' ``the
-migration tool''). It requires \emph{task context} if it depends on the
-current user request or a per-session grant (``unless explicitly
+Each system-observable directive is classified by what additional context
+an enforcement mechanism needs beyond the directive text itself
+(Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all
+commands, paths, and patterns are explicit; \emph{project context} if it
+references an unresolved repository-specific concept (``the full test
+suite,'' ``the migration tool''); or \emph{task context} if it depends on
+the current user request or a per-session grant (``unless explicitly
 requested,'' ``without approval'').
 
-Of the 1{,}127~system-observable directives, only 26.4\% specify all
-commands, paths, and patterns needed to produce a concrete rule directly.
-Another 64.2\% require \emph{project context}: the directive mentions
-``the test suite,'' ``the linter,'' or ``upstream source,'' whose
-concrete command or path must be resolved from the repository. The
-remaining 9.4\% require \emph{task context}: the rule depends on the
-current user request or a per-session grant
-(Figure~\ref{fig:empirical-rq4}). This quantifies the gap between a
-natural-language instruction and a deployable enforcement rule: statically
-authored rules can cover only the self-contained fraction, while the
-majority require an entity with project and task context, such as the
-agent itself, to read the repository, interpret the current task, and
-produce a concrete policy before enforcement begins
-(Table~\ref{tab:examples}: S4 is self-contained; S5--S7 require project
+\noindent\textbf{74\% of system-observable directives require project
+or task context to instantiate as concrete rules.}
+Of the 1{,}127~system-observable directives, only 26.4\% are
+self-contained. Another 64.2\% require project context: the directive
+mentions ``the test suite,'' ``the linter,'' or ``upstream source,''
+whose concrete command or path must be resolved from the repository.
+The remaining 9.4\% require task context
+(Figure~\ref{fig:empirical-rq4};
+Table~\ref{tab:examples}: S4 is self-contained; S5--S7 require project
 context; S8 requires task context).
+
+\noindent\textbf{The hardest-to-enforce directives are also the most
+context-dependent.}
+Cross-event directives are 95.3\% context-dependent (76.7\% project,
+18.6\% task), compared to 57.5\% for content directives. This compounds
+the enforcement challenge: directives that require cross-event IFC
+almost never specify the concrete commands and paths needed to write the
+rule. Statically authored rules can cover only the self-contained
+fraction; the majority require the agent itself to read the repository,
+interpret the current task, and produce a concrete policy before
+enforcement begins.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/empirical_rq4_context_overall.png}
+\includegraphics[width=0.78\columnwidth]{figures/empirical-waterfall-context.pdf}
+\caption{Context-requirement waterfall. Each system-level directive
+exits at the first matching tier.}
+\Description{Flowchart showing the context-requirement waterfall with
+three outcomes: none, project, task.}
+\label{fig:waterfall-context}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/empirical_rq4_context_overall.pdf}
 \caption{Context required to instantiate system-observable directives.}
 \Description{Bar chart showing none, project, and task context
 requirements for system-observable directives.}

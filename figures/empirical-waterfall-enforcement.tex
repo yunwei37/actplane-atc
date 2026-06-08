@@ -1,0 +1,42 @@
+\documentclass[border=6pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+\begin{tikzpicture}[
+  >=Stealth,
+  decision/.style={draw, rounded corners=2pt, minimum height=0.75cm,
+              minimum width=3.8cm, align=center, font=\normalsize,
+              fill=blue!8},
+  outcome/.style={draw, rounded corners=2pt, minimum height=0.65cm,
+              minimum width=2.2cm, align=center, font=\normalsize,
+              fill=orange!15},
+  arr/.style={->, thick},
+  lbl/.style={font=\small, text=black!70},
+]
+
+\node[decision] (start) at (0,5.0) {Directive};
+
+\node[decision] (q1) at (0,3.6) {Involves system-level\\behavior?};
+\node[outcome] (sem) at (4.2,3.6) {semantic-only};
+
+\node[decision] (q2) at (0,2.0) {Requires file content\\inspection?};
+\node[outcome] (cont) at (4.2,2.0) {content};
+
+\node[decision] (q3) at (0,0.4) {Decidable from single\\operation?};
+\node[outcome] (per) at (4.2,0.4) {per-event};
+
+\node[outcome] (cross) at (0,-1.0) {cross-event};
+
+\draw[arr] (start) -- (q1);
+\draw[arr] (q1) -- node[above, lbl] {No} (sem);
+\draw[arr] (q1) -- node[left, lbl] {Yes} (q2);
+\draw[arr] (q2) -- node[above, lbl] {Yes} (cont);
+\draw[arr] (q2) -- node[left, lbl] {No} (q3);
+\draw[arr] (q3) -- node[above, lbl] {Yes} (per);
+\draw[arr] (q3) -- node[left, lbl] {No} (cross);
+
+\end{tikzpicture}
+\end{document}
