@@ -41,7 +41,7 @@ actor write or specialize policy introduces a privilege-weakening risk. Agents a
 specialize targets, or narrow scope, but must never weaken platform or
 project constraints.
 
-\subsection{Threat Model and Assumptions}
+\subsection{Threat Model}
 
 Given the dual role described in C3,
 \sys{} targets a \emph{cooperative but unreliable} agent: its
@@ -50,8 +50,10 @@ execution may diverge due to planning errors, shell-script side effects,
 opaque tool behavior, or prompt injection~\cite{perez2022prompt} that
 causes the agent to act against its declared policy. Divergence includes
 both accidental violations and prompt-injection-driven actions that
-systematically probe policy boundaries; higher-authority rules cover both
-cases because they are enforced independently of the agent's intent.
+systematically probe policy boundaries. \sys{} does not detect or
+prevent prompt injection itself; it enforces loaded rules independently
+of the agent's intent, providing defense-in-depth for actions that
+higher-authority rules happen to cover.
 The adversary can control prompt content, tool outputs, browser pages,
 and API responses, and can thereby induce the agent to issue arbitrary
 tool calls or shell commands; the adversary cannot compromise the kernel,
@@ -62,19 +64,25 @@ The adversary may cause the agent to violate its declared policy:
 exfiltrating sensitive data (e.g., \texttt{.env} secrets reaching the
 network), modifying files outside the permitted scope, executing
 forbidden commands, or bypassing required workflow steps (e.g.,
-committing without running tests). Against these goals, \sys{} enforces
-two properties:
+committing without running tests). Given correctly authored rules that
+cover these actions, \sys{} enforces two kernel-level properties:
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
 never weaken, constraints inherited from higher-authority principals
 (platform or project); and
-(2)~\emph{enforcement completeness}: every event at a \sys{} hook
-(exec, open, read, write, unlink, connect, fork) is checked against the
-current label state and rule set.
+(2)~\emph{mediation completeness}: no event at a \sys{} hook
+(exec, open, read, write, unlink, connect, fork) bypasses the rule
+check. This guarantees that every hooked operation is mediated, not that
+all policy-violating behaviors are caught: detection depends on whether
+the loaded rules and accumulated labels cover the violation.
 Block effects are synchronous at pre-operation hooks, eliminating
 TOCTOU gaps between policy check and action. Kill effects are
-post-operation but terminate the process immediately, preventing any
-subsequent action. Notify effects are observation-only and do not
-prevent the triggering syscall.
+post-operation: the triggering syscall completes (e.g., data may be
+written or a connection established), but the process is terminated
+immediately, preventing any subsequent action. Rules that must prevent
+a single operation's side effects (e.g., exfiltration via connect)
+should use block; kill is appropriate when the goal is to halt a
+multi-step sequence after the first observable violation. Notify effects
+are observation-only and do not prevent the triggering syscall.
 
 \textbf{Trust boundaries.}
 Higher-authority policies (platform, project) are authored by trusted
@@ -180,7 +188,10 @@ The DSL is intentionally narrower than a general mandatory access-control
 language. It targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, require a validation step before a release action, and
-route sensitive data through an approved tool. The compiler lowers these
+route sensitive data through an approved tool. In our evaluation, an LLM
+translation agent successfully translates all 607~OS-enforceable
+directives from the corpus into compilable DSL rules
+(\S\ref{sec:evaluation}). The compiler lowers these
 patterns into fixed-size kernel tables; policy authors need not reason
 about BPF maps, verifier constraints, or binary layout.
 
@@ -309,7 +320,14 @@ next turn. The runner is intentionally thin: policy decisions remain in
 the kernel; the runner mediates between the compiled policy, the target
 process, and agent-facing diagnostics.
 
-The domain hierarchy and authority checker are implemented in the eBPF.
-Each pid-to-domain mapping is stored in a BPF map; runtime deltas
-submitted through a userspace ring buffer are validated in-kernel against the
-submitting domain's position in the tree before merging.
+The domain hierarchy and authority checker are implemented in the eBPF
+engine. Each domain is a BPF map entry storing a parent pointer, an
+inherited-rule mask, and an inherited-label mask. Each pid-to-domain
+mapping is stored in a separate BPF map. When a runtime delta arrives
+through the userspace ring buffer, the checker looks up the submitting
+process's domain via \texttt{bpf\_get\_current\_pid\_tgid()}, verifies
+the target domain is the submitter's own or a descendant, and validates
+the delta against the inherited masks: new rules and labels are admitted
+only if they do not clear any inherited-mask bit or modify any
+inherited rule effect, source, gate, or exception predicate. Weakening
+deltas are rejected before they reach the effective policy.
