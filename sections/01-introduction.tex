@@ -3,15 +3,11 @@
 % ¶1: Context — agents are powerful and widely deployed through harnesses
 AI agents increasingly operate as long-running actors with access to
 tools, files, shells, browsers, package managers, and external
-APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. Coding agents are a
-prominent example~\cite{yang2024sweagent,wang2025openhands}. As agents gain autonomy,
-they require \emph{AI agent harnesses}: software around the model that
-improves agent performance while enforcing behavioral constraints for
-safety, security, and compliance~\cite{fowler-harness}.
+APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. They are widely used for Coding ~\cite{yang2024sweagent,wang2025openhands}, personal assistant and working. Besides the LLM, agents require AI agent harnesses: software around the model that improves agent performance while enforcing behavioral constraints for safety, security, and compliance~\cite{fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
-A central component of such a harness is a policy engine~\cite{langchain-harness}: the
-part that enforces constraints over the agent's concrete
+A major component of such a harness is a policy engine~\cite{langchain-harness}: the
+part that observes and enforces constraints over the agent's concrete
 actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
 (\texttt{CLAUDE.md},
@@ -58,44 +54,37 @@ context, leaving the agent unable to follow its behavioral directives.
 We argue that an agent-harness policy engine should be programmable by
 the agent itself and take effect at OS level: it should let the agent
 use live project and task context to enforce its own actions and adapt at
-runtime. Our key observation is that the required context is mainly within the agent itself: the agent must read
+runtime. Our key observation is that the required context is mainly within the agent itself: the agent already read
 the repository, interpret the current task, and resolve abstract
 references into concrete
-commands and paths before enforcement can begin. This makes the agent
+commands and paths before it's task and enforcement can begin. This makes the agent
 the natural producer of concrete policy from its own directives, also reflecting the fact that instruction files are mainly maintained by the agent itself~\cite{anthropic2025claudecode,galster2026configuring} as its persistent memory.
 
-This creates three challenges. First, policy specification must be \emph{expressive} enough to
+Realizing this creates three challenges. First, policy specification must be \emph{expressive} enough to
 capture directive intent yet \emph{concrete} enough to compile to
-deterministic kernel checks. Second, enforcement must track
-policy-relevant state across tools, subprocesses, files, and network
-endpoints without imposing prohibitive per-syscall overhead. Third,
-programmability must not become an authority bypass, which requires a
-different threat model from traditional sandboxes where a trusted
-administrator authors policy: agents are both policy author and
+deterministic kernel checks, with minimal token consumption. Second, enforcement must track
+policy-relevant state across full system without imposing prohibitive per-syscall overhead. Third, since many rules are about safety and security, 
+programmability must not become an authority bypass. Unlike traditional sandboxes threat model where a trusted
+administrator authors policy, here agents are both author and
 constrained subject, so they need an interface to add constraints
 without weakening inherited policy set by trusted administrators or
-parent agents.
+parent agents or introducing safety risks.
 
 % ¶6: System — \sys{}
 \sys{} is a programmable OS-level policy enforcement system for
-AI agent harnesses. Agents express policies in a compact
-domain-specific language (DSL) generated from natural-language project
-directives; \sys{} compiles them into labeled information-flow rules and
-loads them into an eBPF/BPF-LSM
-(Linux Security Modules) enforcement engine. Named labels propagate across processes, files, and network
-endpoints at kernel hooks, encoding execution history as checkable state.
-When a labeled event matches a rule, \sys{} returns semantic
-feedback: which rule matched, why, and what compliant alternative
-satisfies it. Each rule independently selects one of three effects:
-notify (observe), block (pre-operation denial), or kill (post-operation
+AI agent harnesses. Agents express policies in a compact DSL generated from natural-language; \sys{} compiles them into labeled information-flow rules and
+loads them into an eBPF enforcement engine across processes, files, and network kernel hooks.
+When matching a rule, \sys{} returns semantic
+feedback: which rule matched, why, and what to do next. Each rule independently selects one of three effects:
+notify (observe), block (pre-operation denial), or kill (process 
 termination). A layered authority model ensures that higher-authority
-rules (e.g., platform-level ``do not leak secrets'') cannot be weakened by
+rules (e.g., global ``do not leak secrets'') cannot be weakened by
 agent-authored policy.
-On a 190-trace decision-compliance benchmark sampled from 38~directives,
-\sys{} reaches a 75.8\% decision-compliance rate, 27.4 percentage points
-higher than prompt-filter and 30.5 points higher than tool-regex, while
-adding 1.9\% end-to-end overhead on agent workloads (under 8.4\% on
-I/O-intensive builds).
+On our decision-compliance benchmark,
+\sys{} reaches a 75.8\% decision-compliance rate, 27pp percentage points
+higher than prompt-filter or tool-regex hooks, while
+adding 1.9\% end-to-end overhead on agent workloads and 8.4\% on
+I/O-intensive kernel builds.
 
 We make three contributions:
 \begin{enumerate}
@@ -104,7 +93,6 @@ gaps (\S\ref{sec:empirical}).
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system
 that addresses them
 (\S\ref{sec:design}--\ref{sec:implementation}).
-\item An \textbf{evaluation} on a decision-compliance benchmark,
-system workloads, and a 20-task OctoBench subset
+\item An \textbf{evaluation} on our decision-compliance benchmark building on empirical study, coding task and safety benchmark.
 (\S\ref{sec:evaluation}).
 \end{enumerate}

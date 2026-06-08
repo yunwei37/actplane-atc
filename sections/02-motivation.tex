@@ -2,31 +2,24 @@
 \label{sec:background}
 
 \textbf{AI agents and harnesses.}
-AI agents combine model reasoning with external tools and long-running
-state. They may browse untrusted content, call APIs, manipulate files,
-execute code, or coordinate workflows across multiple
-steps~\cite{debenedetti2024agentdojo,zhan2024injecagent,
-chennabasappa2025llamafirewall}. Coding agents such as Claude
+AI agents combine model reasoning with external tools, memory and long-running environment, such as Claude
 Code~\cite{anthropic2025claudecode}, Codex
 CLI~\cite{openai2025codex}, Cursor~\cite{cursor2025}, Devin~\cite{devin2025},
 SWE-agent~\cite{yang2024sweagent}, and
-OpenHands~\cite{wang2025openhands} are a representative deployment domain
-where these effects are readily observable. Agents operate through an
+OpenHands~\cite{wang2025openhands}. Agents operate through an
 \emph{AI agent harness}: software around the model that maintains the
 agent loop and session state, routes tool calls, mediates shell, file,
 and network access, and returns results or feedback to the model,
 improving agent performance while enforcing behavioral
 constraints~\cite{langchain-harness,fowler-harness}. A single tool
-invocation can run arbitrary scripts, spawn subprocesses, and touch many
-files and endpoints before control returns to the model. Projects encode
-behavioral expectations in instruction files
-(\texttt{CLAUDE.md},
+invocation can run arbitrary scripts, browse untrusted content, call APIs, spawn subprocesses, and touch many
+files and endpoints before control returns to the model~\cite{debenedetti2024agentdojo,zhan2024injecagent,
+chennabasappa2025llamafirewall}, To improve task performance, safety and compliance, projects often encode
+behavioral expectations in natural-language files (\texttt{CLAUDE.md},
 \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,
 chatlatanagulchai2025agentreadmes,santos2025claudeconfig,
-lulla2026agentsmd}
-as \emph{AI agent intent}: natural-language constraints over what the agent
-should do, avoid, or condition on project and task context. The harness
-must enforce that intent over \emph{system actions}: concrete commands,
+lulla2026agentsmd} or deterministic policy configurations over what the agent should do, avoid, or condition on project and task context. When agent is acheiving it's high level goal intent, e.g. implement a feature or book a flight, The harness
+must enforce that contrains over \emph{system actions}: concrete commands,
 file operations, network connections, and subprocess effects.
 
 \textbf{Information-flow control.}
@@ -34,27 +27,23 @@ Information-flow control (IFC) tracks how data or authority moves from
 sources to sinks over time. Static IFC systems embed flow constraints in
 type systems or language annotations~\cite{myers1999jflow}. Dynamic IFC
 and provenance systems attach labels to OS objects and propagate them at
-runtime: when a process reads a labeled file, the process acquires that
-label; when it forks, the child inherits
+runtime: when a process reads a labeled file, the process acquires that label; when it forks, the child inherits
 it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow,
 schwartz2010taint}. Later
 operations are checked against the accumulated label state. OS-level IFC
 systems such as Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}
-enforce flow policies across processes and files in the kernel, while
-whole-system provenance frameworks such as
+enforce flow policies across processes and files in the kernel, while whole-system provenance frameworks such as
 PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
-LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and
-CamQuery~\cite{pasquier2018camquery} record and query cross-event label
-histories. IFC thus captures constraints whose correctness depends on
-execution history, which is the same pattern that agent behavioral
+LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and CamQuery~\cite{pasquier2018camquery} record and query cross-event label
+histories. IFC thus captures constraints whose correctness depends on execution history, which is the same pattern that agent behavioral
 directives (``run tests before committing'') exhibit. More general OS-level mechanisms
 (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
 Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
 BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
 KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
-also observe or restrict system effects below the tool layer, but require
+also observe or restrict system effects below the tool layer, but all of them require
 statically pre-written policies and return opaque errors with no
-connection to the agent's declared directives.
+connection to the agent's intent.
 
 \textbf{AI agent policy enforcement.}
 We use \emph{runtime policy enforcement system} for the part of an AI
