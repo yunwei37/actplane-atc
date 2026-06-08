@@ -35,11 +35,11 @@ guardrails lose track of system-level actions.
 74\% of system-level rules require intent-level project or
 task context to evaluate, while current OS-level
 mechanisms expect pre-defined static
-policy and return only system events without semantic context. To address this, we argue the policy engine should be programmable by
+policy and return only system events without semantic context.
+Our key observation is that the required context is mainly within the agent itself, so we argue the policy engine should be programmable by
 the agent itself and take effect at OS level, allowing agents
 to dynamically define and adapt policy
-for their own system-level actions
-based on their intent context.
+for their own system-level actions.
 We introduce \sys{}, a policy engine that allows agents to declare cross-event
 behavior as labeled information-flow control (IFC) policies under
 a layered authority model that ensures higher-authority rules cannot be
@@ -48,7 +48,7 @@ observing and enforcing the agents' actions across process, file, and
 network boundaries with semantic feedback.
 We implement \sys{} with eBPF and evaluate it across empirical
 policies, system workloads, and coding tasks, showing improved policy
-compliance by 27\% with 2\% end-to-end overhead on agent workloads.
+compliance by 27pp with 2\% end-to-end overhead on agent workloads.
 \end{abstract}
 
 \begin{CCSXML}
