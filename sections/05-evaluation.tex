@@ -92,11 +92,13 @@ neutral helper entrypoint while the real side effect is visible only at
 the OS level. This yields 190 traces and 760 system--trace cells across
 four systems: prompt-filter, tool-regex, \sys{} without structured
 feedback (\textsc{\sys{}-opaque}), and full \sys{}.
-We replay them on codex-sdk with Qwen-3.6-27B as LLM,
-which executes each tool call on a copy-on-write
-repository image, and the tested agent continues for a bounded number of
-real tool steps. Ground truth and policy artifacts are not shown to the
-tested agent.
+In the primary model setting, we replay them on codex-sdk with
+Qwen3.6-27B as the LLM: the replay executes each tool call on a
+copy-on-write repository image, and the tested agent continues for a
+bounded number of real tool steps. We repeat the full RQ1 pipeline with
+DeepSeek-Pro V4 for the LLM-dependent roles: tested-agent continuation,
+the prompt-filter classifier, and trajectory judging. Ground truth and
+policy artifacts are not shown to the tested agent.
 
 \paragraph{Compared systems.}
 RQ1 compares four runtime policy enforcement systems on the same agent
@@ -127,11 +129,11 @@ Figure~\ref{fig:policy-example} shows representative \sys{} rules.
 
 \paragraph{Metric.}
 A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw
-runner results. The primary RQ1 scorer is a local Qwen3.6-27B judge;
-we also rerun the same judge prompt with DeepSeek-Pro V4 as an external
-replication check. Each judge sees the ground truth, whether the policy
-enforcement system triggered and its feedback, and what the agent did in
-subsequent steps.
+runner results. The primary RQ1 result uses the Qwen3.6-27B model
+setting above; the DeepSeek-Pro V4 result is a full model-setting
+replication, not a judge-only rescore. In each setting, the judge sees
+the ground truth, whether the policy enforcement system triggered and
+its feedback, and what the agent did in subsequent steps.
 TP means a violation trace received enforcement-visible intervention or
 agent awareness; TN means a compliant trace completed without wrongful
 intervention; FP means a compliant trace was wrongly blocked or steered;
@@ -146,18 +148,18 @@ translation, runtime enforcement, feedback delivery, and agent recovery.
 All 760 system--trace cells and all 760 primary trajectory-judge cells
 are present, with no judge parse errors. If a replication judge returns
 \textsc{unclear}, we exclude that cell from the DCR denominator and
-report the unclear count in the artifact table; the DeepSeek-Pro V4
-replication marked 39 of 760 cells unclear.
+report the unclear count in the artifact table; the DeepSeek-Pro V4 run
+marked 39 of 760 cells unclear.
 
 \paragraph{Results.}
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_dcr_bar.pdf}
-\caption{Overall RQ1 Decision Compliance Rate across 190 traces,
-reported with the primary Qwen3.6-27B judge and an external
-DeepSeek-Pro V4 replication judge.}
+\caption{Overall RQ1 Decision Compliance Rate across 190 traces under
+two end-to-end model settings. In each setting, the tested agent,
+prompt-filter classifier, and trajectory judge use the indicated model.}
 \Description{Grouped bar chart comparing overall directive compliance
-rates under two trajectory judges. With Qwen3.6-27B, prompt-filter is
+rates under two model settings. With Qwen3.6-27B, prompt-filter is
 48.4 percent, tool-regex is 45.3 percent, ActPlane-opaque is 53.7
 percent, and ActPlane is 75.8 percent. With DeepSeek-Pro V4,
 prompt-filter is 52.5 percent, tool-regex is 43.7 percent,
@@ -167,7 +169,8 @@ ActPlane-opaque is 61.7 percent, and ActPlane is 77.4 percent.}
 
 \begin{table}[tb]\small
 \centering
-\caption{RQ1 confusion matrix by runtime policy enforcement system.}
+\caption{RQ1 confusion matrix by runtime policy enforcement system
+under the primary Qwen3.6-27B model setting.}
 \label{tab:rq1-confusion}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -190,7 +193,7 @@ violations that are not available to prompt or raw tool-input filters.
 It also reduces false positives on compliant traces relative to the
 baselines, though this margin is smaller: full \sys{} has 18 FPs,
 compared with 28 for both prompt-filter and tool-regex.
-The DeepSeek-Pro V4 replication in Figure~\ref{fig:rq1-dcr} preserves
+The DeepSeek-Pro V4 end-to-end run in Figure~\ref{fig:rq1-dcr} preserves
 the same ordering on the same 760 system--trace cells:
 \sys{} remains highest at 77.4\% DCR, followed by
 \textsc{\sys{}-opaque} at 61.7\%, prompt-filter at 52.5\%, and
