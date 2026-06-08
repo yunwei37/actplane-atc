@@ -43,8 +43,9 @@ project constraints.
 
 \subsection{Threat Model and Assumptions}
 
-\sys{} targets a \emph{cooperative but unreliable} agent. The agent's
-original intent is honest: it aims to follow project constraints. But
+Because the agent is both policy author and constrained subject (C3),
+\sys{} targets a \emph{cooperative but unreliable} agent: its
+original intent is honest and it aims to follow project constraints. But
 execution may diverge due to planning errors, shell-script side effects,
 opaque tool behavior, or prompt injection~\cite{perez2022prompt} that
 causes the agent to act against its declared policy. Higher-authority policies (platform, project)
