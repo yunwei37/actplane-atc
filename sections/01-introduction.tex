@@ -40,7 +40,7 @@ Existing approaches cannot close this gap.
 Tool-call-based policy systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel} in agent
 runtimes such as Claude Code and Codex, whether LLM
-guardrails or regex-like checkers, lose track of system actions when
+guardrails or regex-like checkers, lose track of indirect system actions when
 agents shell out or spawn subprocesses: the same \texttt{git~push} can
 be reached through a tool call, a \texttt{bash~-c} wrapper, or a
 compiled binary created in a previous session; and at the repository
