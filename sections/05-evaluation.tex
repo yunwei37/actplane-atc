@@ -90,11 +90,25 @@ and task-context requirements, and common repository policy themes. The
 final manifest contains 20 per-event and 18 cross-event rules,
 proportional to the split in the full corpus.
 
+\paragraph{Traces.}
+A separate \emph{trace generator} reads the directive and project
+structure to produce five trace families per statement, each with a
+ground-truth header. For each statement we construct two compliant families
+(allowed-effect and lookalike) and three violation families (visible,
+script-mediated, and opaque-fixture). Script-mediated traces split
+script authoring and execution across separate tool calls; opaque traces
+expose only a neutral helper entrypoint while the real side effect is
+visible only at the OS level. This yields 190 traces and 760
+system--trace cells across four systems: prompt-filter, tool-regex,
+\sys{} without structured feedback (\textsc{\sys{}-opaque}), and full
+\sys{}.
+Each trace is a JSONL transcript containing a user prompt and concrete
+tool calls that establish the repo state. During replay the harness
+executes each tool call on a copy-on-write repository clone, and the
+tested agent continues for a bounded number of real tool steps. Ground
+truth and policy artifacts are not shown to the tested agent.
+
 \paragraph{Pipeline.}
-We construct a trace-conditioned benchmark that exercises five 
-challenging trace
-families, including script-mediated and opaque-fixture violations that
-are invisible at the tool-call level.
 The pipeline has five stages with strict actor separation
 (Figure~\ref{fig:rq1-pipeline}).
 A \emph{translation agent} reads the sampled directive text, the
@@ -107,26 +121,6 @@ ground truth. For prompt-filter and tool-regex, a translation agent
 generates the corresponding policy artifact (LLM classifier prompt or
 regex) from the same directive and project context; all artifacts are
 frozen before execution.
-A separate \emph{trace generator} reads the directive and project
-structure to produce five trace families per statement, each with a
-ground-truth header; it cannot see the rule file, preventing circular
-bias. The families cover allowed-effect compliant behavior, lookalike
-compliant behavior, directly visible violations, script-mediated
-violations, and opaque-fixture violations. Script-mediated traces split
-script authoring and execution across separate tool calls; opaque traces
-expose only a neutral helper entrypoint while the real side effect is
-visible at runtime.
-Each trace is a JSONL transcript containing a user prompt and concrete
-tool calls that establish the repo state. During replay the harness
-executes each tool call on a copy-on-write repository clone, and the
-tested agent continues for a bounded number of real tool steps. Ground
-truth and policy artifacts are not shown to the tested agent.
-For each statement we construct five traces: two compliant families
-(allowed-effect and lookalike) and three violation families (visible,
-script-mediated, and opaque-fixture). This yields 190 traces and 760
-system--trace cells across four systems: prompt-filter, tool-regex,
-\sys{} without structured feedback (\textsc{\sys{}-opaque}), and full
-\sys{}.
 Figure~\ref{fig:policy-example} shows representative \sys{} rules.
 
 \paragraph{Metric.}
