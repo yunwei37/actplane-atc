@@ -55,8 +55,9 @@ OS-level enforcement systems and sandboxes for traditional
 software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} can observe all system actions but expect
 pre-defined static policy and return only system events without semantic
-context, leaving the agent unable to follow its behavioral directives 
-or unsafe to adapt rules at runtime based on project or task context.
+context, leaving the agent unable to follow its behavioral directives
+and runtime policy adaptation unconstrained, increasing safety and
+security risks.
 
 % ¶5: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be programmable by
