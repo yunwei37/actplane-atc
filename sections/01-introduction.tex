@@ -11,51 +11,58 @@ improves agent performance while enforcing behavioral constraints for
 safety, security, and compliance~\cite{langchain-harness,fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
-A central component of such a harness is a runtime policy engine: the
+A central component of such a harness is a policy engine: the
 part that enforces behavioral constraints over the agent's concrete
 actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
 (\texttt{CLAUDE.md},
 \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}, so
-harnesses can provide these instructions to the model.
-Because agents comply with instructions
+harnesses can provide these instructions text to the model directly.
+Because LLMs itself comply with instructions
 probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
-and can violate them through planning errors, shell-script side effects,
-prompt-injection drift, and opaque tool
+and may violate them through planning errors, 
+prompt-injection drift, and opaque tool or scripts
 behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo},
-harnesses also require runtime policy mechanisms to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
+harnesses also require deterministic policy engines to enforce compliance at 
+runtime~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
 costa2025fides,debenedetti2025camel}.
 
-% ¶3: Empirical — the problem is common; LLMs can't self-enforce
-Many of these policies constrain system-level actions. Our
+% ¶4: Semantic gap — existing deterministic mechanisms also fail
+Many of these policies constrain system-level actions, yet existing policy engines in agent harnesses leave a \emph{semantic gap}:
+\emph{AI agent intent and directives} are expressed in natural language, but enforcement must decide over
+\emph{system actions}.
+Our
 empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
 of instruction-file statements are behavioral directives, and 83\% of
 those involve system-level behavior: commands executed, files accessed,
 and network connections made.
-
-% ¶3: Semantic gap — existing deterministic mechanisms also fail
-Yet existing policy engines in agent harnesses leave a \emph{semantic gap}:
-\emph{AI agent intent and directives} are expressed in natural language with project or task context, but enforcement must decide over
-\emph{system actions}: concrete commands, file operations, network
-connections, and subprocess effects. Runtime prompt, agent-action, and
-tool-call policy
-systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
+Tool-call based policy
+systems in the Agent runtime like claude code, codex with LLM guardrails or regex-like checkers~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel}
 lose track of system actions when agents shell out or spawn subprocesses: the
 same \texttt{git~push} can be reached through a tool call, a
-\texttt{bash~-c} wrapper, or a compiled binary; and at the repository level, 81\% of projects
-contain cross-event directives that tool-level interception cannot
-enforce. OS-level
-mechanisms~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
-pasquier2018camquery} observe all system actions but expect pre-defined
-static policy and return only system events without semantic context; yet
-74\% of system-level directives require project or
-task context that is absent from low-level OS events.
+\texttt{bash~-c} wrapper, or a compiled binary created by previous session
+; and at the repository level, 81\% of projects
+contain cross-event directives that a single tool-level interception cannot
+enforce, e.g. run test before commit.
 
-% ¶4: Insight — programmable policy engine below the tool layer
+Static policy is insufficient, 
+the policy engine needs to define and evaluate policies at runtime, 
+and allowing the agent to adapt them based on project or task context.
+We found that 74\% of system-level directives require project or
+task context that is absent from low-level OS events. OS-level
+enforcement system and sandbox for traditional software
+~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
+pasquier2018camquery} can observe all system actions, but expect pre-defined
+static policy and return only system events without semantic context, making the 
+agent unable to follow the instructions or adapt the rules.
+
+% ¶5: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be
-programmable by the agent itself and take effect at OS level: it should let the agent use live project and
-task context to enforce its own actions. This creates three challenges. First, policy specification must be \emph{expressive} enough to
+programmable define by the agent itself and take effect at OS level: 
+it should let the agent use live project and
+task context to enforce its own actions and adapt at runtime. 
+This creates three challenges. First, policy specification must be \emph{expressive} enough to
 capture directive intent yet \emph{concrete} enough to compile to
 deterministic kernel checks. Second, enforcement must track
 policy-relevant state across tools, subprocesses, files, and network
@@ -64,7 +71,7 @@ programmability must not become an authority bypass: agents must be able
 to add context-specific constraints, but neither they nor their
 sub-agents may weaken inherited policy.
 
-% ¶5: System — \sys{}
+% ¶6: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
 AI agent harnesses. Agents express behavioral policies in a compact
 domain-specific language (DSL) generated from natural-language project
