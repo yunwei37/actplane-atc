@@ -8,33 +8,33 @@ The empirical study establishes four requirements for a policy engine in AI agen
 and \emph{low overhead}, so enforcement does not slow the agent's normal workload.
 
 \textbf{C1: Expressive yet enforceable policy specification}
-(\S\ref{sec:dsl}).
-Instruction-file directives are written over repository and task concepts
+(\S\ref{sec:dsl}, \S\ref{sec:ifc}).
+Instruction-file directives are written over high level repository and task context
 such as ``the test suite,'' ``approved endpoints,'' or ``do not push to
-main.'' Kernel enforcement operates over primitive operations:
-exec, open, write, and connect events with paths, arguments, processes,
-and endpoints. A specification that stays at the directive level is too
-ambiguous to enforce deterministically; one written directly at the
+main.'' Kernel enforcement operates over syscalls, file paths, arguments, processes,
+and endpoints. A specification at the directive level is too
+ambiguous to enforce deterministically; one at the
 syscall level is verbose, brittle, and exposes kernel internals that
-agents and operators cannot reliably audit. The DSL must be
-\emph{concrete} enough to lower to fixed-size kernel predicates, yet
-\emph{expressive} enough to preserve the directive's scope, context, and
-rationale.
-
-\textbf{C2: Efficient cross-event enforcement} (\S\ref{sec:ifc}).
-81\% of repositories require policies that span multiple
+agents and operators cannot reliably audit.
+Moreover, 81\% of repositories require policies spanning multiple
 operations: ``run tests before committing'' depends on whether a test
-execution occurred after the last source change. No single event reveals
-the full behavior, yet enforcement must avoid reconstructing or querying
-complete execution traces on every syscall. The enforcement layer must
-maintain sufficient policy-relevant history across tools, subprocesses,
-files, and network endpoints for deterministic checks without imposing
-prohibitive per-syscall overhead.
+execution occurred after the last source change; no single event
+reveals the full behavior. The DSL must be
+\emph{concrete} enough to lower to fixed-size kernel predicates, yet
+\emph{expressive} enough to capture cross-event constraints and preserve
+the directive's scope, context, and rationale.
+
+\textbf{C2: Efficient enforcement} (\S\ref{sec:ifc}).
+Cross-event policies require tracking execution history across tools,
+subprocesses, files, and network endpoints, yet enforcement must avoid
+reconstructing complete traces on every syscall. The enforcement layer
+must maintain sufficient policy-relevant state for deterministic checks
+without prohibitive per-syscall overhead.
 
 \textbf{C3: Authority-safe agent programmability}
 (\S\ref{sec:authority}).
 Traditional sandboxes assume a trusted administrator authors policy and
-an untrusted process is constrained by it. In the agent setting, the
+an untrusted process is constrained by it. Here the
 agent is both policy author and constrained subject: it must adapt
 policy at runtime (a sub-agent may need a narrower scope, or the current
 task may require a new constraint), but letting the constrained
@@ -91,21 +91,24 @@ Security properties hold once policy is loaded and the target process
 enters the monitored domain.
 The compiler and runner handle only agent-authored rules
 and are outside the TCB: bugs in these components can weaken the agent's
-own constraints but cannot affect higher-authority policy. The monitored domain is the agent's entire
-process tree. Kernel compromise, root or \texttt{CAP\_BPF} compromise,
+own constraints but cannot affect higher-authority policy.
+The monitored domain is the agent's entire process tree.
+Kernel compromise, root or \texttt{CAP\_BPF} compromise,
 deliberate side channels, and semantic content checks not observable at
 syscall boundaries (e.g., whether a written file contains a credential)
 are out of scope.
 
 \subsection{System Overview}
 
-\sys{} addresses each challenge with one abstraction: a policy DSL
-(C1, \S\ref{sec:dsl}) that captures directives at intermediate
-granularity and compiles them into kernel-level IFC tables; a labeled
-information-flow model (C2, \S\ref{sec:ifc}) that summarizes execution
-history as compact object labels; and a layered authority model
-(C3, \S\ref{sec:authority}) that ensures monotonic tightening.
-Figure~\ref{fig:architecture} shows the end-to-end pipeline.
+\sys{} addresses these challenges with three abstractions
+(Figure~\ref{fig:architecture}): a policy DSL
+(\S\ref{sec:dsl}) that compiles directive-level and cross-event
+constraints into kernel-level IFC tables (C1); a labeled
+information-flow model (\S\ref{sec:ifc}) that summarizes execution
+history as compact object labels (C1, C2); and a layered authority model
+(\S\ref{sec:authority}) that ensures monotonic tightening (C3).
+When a rule fires, \sys{} returns semantic feedback: the rule name,
+the author's reason, and a remediation path.
 
 \begin{figure}[t]
 \centering
@@ -120,7 +123,7 @@ enforcement, and feedback loop.}
 \subsection{Policy DSL}
 \label{sec:dsl}
 
-To address C1, the DSL bridges AI agent intent and enforceable system actions.
+The DSL bridges AI agent intent and enforceable system actions.
 A policy contains \emph{sources} that introduce labels,
 \emph{rules} that match labeled events at sinks, and optional
 \emph{gates} that express cross-event ordering constraints. The
@@ -189,7 +192,7 @@ about BPF maps, verifier constraints, or binary layout.
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
 
-To address C2, \sys{} represents policy state as labels on OS objects. Processes, files,
+\sys{} represents policy state as labels on OS objects. Processes, files,
 and network endpoints each carry a 64-bit label mask, enabling
 cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
 not reach a network endpoint''). A source declaration adds labels when an
@@ -234,7 +237,7 @@ entire session without requiring explicit label cleanup.
 \subsection{Layered Policy Authority}
 \label{sec:authority}
 
-To address C3, \sys{} must let agents adapt policy at runtime without
+\sys{} must let agents adapt policy at runtime without
 weakening inherited constraints.
 
 \sys{} organizes policy around a \emph{domain hierarchy}. A domain is the
