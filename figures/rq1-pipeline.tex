@@ -8,42 +8,35 @@
 \begin{document}
 \begin{tikzpicture}[
   >=Stealth,
-  box/.style={draw, rounded corners=2pt, minimum height=0.7cm,
-              minimum width=2.0cm, align=center, font=\small},
+  box/.style={draw, rounded corners=2pt, minimum height=0.85cm,
+              minimum width=2.4cm, align=center, font=\normalsize},
   arr/.style={->, thick},
-  pathlbl/.style={font=\small\bfseries, anchor=east},
 ]
 
 % Start
-\node[box, fill=gray!15, minimum width=2.6cm] (nl) {Natural-Language\\Rule};
-
-% Path labels on the LEFT of NL
-\node[pathlbl] at ([xshift=-0.8cm, yshift=1.1cm]nl.west) {prompt-filter};
-\node[pathlbl] at ([xshift=-0.8cm]nl.west) {tool-regex};
-\node[pathlbl] at ([xshift=-0.8cm, yshift=-1.1cm]nl.west) {\textsc{\sys{}}};
+\node[box, fill=gray!15, minimum width=2.8cm] (nl) {Natural-Language\\Rule};
 
 % Artifacts (middle column)
-\node[box, fill=blue!10, right=2.8cm of nl, yshift=1.1cm] (prompt) {Prompt\\Classifier};
-\node[box, fill=blue!10, right=2.8cm of nl] (regex) {Regex\\Artifact};
-\node[box, fill=blue!10, right=2.8cm of nl, yshift=-1.1cm] (dsl) {DSL Policy};
+\node[box, fill=blue!10, right=2.2cm of nl, yshift=0.6cm] (regex) {Regex};
+\node[box, fill=blue!10, right=2.2cm of nl, yshift=-0.6cm] (dsl) {DSL Policy};
 
-% Enforcement (right column)
-\node[box, fill=orange!12, right=1.4cm of prompt] (e1) {LLM allow/block};
-\node[box, fill=orange!12, right=1.4cm of regex] (e2) {Tool-call match};
-\node[box, fill=orange!12, right=1.4cm of dsl] (e3) {Kernel enforce\\+ feedback};
+% Enforcement (right column) — system names as labels
+\node[box, fill=orange!15, right=1.6cm of regex, yshift=1.2cm, font=\normalsize\bfseries] (e1) {prompt-filter};
+\node[box, fill=orange!15, right=1.6cm of regex, font=\normalsize\bfseries] (e2) {tool-regex};
+\node[box, fill=orange!15, right=1.6cm of dsl, font=\normalsize\bfseries] (e3) {\sys{}};
 
 % Agent + Judge
 \node[box, fill=green!12, minimum width=2.4cm, right=1.8cm of e2] (agent) {Agent\\(decisions)};
-\node[box, fill=red!8, below=0.5cm of agent] (judge) {Judge};
-\node[font=\scriptsize, right=0.15cm of judge] {$\to$ DCR};
+\node[box, fill=red!8, below=0.6cm of agent] (judge) {Judge};
 
-% NL → artifacts (with Translation Agent labels on arrows)
-\draw[arr] (nl.east) -- ++(0.4,0) |- (prompt.west);
-\draw[arr] (nl.east) -- ++(0.4,0) |- node[above, font=\scriptsize, pos=0.75] {translation agent} (regex.west);
-\draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\scriptsize, pos=0.75] {translation agent} (dsl.west);
+% NL → prompt-filter (direct, no artifact)
+\draw[arr] (nl.east) -- ++(0.4,0) |- (e1.west);
+
+% NL → artifacts (via translate)
+\draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\small, pos=0.75] {translate} (regex.west);
+\draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\small, pos=0.75] {translate} (dsl.west);
 
 % artifacts → enforcement
-\draw[arr] (prompt) -- (e1);
 \draw[arr] (regex) -- (e2);
 \draw[arr] (dsl) -- (e3);
 
