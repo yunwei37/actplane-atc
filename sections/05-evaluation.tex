@@ -84,11 +84,15 @@ For each statement we construct two compliant traces and three violation
 traces. Allowed-effect traces exercise explicitly permitted
 system-level behavior close to the prohibited action;
 lookalike traces perform operations superficially similar to the
-prohibited action but technically compliant. Visible violation traces
-directly trigger the prohibited operation; script-mediated traces split
-script authoring and
-execution across separate tool calls; opaque traces expose only a
-neutral helper entrypoint while the real side effect is visible only at
+prohibited action but technically compliant. The three violation
+families reflect execution-path categories observed in deployed coding
+agents~\cite{anthropic2026containment,maloyan2026sok}: visible
+violation traces directly trigger the prohibited operation via a tool
+call; script-mediated traces split script authoring and execution across
+separate tool calls, moving the side effect into an unmonitored
+subprocess~\cite{maloyan2026sok}; opaque traces embed the side effect
+in an auxiliary artifact whose entrypoint appears
+benign~\cite{wu2026skillject}, so the real action is visible only at
 the OS level. This yields 190 traces and 760 system--trace cells across
 four systems: prompt-filter, tool-regex, \sys{} without structured
 feedback (\textsc{\sys{}-opaque}), and full \sys{}.
