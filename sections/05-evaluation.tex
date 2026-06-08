@@ -24,31 +24,12 @@ the official judge.
 \subsection{Experimental Setup}
 \label{sec:eval:setup}
 
-\paragraph{Hardware and kernel.}
 All experiments run on a single machine with an Intel Core Ultra~9~285K
 CPU (24~hardware cores), 125\,GiB RAM, Linux~6.15.11, ext4 filesystem,
 and libbpf~1.x with \texttt{bpf\_loop} support. The live enforcement
 runs require BPF-LSM active (\texttt{bpf} in
 \texttt{/sys/kernel/security/lsm}); the RQ2 overhead artifacts record
 the exact LSM state used for each performance run.
-
-\paragraph{Agent environment.}
-The active AI agent harnesses are Claude Code (via the \sys{} feedback
-hook) and OpenAI Codex CLI (via tool-error feedback). The tested LLM for
-RQ1 trace replay is Qwen-2.5-27B; the translation agent uses GPT-5.5 to
-generate policy artifacts. The trace generator and trajectory judge each
-use Claude Sonnet. Harness versions are pinned in the artifact metadata.
-
-\paragraph{Compared systems.}
-RQ1 uses four runtime policy enforcement systems on the same
-trace-conditioned AI agent harness: a prompt-based action filter, a
-tool-input regex policy, \sys{} without structured corrective feedback, and
-full \sys{}. The prompt and regex baselines instantiate two common
-runtime enforcement layers: LLM/prompt-based rails over proposed
-actions~\cite{rebedea2023nemo,xiang2025guardagent} and deterministic
-tool-call policies over tool names and arguments in the style of
-AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the value
-of semantic feedback on top of OS-level observation.
 
 %% ----------------------------------------------------------------
 \subsection{RQ1: End-to-End Policy Compliance}
@@ -64,8 +45,9 @@ natural-language rule to agent-level decision.}
 \label{fig:rq1-pipeline}
 \end{figure}
 
-\paragraph{Benchmark.}
-We build a trace-level benchmark that challenges runtime enforcement
+\paragraph{Benchmark Motivation.}
+We build a new trace-level benchmark using similar methodology 
+to existing benchmarks, but designed to challenge runtime enforcement
 systems with bypass paths invisible to tool-call interception.
 Existing enforcement benchmarks such as
 ShieldAgent-Bench~\cite{li2025shieldagent} and
@@ -110,29 +92,45 @@ neutral helper entrypoint while the real side effect is visible only at
 the OS level. This yields 190 traces and 760 system--trace cells across
 four systems: prompt-filter, tool-regex, \sys{} without structured
 feedback (\textsc{\sys{}-opaque}), and full \sys{}.
-During replay the harness executes each tool call on a copy-on-write
-repository clone, and the tested agent continues for a bounded number of
+We replay them on codex-sdk with Qwen-3.6-27B as LLM,
+which executes each tool call on a copy-on-write
+repository image, and the tested agent continues for a bounded number of
 real tool steps. Ground truth and policy artifacts are not shown to the
 tested agent.
 
-\paragraph{Pipeline.}
-The pipeline has five stages with strict actor separation
-(Figure~\ref{fig:rq1-pipeline}).
-A \emph{translation agent} reads the sampled directive text, the
-project's \texttt{CLAUDE.md}, the cloned repository, and the DSL
-reference to produce a rule file. The agent iteratively invokes the
-\sys{} compiler as a tool: if a generated rule fails to compile, the
-agent observes the compiler diagnostic, revises the rule, and retries
-until compilation succeeds. The translation agent cannot see traces or
-ground truth. For prompt-filter and tool-regex, a translation agent
-generates the corresponding policy artifact (LLM classifier prompt or
-regex) from the same directive and project context; all artifacts are
-frozen before execution.
+\paragraph{Compared systems.}
+RQ1 compares four runtime policy enforcement systems on the same agent traces:
+(Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
+tool-input regex policy, \sys{} without structured corrective feedback
+(\textsc{\sys{}-opaque}), and full \sys{}. The prompt and regex
+baselines instantiate two common runtime enforcement layers:
+LLM/prompt-based rails over proposed
+actions~\cite{rebedea2023nemo,xiang2025guardagent} and deterministic
+tool-call policies over tool names and arguments in the style of
+AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
+value of semantic feedback on top of OS-level observation.
+A translation agent in codex with GPT 5.5 reads the 
+sampled directive text, the project's
+\texttt{CLAUDE.md}, the cloned repository, and produce the DSL
+for \sys{} or the Regex for the tool-regex baseline. 
+It does not have access to the ground-truth trace.
+For \sys{}, the agent iteratively
+invokes the compiler: if a rule fails to compile, it observes the
+diagnostic, revises, and retries until compilation succeeds.
+The prompt-filter baseline does not require translation, it
+directkly decides whether to allow or block each proposed 
+tool call based on the directive text and the proposed tool input.
+When a violation occurs, 
+the harness will return a structured feedback to the agent, 
+the agent can use this information to adjust its behavior
+ and attempt to comply with the directive in subsequent steps.
 Figure~\ref{fig:policy-example} shows representative \sys{} rules.
 
 \paragraph{Metric.}
 A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw
-runner result.
+runner results, include the groundtruth,
+whether the policy enforcement systems triggered and its feedback,
+and what the agent did in its following steps.
 TP means a violation trace received enforcement-visible intervention or
 agent awareness; TN means a compliant trace completed without wrongful
 intervention; FP means a compliant trace was wrongly blocked or steered;
@@ -141,7 +139,8 @@ We report \emph{Decision Compliance Rate} (DCR), the
 fraction of trace-conditioned decision points whose final outcome is
 policy-correct:
 \(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}
-+\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end: it includes policy
++\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end from natural language
+directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
 All 760 system--trace cells and all 760 trajectory-judge cells are
 present, with no judge parse errors.
