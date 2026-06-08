@@ -52,6 +52,10 @@ causes the agent to act against its declared policy. Divergence includes
 both accidental violations and prompt-injection-driven actions that
 systematically probe policy boundaries; higher-authority rules cover both
 cases because they are enforced independently of the agent's intent.
+The adversary can control prompt content, tool outputs, browser pages,
+and API responses, and can thereby induce the agent to issue arbitrary
+tool calls or shell commands; the adversary cannot compromise the kernel,
+the eBPF loader, the runner, or higher-authority policy blobs.
 
 \textbf{Security properties.}
 The adversary may cause the agent to violate its declared policy:
@@ -63,19 +67,24 @@ two properties:
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
 never weaken, constraints inherited from higher-authority principals
 (platform or project); and
-(2)~\emph{enforcement completeness}: every syscall on a monitored path
-is checked against the current label state and rule set.
-Enforcement is synchronous within the syscall path, eliminating
-TOCTOU gaps between policy check and action.
+(2)~\emph{enforcement completeness}: every event at a \sys{} hook
+(exec, open, read, write, unlink, connect, fork) is checked against the
+current label state and rule set.
+Block effects are synchronous at pre-operation hooks, eliminating
+TOCTOU gaps between policy check and action. Kill effects are
+post-operation but terminate the process immediately, preventing any
+subsequent action. Notify effects are observation-only and do not
+prevent the triggering syscall.
 
 \textbf{Trust boundaries.}
 Higher-authority policies (platform, project) are authored by trusted
 principals and cannot be weakened by the agent; they guard against both
-unreliable execution and hijacked agent-level declarations. The system
-does not target a malicious process that attacks the kernel, exploits the
-loader, or deliberately evades policy through adversarial obfuscation
-(e.g., crafting novel binaries or encoding schemes to bypass pattern
-matching).
+unreliable execution and hijacked agent-level declarations. \sys{} covers alternate execution paths (subprocesses, shell wrappers,
+compiled binaries) that still manifest as monitored OS events; it does
+not cover semantic equivalence outside the specified policy vocabulary
+(e.g., a custom Git-protocol client that avoids \texttt{git push} while
+achieving the same effect). The system does not target a malicious
+process that attacks the kernel or exploits the loader.
 
 The trusted computing base (TCB) consists of the eBPF enforcement engine
 and pre-compiled higher-authority policy blobs, which are assumed to be
@@ -223,11 +232,8 @@ entire session without requiring explicit label cleanup.
 \subsection{Layered Policy Authority}
 \label{sec:authority}
 
-To address C3, agents must adapt policy at runtime: a sub-agent spawned
-for a narrow sub-task should operate under tighter constraints, and the
-current task may require a sanctioned exception to an inherited
-constraint; but adaptation must never weaken platform or project
-constraints.
+To address C3, \sys{} must let agents adapt policy at runtime without
+weakening inherited constraints.
 
 \sys{} organizes policy around a \emph{domain tree}. A domain is the
 runtime policy boundary for a process tree: every pid maps to a domain,
@@ -261,11 +267,18 @@ keeping exception paths under platform or project authority.
 The prototype resolves the initial domain tree at compile or load time.
 Runtime policy additions (sub-agent restrictions, task-specific rules)
 are submitted as precompiled deltas through a userspace ring buffer. The
-kernel authority checker admits a delta only if it is additive: it may
-bind new rules, add labels, or narrow scope, but it cannot remove
-inherited rules or widen scope. Accepted deltas are merged into the
-domain's effective policy; the kernel does not parse configuration or
-resolve project context on the event path.
+kernel derives the submitting domain from the caller's pid-to-domain
+mapping, not from user-provided metadata, and admits updates only to the
+submitting domain or its descendants. The
+kernel authority checker admits a delta only if it satisfies a partial
+order: it may introduce fresh local labels, bind new rules, or narrow
+target scope, but it cannot modify inherited labels, sources, gates,
+exception predicates, or rule effects; nor can it remove inherited rules
+or widen scope. A delta cannot create labels that satisfy an inherited
+exception gate unless higher-authority policy explicitly defines that
+path. Accepted deltas are merged into the domain's effective policy; the
+kernel does not parse configuration or resolve project context on the
+event path.
 
 \section{Implementation}
 \label{sec:implementation}
@@ -289,7 +302,14 @@ formats kernel-reported matches into semantic feedback.
 The runner (\texttt{\sys{} run -- <cmd>}) discovers the project policy
 file, compiles and loads it before the target starts, seeds the target
 process tree with the agent label, and records kernel matches in a
-feedback file. Compatible agent hooks relay this feedback into the model's
+feedback file. Higher-authority policy blobs are pre-compiled and loaded
+through the same path; the runner treats them as opaque signed inputs.
+Compatible agent hooks relay this feedback into the model's
 next turn. The runner is intentionally thin: policy decisions remain in
 the kernel; the runner mediates between the compiled policy, the target
 process, and agent-facing diagnostics.
+
+The domain tree and authority checker are implemented in the eBPF.
+Each pid-to-domain mapping is stored in a BPF map; runtime deltas
+submitted through a userspace ring buffer are validated in-kernel against the
+submitting domain's position in the tree before merging.
