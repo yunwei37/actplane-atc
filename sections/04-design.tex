@@ -32,12 +32,12 @@ prohibitive per-syscall overhead.
 
 \textbf{C3: Authority-safe agent programmability}
 (\S\ref{sec:authority}).
-Agents must be able to adapt policy at runtime: a sub-agent may need a
-narrower scope, or the current task may require a sanctioned exception to
-an inherited constraint. Letting the constrained actor write or
-specialize policy introduces a privilege-weakening risk: the agent must be
-able to add task-specific constraints, but this programmability must not
-become an authority bypass. Agents and sub-agents may add rules,
+Traditional sandboxes assume a trusted administrator authors policy and
+an untrusted process is constrained by it. In the agent setting, the
+agent is both policy author and constrained subject: it must adapt
+policy at runtime (a sub-agent may need a narrower scope, or the current
+task may require a new constraint), but letting the constrained
+actor write or specialize policy introduces a privilege-weakening risk. Agents and sub-agents may add rules,
 specialize targets, or narrow scope, but must never weaken platform or
 project constraints.
 

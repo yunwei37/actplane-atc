@@ -66,9 +66,12 @@ capture directive intent yet \emph{concrete} enough to compile to
 deterministic kernel checks. Second, enforcement must track
 policy-relevant state across tools, subprocesses, files, and network
 endpoints without imposing prohibitive per-syscall overhead. Third,
-programmability must not become an authority bypass, which requires a different threat model: traditional
-sandboxes requires a trusted administrator authors policy, agents are
-both policy author and constrained subject, they need a interfaceto add constraints safely while not weaken inherited policy set by trusted administrators or parent agents.
+programmability must not become an authority bypass, which requires a
+different threat model from traditional sandboxes where a trusted
+administrator authors policy: agents are both policy author and
+constrained subject, so they need an interface to add constraints
+without weakening inherited policy set by trusted administrators or
+parent agents.
 
 % ¶6: System — \sys{}
 \sys{} is a programmable OS-level runtime policy enforcement system for
