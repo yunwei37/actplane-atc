@@ -109,10 +109,25 @@ natural-language rule to agent-level decision.}
 \end{figure}
 
 \paragraph{Method.}
-RQ1 uses a trace-conditioned benchmark derived from the OS-enforceable
-directive corpus (Figure~\ref{fig:rq1-pipeline}). Each trace exercises
-whether a runtime policy enforcement system connects an intent-level
-directive to concrete tool and OS effects.
+Existing enforcement benchmarks such as
+ShieldAgent-Bench~\cite{li2025shieldagent} and
+ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall
+at the tool-call or trajectory level. Runtime enforcement evaluations in
+AgentSpec, Progent, FIDES, and
+CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}
+measure attack-success-rate reduction on AgentDojo
+scenarios~\cite{debenedetti2024agentdojo}. However, all operate at the
+tool-call boundary: they do not test whether enforcement holds when an
+agent reaches the same system effect through a subprocess, a shell
+script, or a compiled binary. 
+
+We therefore construct a trace-conditioned
+benchmark that derives rules from real instruction-file directives and
+exercises five trace families, including script-mediated and
+opaque-fixture violations that are invisible at the tool-call level
+(Figure~\ref{fig:rq1-pipeline}). Each trace exercises whether a runtime
+policy enforcement system connects an intent-level directive to concrete
+tool and OS effects.
 We evaluate 38 manifest-selected statements, sampling 2--3 from each of
 15 repositories to cover both
 per-event and cross-event rules, project- and task-context requirements,
