@@ -20,33 +20,27 @@
   \country{}}
 
 \begin{abstract}
-AI agents operate through harnesses that maintain execution, mediate
-tools, and apply behavioral constraints for effective and safe operation. In practice,
-projects often specify these constraints as natural-language harness
-instructions: our empirical study of 64 projects finds that 64\% of
-instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. A central component of such a harness is a runtime policy engine that
-enforces these constraints over the agent's concrete actions. Yet existing policy engines in agent harnesses fail to connect AI agent intent
-to deterministic system-level actions, leaving a \emph{semantic gap} and
-making it difficult to ensure compliance or follow rules.
-While 83\% of directives involve system-level behavior,
-prompt constraints operate at the probabilistic intent level.
-81\% of projects require cross-event state tracking, but tool-call
+AI agents operate through harnesses that maintain
+tools, memory and apply behavioral constraints for effective and safe operation. In practice,
+projects specify these constraints as natural-language: our empirical study of 64 projects finds that 64\% of
+instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. A central part of an AI agent harness is a runtime policy engine that
+enforces these constraints deterministically over the agent's concrete actions. Yet existing policy engines fail to connect AI agent intent
+to system-level actions, leaving a \emph{semantic gap}.
+While 83\% of directives involve system-level behavior, 
+81\% of projects require cross-event state tracking, current tool-call
 guardrails lose track of system-level actions.
-74\% of system-level rules require intent-level project or
-task context to evaluate, while current OS-level
-mechanisms expect pre-defined static
-policy and return only system events without semantic context.
-Our key observation is that the required context is mainly within the agent itself, so we argue the policy engine should be programmable by
-the agent itself and take effect at OS level, allowing agents
-to dynamically define and adapt policy
-for their own system-level actions.
+74\% of system-level rules require project or
+task context, while current OS-level
+mechanisms expect static
+policy and return without semantic context.
+Our key observation is that the required context is mainly within the agent itself, so the engine should let agents dynamically define and adapt policy, and take effect at OS level for their own actions.
 We introduce \sys{}, a policy engine that allows agents to declare cross-event
 behavior as labeled information-flow control (IFC) policies under
 a layered authority model that ensures higher-authority rules cannot be
 weakened by agent-authored policy,
 observing and enforcing the agents' actions across process, file, and
 network boundaries with semantic feedback.
-We implement \sys{} with eBPF and evaluate it across empirical
+We implement \sys{} with eBPF and evaluate it across empirically studied
 policies, system workloads, and coding tasks, showing improved policy
 compliance by 27pp with 2\% end-to-end overhead on agent workloads.
 \end{abstract}
