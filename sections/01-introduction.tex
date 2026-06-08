@@ -12,7 +12,7 @@ safety, security, and compliance~\cite{langchain-harness,fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
 A central component of such a harness is a policy engine: the
-part that enforces behavioral constraints over the agent's concrete
+part that enforces constraints over the agent's concrete
 actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
 (\texttt{CLAUDE.md},
@@ -28,7 +28,7 @@ at runtime~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
 costa2025fides,debenedetti2025camel}.
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
-Many of these policies constrain system-level actions, yet existing policy engines in agent harnesses leave a \emph{semantic gap}:
+Many of these policies constrain system-level actions, yet existing policy engines leave a \emph{semantic gap}:
 \emph{AI agent intent and directives} are expressed in natural language, but enforcement must decide over
 \emph{system actions}.
 Our
@@ -48,9 +48,9 @@ level, 81\% of projects contain cross-event directives that single
 tool-level interception cannot enforce (e.g., ``run tests before
 commit'').
 
-OS-level enforcement with static policy is also insufficient: most directives reference project or task concepts that static pre-defined rules cannot resolve (e.g., ``never modify upstream source,'' where \emph{upstream source} must be resolved from the repository; ``do not update dependencies unless requested''; ``the reviewer sub-agent only writes to its project directory'').
+OS-level enforcement with static policy is also insufficient: most directives reference project or task concepts that static rules cannot resolve (e.g., ``never modify upstream source,'' where \emph{upstream source} must be resolved from the repository; ``do not update dependencies unless requested''; ``the reviewer sub-agent only writes to its project directory'').
 We find that 74\% of system-level directives
-require such project or task context that is absent from low-level OS events.
+require project or task context absent from low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
 software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} can observe all system actions but expect
@@ -80,8 +80,8 @@ without weakening inherited policy set by trusted administrators or
 parent agents.
 
 % ¶6: System — \sys{}
-\sys{} is a programmable OS-level runtime policy enforcement system for
-AI agent harnesses. Agents express behavioral policies in a compact
+\sys{} is a programmable OS-level policy enforcement system for
+AI agent harnesses. Agents express policies in a compact
 domain-specific language (DSL) generated from natural-language project
 directives; \sys{} compiles them into labeled information-flow rules and
 loads them into an eBPF/BPF-LSM
