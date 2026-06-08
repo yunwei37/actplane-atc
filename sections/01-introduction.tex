@@ -55,8 +55,8 @@ OS-level enforcement systems and sandboxes for traditional
 software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
 pasquier2018camquery} can observe all system actions but expect
 pre-defined static policy and return only system events without semantic
-context, leaving the agent unable to follow its behavioral directives or unsafe to adapt
-rules at runtime based on project or task context.
+context, leaving the agent unable to follow its behavioral directives 
+or unsafe to adapt rules at runtime based on project or task context.
 
 % ¶5: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be programmable by
@@ -68,7 +68,7 @@ deterministic kernel checks. Second, enforcement must track
 policy-relevant state across tools, subprocesses, files, and network
 endpoints without imposing prohibitive per-syscall overhead. Third,
 programmability must not become an authority bypass: agents must be able
-to add context-specific constraints, but neither they nor their
+to add context-specific constraints safely, but neither they nor their
 sub-agents may weaken inherited policy.
 
 % ¶6: System — \sys{}
