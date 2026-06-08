@@ -231,6 +231,14 @@ alone is insufficient: \textsc{\sys{}-opaque} observes the same kernel
 events but produces low violation-family DCR because the agent cannot
 recover without a structured corrective payload.
 
+\paragraph{Authority invariant.}
+To validate monotonic authority (\S\ref{sec:authority}), we submit a
+suite of policy deltas containing 20 test cases to the kernel authority
+checker: narrowing deltas (additional rules, tighter scope) are accepted,
+while weakening deltas
+(removing inherited rules, widening scope, modifying inherited effects or
+gates) are rejected. All test cases pass.
+
 %% ----------------------------------------------------------------
 \subsection{RQ2: Overhead}
 \label{sec:eval:rq2}

@@ -48,7 +48,7 @@ level, 81\% of projects contain cross-event directives that single
 tool-level interception cannot enforce (e.g., ``run tests before
 commit'').
 
-OS-level enforcement with static policy is also insufficient: most directives reference project or task concepts that static pre-defined rules cannot resolve (e.g., ``never modify upstream source(what is upstream source?)'' ``do not update dependencies unless requested,'' ``the reviewer sub-agent only writes to its project directory'').
+OS-level enforcement with static policy is also insufficient: most directives reference project or task concepts that static pre-defined rules cannot resolve (e.g., ``never modify upstream source,'' where \emph{upstream source} must be resolved from the repository; ``do not update dependencies unless requested''; ``the reviewer sub-agent only writes to its project directory'').
 We find that 74\% of system-level directives
 require such project or task context that is absent from low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
@@ -61,7 +61,13 @@ context, leaving the agent unable to follow its behavioral directives.
 We argue that an agent-harness policy engine should be programmable by
 the agent itself and take effect at OS level: it should let the agent
 use live project and task context to enforce its own actions and adapt at
-runtime. This creates three challenges. First, policy specification must be \emph{expressive} enough to
+runtime. Our key observation is that the required context is mainly within the agent itself: the agent must read
+the repository, interpret the current task, and resolve abstract
+references into concrete
+commands and paths before enforcement can begin. This makes the agent
+the natural producer of concrete policy from its own directives. 
+
+This creates three challenges. First, policy specification must be \emph{expressive} enough to
 capture directive intent yet \emph{concrete} enough to compile to
 deterministic kernel checks. Second, enforcement must track
 policy-relevant state across tools, subprocesses, files, and network
@@ -91,7 +97,8 @@ agent-authored policy.
 On a 190-trace decision-compliance benchmark sampled from 38~directives,
 \sys{} reaches a 75.8\% decision-compliance rate, 27.4 percentage points
 higher than prompt-filter and 30.5 points higher than tool-regex, while
-adding less than 2\% end-to-end overhead on agent workloads.
+adding 1.9\% end-to-end overhead on agent workloads (under 8.4\% on
+I/O-intensive builds).
 
 We make three contributions:
 \begin{enumerate}

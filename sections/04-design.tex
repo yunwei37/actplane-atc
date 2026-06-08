@@ -62,29 +62,36 @@ workflow steps. Given correctly authored rules that cover these actions,
 \sys{} enforces two kernel-level properties:
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
 never weaken, inherited higher-authority constraints; and
-(2)~\emph{mediation completeness}: no event at a \sys{} hook
-(exec, open, read, write, unlink, connect, fork) bypasses the rule
-check. Mediation guarantees that every hooked operation is checked, not
+(2)~\emph{mediation completeness}: no event delivered to a configured
+\sys{} hook bypasses the rule check (hooks include exec, open, read,
+write, unlink, connect, and fork, among others).
+Mediation guarantees that every hooked operation is checked, not
 that all policy-violating behaviors are caught: detection depends on
 rule coverage and accumulated label state.
 Block effects are synchronous at pre-operation hooks (no TOCTOU gap).
-Kill effects are post-operation: the triggering syscall completes, but
-the process is terminated immediately; exfiltration-preventing rules
-should therefore use block. Notify effects are observation-only.
+Kill effects are post-operation: the triggering syscall completes and its
+side effect may already be visible, but the process is terminated before
+any subsequent monitored action; exfiltration-preventing rules should
+therefore use block. Notify effects are observation-only.
 
 \textbf{Trust boundaries.}
 Higher-authority policies (platform, project) are authored by trusted
-principals. \sys{} covers alternate execution paths (subprocesses,
-shell wrappers, compiled binaries) that manifest as monitored OS events;
-it does not cover semantic equivalence outside the policy vocabulary
-(e.g., a custom Git-protocol client bypassing \texttt{git push}).
+principals. Arbitrary commands are in scope with respect to policies
+expressed over monitored events; \sys{} covers alternate execution paths
+(subprocesses, shell wrappers, compiled binaries) that manifest as
+hooked OS events. Semantic equivalents outside the policy vocabulary are
+out of scope (e.g., a custom Git-protocol client bypassing
+\texttt{git push}).
 
-The TCB consists of the eBPF enforcement engine and pre-compiled
-higher-authority policy blobs, assumed signed and loaded through a
-trusted path. The compiler and runner handle only agent-authored rules
+The trusted computing base (TCB) consists of the eBPF enforcement engine
+and pre-compiled higher-authority policy blobs, assumed signed and loaded
+through a trusted path; the loader is trusted for this launch phase.
+Security properties hold once policy is loaded and the target process
+enters the monitored domain.
+The compiler and runner handle only agent-authored rules
 and are outside the TCB: bugs in these components can weaken the agent's
 own constraints but cannot affect higher-authority policy. The monitored domain is the agent's entire
-process tree. Kernel compromise, \texttt{CAP\_BPF} compromise,
+process tree. Kernel compromise, root or \texttt{CAP\_BPF} compromise,
 deliberate side channels, and semantic content checks not observable at
 syscall boundaries (e.g., whether a written file contains a credential)
 are out of scope.
