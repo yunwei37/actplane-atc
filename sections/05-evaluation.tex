@@ -81,8 +81,8 @@ concrete tool calls that establish the repo state. A separate
 \emph{trace generator} reads the directive and project structure to
 produce five traces per statement.
 For each statement we construct two compliant traces and three violation
-traces. Allowed-effect traces exercise explicitly permitted 
-system level behavior close to the prohibited action; 
+traces. Allowed-effect traces exercise explicitly permitted
+system-level behavior close to the prohibited action;
 lookalike traces perform operations superficially similar to the
 prohibited action but technically compliant. Visible violation traces
 directly trigger the prohibited operation; script-mediated traces split
@@ -99,8 +99,8 @@ real tool steps. Ground truth and policy artifacts are not shown to the
 tested agent.
 
 \paragraph{Compared systems.}
-RQ1 compares four runtime policy enforcement systems on the same agent traces:
-(Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
+RQ1 compares four runtime policy enforcement systems on the same agent
+traces (Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
 tool-input regex policy, \sys{} without structured corrective feedback
 (\textsc{\sys{}-opaque}), and full \sys{}. The prompt and regex
 baselines instantiate two common runtime enforcement layers:
@@ -109,28 +109,27 @@ actions~\cite{rebedea2023nemo,xiang2025guardagent} and deterministic
 tool-call policies over tool names and arguments in the style of
 AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
 value of semantic feedback on top of OS-level observation.
-A translation agent in codex with GPT 5.5 reads the 
-sampled directive text, the project's
-\texttt{CLAUDE.md}, the cloned repository, and produce the DSL
-for \sys{} or the Regex for the tool-regex baseline. 
-It does not have access to the ground-truth trace.
-For \sys{}, the agent iteratively
-invokes the compiler: if a rule fails to compile, it observes the
-diagnostic, revises, and retries until compilation succeeds.
-The prompt-filter baseline does not require translation, it
-directkly decides whether to allow or block each proposed 
-tool call based on the directive text and the proposed tool input.
-When a violation occurs, 
-the harness will return a structured feedback to the agent, 
-the agent can use this information to adjust its behavior
- and attempt to comply with the directive in subsequent steps.
+A translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5)
+reads the sampled directive text, the project's \texttt{CLAUDE.md}, and
+the cloned repository, then produces the DSL rule for \sys{} or the
+regex for the tool-regex baseline; it does not have access to the
+ground-truth traces.
+For \sys{}, the agent iteratively invokes the compiler: if a rule fails
+to compile, it observes the diagnostic, revises, and retries until
+compilation succeeds.
+The prompt-filter baseline does not require translation; it directly
+decides whether to allow or block each proposed tool call based on the
+directive text and the proposed tool input.
+When a violation is detected, the harness returns structured feedback to
+the agent, which can use this information to adjust its behavior and
+comply with the directive in subsequent steps.
 Figure~\ref{fig:policy-example} shows representative \sys{} rules.
 
 \paragraph{Metric.}
 A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw
-runner results, include the groundtruth,
-whether the policy enforcement systems triggered and its feedback,
-and what the agent did in its following steps.
+runner results, including the ground truth, whether the policy
+enforcement system triggered and its feedback, and what the agent did in
+subsequent steps.
 TP means a violation trace received enforcement-visible intervention or
 agent awareness; TN means a compliant trace completed without wrongful
 intervention; FP means a compliant trace was wrongly blocked or steered;

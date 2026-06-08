@@ -17,14 +17,14 @@ actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
 (\texttt{CLAUDE.md},
 \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}, so
-harnesses can provide these instructions text to the model directly.
-Because LLMs itself comply with instructions
+harnesses can provide these instructions to the model directly.
+Because LLMs comply with instructions
 probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
-and may violate them through planning errors, 
-prompt-injection drift, and opaque tool or scripts
+and may violate them through planning errors,
+prompt-injection drift, and opaque tool or script
 behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo},
-harnesses also require deterministic policy engines to enforce compliance at 
-runtime~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
+harnesses also require deterministic policy engines to enforce compliance
+at runtime~\cite{rebedea2023nemo,wang2025agentspec,shi2025progent,
 costa2025fides,debenedetti2025camel}.
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
@@ -36,33 +36,33 @@ empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
 of instruction-file statements are behavioral directives, and 83\% of
 those involve system-level behavior: commands executed, files accessed,
 and network connections made.
-Tool-call based policy
-systems in the Agent runtime like claude code, codex with LLM guardrails or regex-like checkers~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
-shi2025progent,costa2025fides,debenedetti2025camel}
-lose track of system actions when agents shell out or spawn subprocesses: the
-same \texttt{git~push} can be reached through a tool call, a
-\texttt{bash~-c} wrapper, or a compiled binary created by previous session
-; and at the repository level, 81\% of projects
-contain cross-event directives that a single tool-level interception cannot
-enforce, e.g. run test before commit.
+Tool-call-based policy systems~\cite{rebedea2023nemo,xiang2025guardagent,wang2025agentspec,
+shi2025progent,costa2025fides,debenedetti2025camel}  in agent
+runtimes like claude code or codex, whether LLM
+guardrails or regex-like checkers, lose track of system actions when
+agents shell out or spawn subprocesses: the same \texttt{git~push} can
+be reached through a tool call, a \texttt{bash~-c} wrapper, or a
+compiled binary created in a previous session; and at the repository
+level, 81\% of projects contain cross-event directives that single
+tool-level interception cannot enforce (e.g., ``run tests before
+commit'').
 
-Static policy is insufficient, 
-the policy engine needs to define and evaluate policies at runtime, 
-and allowing the agent to adapt them based on project or task context.
-We found that 74\% of system-level directives require project or
-task context that is absent from low-level OS events. OS-level
-enforcement system and sandbox for traditional software
-~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
-pasquier2018camquery} can observe all system actions, but expect pre-defined
-static policy and return only system events without semantic context, making the 
-agent unable to follow the instructions or adapt the rules.
+Static policy is also insufficient: the policy engine must define and
+evaluate policies at runtime, allowing the agent to adapt them based on
+project or task context. We find that 74\% of system-level directives
+require project or task context that is absent from low-level OS events.
+OS-level enforcement systems and sandboxes for traditional
+software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,flume,
+pasquier2018camquery} can observe all system actions but expect
+pre-defined static policy and return only system events without semantic
+context, leaving the agent unable to follow the instructions or adapt
+rules.
 
 % ¶5: Insight — programmable policy engine below the tool layer
-We argue that an agent-harness policy engine should be
-programmable define by the agent itself and take effect at OS level: 
-it should let the agent use live project and
-task context to enforce its own actions and adapt at runtime. 
-This creates three challenges. First, policy specification must be \emph{expressive} enough to
+We argue that an agent-harness policy engine should be programmable by
+the agent itself and take effect at OS level: it should let the agent
+use live project and task context to enforce its own actions and adapt at
+runtime. This creates three challenges. First, policy specification must be \emph{expressive} enough to
 capture directive intent yet \emph{concrete} enough to compile to
 deterministic kernel checks. Second, enforcement must track
 policy-relevant state across tools, subprocesses, files, and network
