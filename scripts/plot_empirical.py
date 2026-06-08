@@ -128,10 +128,6 @@ ax.legend(handles=[p_dir, p_desc, ax.get_lines()[0]], loc='upper left')
 ax.set_xlabel('Repositories (sorted by directive fraction)')
 ax.set_ylabel('Directive Fraction (%)')
 ax.set_ylim(0, 105)
-ax.text(len(dir_pcts) * 0.55, 8,
-        f'n = {len(dir_pcts)} repos\n{sum(dire)}/{sum(total)} stmts = '
-        f'{100 * sum(dire) / sum(total):.1f}% directive',
-        fontsize=11, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 plt.tight_layout()
 plt.savefig(os.path.join(OUTDIR, 'empirical_rq1_directive_fraction.pdf'),
             bbox_inches='tight')
@@ -222,13 +218,6 @@ ax.set_yticklabels(enf_labels_short)
 ax.set_xlabel('Percentage (%)')
 ax.set_xlim(0, 105)
 ax.legend(loc='lower right')
-# Annotate overall
-ax.text(0.98, 0.02,
-        f'Overall: {100 * ctx_total["none"] / total_sys:.0f}% none, '
-        f'{100 * ctx_total["project"] / total_sys:.0f}% project, '
-        f'{100 * ctx_total["task"] / total_sys:.0f}% task',
-        transform=ax.transAxes, ha='right', fontsize=10,
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 plt.tight_layout()
 plt.savefig(os.path.join(OUTDIR, 'empirical_rq4_context_by_enforcement.pdf'),
             bbox_inches='tight')

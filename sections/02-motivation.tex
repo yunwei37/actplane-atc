@@ -152,15 +152,9 @@ policies: the median repository has 71\% directives.}
 75\% of repositories have a directive fraction above 50\%.
 At the extremes, one repository is entirely descriptive (0\% directives)
 while another is 97\% directives.
-
-\noindent\textbf{Statement-level and line-level analyses yield different
-pictures.}
-Directives average 3.6~lines per statement while descriptions average
-6.8~lines. By statement count, 64.3\% of content is directive; by line
-count, only 48.6\%. A file that appears balanced by lines can contain
-many independent directives hidden inside verbose descriptive context.
-Prior line-level and file-level studies see a balanced document;
-statement-level analysis reveals a directive majority.
+This majority is invisible at line level: directives average 3.6~lines
+per statement while descriptions average 6.8~lines, so the same files
+appear balanced (49\% directive) when measured by lines.
 
 \begin{figure}[t]
 \centering
@@ -179,8 +173,8 @@ studies~\cite{chatlatanagulchai2025agentreadmes},
 applied at statement granularity rather than file granularity
 (Figure~\ref{fig:empirical-rq2}).
 
-\noindent\textbf{Directive density varies sharply by topic, making
-file-level classification misleading for enforcement.}
+\noindent\textbf{Directive density ranges from 0\% (System Overview) to
+87\% (Development Process).}
 Development Process and Implementation Details are directive-heavy
 (86.7\% and 85.2\%, respectively). Architecture is mostly descriptive:
 directory layouts and design summaries make it one of the largest topics
@@ -277,8 +271,8 @@ The remaining 9.4\% require task context
 Table~\ref{tab:examples}: S4 is self-contained; S5--S7 require project
 context; S8 requires task context).
 
-\noindent\textbf{The hardest-to-enforce directives are also the most
-context-dependent.}
+\noindent\textbf{Cross-event directives are 95\% context-dependent,
+compared to 58\% for content directives.}
 Cross-event directives are 95.3\% context-dependent (76.7\% project,
 18.6\% task), compared to 57.5\% for content directives. This compounds
 the enforcement challenge: directives that require cross-event IFC
@@ -300,9 +294,11 @@ three outcomes: none, project, task.}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/empirical_rq4_context_overall.pdf}
-\caption{Context required to instantiate system-observable directives.}
-\Description{Bar chart showing none, project, and task context
-requirements for system-observable directives.}
+\includegraphics[width=\columnwidth]{figures/empirical_rq4_context_by_enforcement.pdf}
+\caption{Context requirement by enforcement level. Cross-event
+directives are 95\% context-dependent; content directives are 42\%
+self-contained.}
+\Description{Stacked horizontal bar chart showing context requirement
+(none, project, task) for each enforcement level.}
 \label{fig:empirical-rq4}
 \end{figure}
