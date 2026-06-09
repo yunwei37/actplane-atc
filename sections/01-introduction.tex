@@ -3,7 +3,12 @@
 % ¶1: Context — agents are powerful and widely deployed through harnesses
 AI agents increasingly operate as long-running actors with access to
 tools, files, shells, browsers, package managers, and external
-APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. They are widely used for Coding ~\cite{yang2024sweagent,wang2025openhands}, personal assistant and working. Besides the LLM, agents require AI agent harnesses: software around the model that improves agent performance while enforcing behavioral constraints for safety, security, and compliance~\cite{fowler-harness}.
+APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. 
+They are widely used for coding ~\cite{yang2024sweagent,wang2025openhands}, 
+personal assistant and working. Besides the LLM, 
+agents require AI agent harnesses: software around
+the model that improves agent performance while enforcing behavioral 
+constraints for safety, security, and compliance~\cite{fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
 A major component of such a harness is a policy engine~\cite{langchain-harness}: the
@@ -54,10 +59,10 @@ context, leaving the agent unable to follow its behavioral directives.
 We argue that an agent-harness policy engine should be programmable by
 the agent itself and take effect at OS level: it should let the agent
 use live project and task context to enforce its own actions and adapt at
-runtime. Our key observation is that the required context is mainly within the agent itself: the agent already read
-the repository, interpret the current task, and resolve abstract
+runtime. Our key observation is that the required context is mainly within the agent itself: the agent already reads
+the repository, interprets the current task, and resolves abstract
 references into concrete
-commands and paths before it's task and enforcement can begin. This makes the agent
+commands and paths before its enforcement can begin. This makes the agent
 the natural producer of concrete policy from its own directives, also reflecting the fact that instruction files are mainly maintained by the agent itself~\cite{anthropic2025claudecode,galster2026configuring} as its persistent memory.
 
 Realizing this creates three challenges. First, policy specification must be \emph{expressive} enough to

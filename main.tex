@@ -23,7 +23,8 @@
 AI agents operate through harnesses that maintain
 tools and memory, and apply behavioral constraints for safe, effective operation. In practice,
 projects specify these constraints in natural language: our empirical study of 64 projects finds that 64\% of
-instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. Major part of such a harness is a runtime policy engine that
+instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. 
+A major part of such a harness is a runtime policy engine that
 enforces these constraints deterministically over the agent's actions. Yet existing policy engines fail to connect agent intent
 to system-level actions, leaving a \emph{semantic gap}.
 Tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
