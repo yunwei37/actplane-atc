@@ -84,13 +84,13 @@ system-level behavior close to the prohibited action;
 lookalike traces perform operations superficially similar to the
 prohibited action but technically compliant. The three violation
 families reflect execution-path categories observed in deployed coding
-agents~\cite{anthropic2026containment,maloyan2026sok}: visible
-violation traces directly trigger the prohibited operation via a tool
-call; script-mediated traces split script authoring and execution across
+agents~\cite{anthropic2026containment,maloyan2026sok}: direct
+violation traces trigger the prohibited operation via a tool
+call; script traces split script authoring and execution across
 separate tool calls, moving the side effect into an unmonitored
-subprocess~\cite{maloyan2026sok}; opaque traces embed the side effect
+subprocess~\cite{maloyan2026sok}; hidden traces embed the side effect
 in an auxiliary artifact whose entrypoint appears
-benign~\cite{wu2026skillject}, so the real action is visible only at
+benign~\cite{wu2026skillject}, so the real action is observable only at
 the OS level. This yields 190 traces and 760 system--trace cells across
 four systems: prompt-filter, tool-regex, \sys{} without structured
 feedback (\textsc{\sys{}-opaque}), and full \sys{}.
@@ -138,7 +138,7 @@ the ground truth, whether the policy enforcement system triggered and
 its feedback, and what the agent did in subsequent steps.
 Similar to other benchmarks, we use LLM-as-judge
 evaluation~\cite{zheng2023judging}.
-TP means a violation trace received enforcement-visible intervention or
+TP means a violation trace received enforcement-triggered intervention or
 agent awareness; TN means a compliant trace completed without wrongful
 intervention; FP means a compliant trace was wrongly blocked or steered;
 FN means a violation trace was missed.
@@ -208,14 +208,16 @@ system.}
 \noindent\textbf{\sys{}'s advantage concentrates on indirect execution paths
 invisible to tool-call baselines
 (Figure~\ref{fig:rq1-family-breakdown}).}
-On compliant families and directly visible violations, all systems
+On compliant families and direct violations, all systems
 perform comparably.
-The gap opens on script-mediated and opaque-fixture violations, where
-prompt-filter and tool-regex drop to near-zero detection because the
-prohibited effect occurs inside a subprocess or behind a neutral
-entrypoint. \sys{} retains detection through kernel-level label
+The gap opens on indirect execution paths (the script and
+hidden trace families), where prompt-filter and tool-regex drop to
+near-zero detection because the prohibited effect occurs inside a
+subprocess or behind a neutral entrypoint. \sys{} retains detection through kernel-level label
 propagation, which follows the effect regardless of how the agent
-invoked it.
+invoked it. Cross-event directives (18 of 38 rules) further widen the
+gap: tool-call baselines lack the persistent state needed to track
+ordering constraints such as ``run tests before commit.''
 
 \noindent\textbf{A single Agent translation pass determines the 71.9\%
 detection rate.}
