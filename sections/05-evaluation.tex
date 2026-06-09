@@ -502,16 +502,14 @@ shell-outs and subprocesses remain visible. FIDES and
 CaMeL~\cite{costa2025fides,debenedetti2025camel} apply typed IFC within
 the agent loop, which catches data-flow violations at the API boundary
 but cannot observe effects that escape through shell-outs, subprocesses,
-or compiled binaries; they also do not expose a layered authority stack
-that separates platform, project, and agent policy.
-Flume~\cite{flume} provides
-decentralized labels with explicit capabilities but requires
-per-application integration rather than a compile-time authority
-hierarchy. \sys{} applies information-flow reasoning at the OS boundary
-with a layered authority model, where observation persists across context
-windows and cannot be circumvented by subprocess indirection.
+or compiled binaries.
+Flume~\cite{flume} provides decentralized labels with explicit
+capabilities but requires per-application integration.
+\sys{} applies information-flow reasoning at the OS boundary, where
+cross-event label state persists across context windows and enforcement
+cannot be circumvented by subprocess indirection.
 
-\textbf{Agent instruction files.}
+\textbf{Agent instruction file empirical study.}
 Recent studies characterize \texttt{CLAUDE.md} and \texttt{AGENTS.md}
 files along dimensions of content taxonomy, maintenance practices, and
 task
@@ -525,8 +523,8 @@ and which need project or task context to instantiate.
 \section{Conclusion}
 \label{sec:conclusion}
 
-\sys{} enforces agent behavioral policies at the OS level via eBPF
-and returns semantic feedback for agent recovery. It detects 2.4$\times$ more
+We introduce \sys{}, which enforces agent behavioral policies at the OS level via eBPF
+and returns semantic feedback for agent compliance. It detects 2.4$\times$ more
 violations than tool-call baselines, prevents 76\% of baseline-unsafe
 behaviors on 361 safety tasks, and adds less than 2\% end-to-end
 overhead. The current prototype targets OS-observable directives (45\%

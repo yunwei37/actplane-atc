@@ -84,12 +84,9 @@ deterministic kernel checks. Second,
 enforcement must track
 policy-relevant state across full system without imposing prohibitive per-syscall 
 overhead. Third, since many rules are about safety and security, 
-programmability must not become an authority bypass. Unlike 
-traditional sandboxes threat model where a trusted
-administrator authors policy, here agents are both author and
-constrained subject, so they need an interface to add constraints
-without weakening inherited policy set by trusted administrators or
-parent agents or introducing safety risks.
+programmability must not become an authority bypass: agents must be able
+to adapt richer IFC policies at runtime without weakening inherited
+constraints set by trusted administrators or parent agents.
 
 % ¶6: System — \sys{}
 \sys{} is a runtime-agnostic, programmable OS-level policy enforcement system for

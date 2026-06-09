@@ -39,12 +39,11 @@ without prohibitive per-syscall overhead.
 
 \textbf{C3: Authority-safe agent programmability}
 (\S\ref{sec:authority}).
-Traditional sandboxes assume a trusted administrator authors policy and
-an untrusted process is constrained by it. Here the
-agent is both policy author and constrained subject: it must adapt
-policy at runtime (a sub-agent may need a narrower scope, or the current
-task may require a new constraint), but letting the constrained
-actor write or specialize policy introduces a privilege-weakening risk. 
+Self-restriction systems like Landlock~\cite{landlock} let processes
+tighten their own sandbox, but with static, pre-coded rules.
+Agents must adapt richer IFC policies at runtime (a sub-agent may need
+a narrower scope, or the current task may require a new constraint),
+but programmability must not become a privilege-weakening path.
 
 \subsection{Threat Model}
 
