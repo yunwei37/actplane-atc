@@ -48,9 +48,11 @@ actor write or specialize policy introduces a privilege-weakening risk.
 
 \subsection{Threat Model}
 
-The adversary may compromise the agent through prompt
-injection~\cite{perez2022prompt} or cause unsafe behavior through
-planning errors or opaque tool side effects.
+Following the self-restriction model of
+Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{} assumes
+the agent may be compromised after policy is loaded, e.g.\ through
+prompt injection~\cite{perez2022prompt}, planning errors, or opaque tool
+side effects.
 \sys{} does not detect prompt injection; it limits what a compromised
 agent can execute, providing defense-in-depth at the OS layer.
 The adversary's influence is bounded by the agent's normal capabilities;
@@ -231,8 +233,10 @@ sensitive read, confining acquired labels to that subtree).
 \label{sec:authority}
 
 \sys{} must let agents adapt policy at runtime without
-weakening inherited constraints. \sys{} organizes policy
- around a \emph{domain hierarchy}. A domain is the
+weakening inherited constraints.
+As in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum},
+policy changes are monotonically tightening; \sys{} extends this
+to a multi-agent \emph{domain hierarchy}. A domain is the
 runtime policy boundary for a process tree: 
 every pid maps to a domain,
 and every domain maps to an effective 
