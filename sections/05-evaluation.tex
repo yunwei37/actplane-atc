@@ -188,7 +188,9 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \noindent\textbf{\sys{} achieves 75.8\% DCR, 27--30 percentage points
 above all baselines.}
 Table~\ref{tab:rq1-confusion} shows the full confusion matrix: \sys{}
-achieves the highest TP~(86) and lowest FN~(28) among all four systems.
+achieves the highest TP~(86) and lowest FN~(28).
+\sys{} detects 71.9\% of violations, compared with 30.7\% for
+prompt-filter and 29.8\% for tool-regex.
 
 \begin{figure}[tb]
 \centering
@@ -210,24 +212,23 @@ directly visible violations, prompt-filter and tool-regex detect some
 cases, but \sys{} detects substantially more because it observes the
 actual system effect rather than the proposed tool input. On
 script-mediated and opaque-fixture violations, prompt-filter and
-tool-regex largely fail: tool-call interception cannot see effects that
-occur inside a subprocess or behind a neutral entrypoint. \sys{} retains
+tool-regex largely fail. \sys{} retains
 detection through kernel-level label propagation, which follows the
 effect regardless of how the agent invoked it.
-Across all violation families, prompt-filter and tool-regex detect only
-30.7\% and 29.8\% of violations respectively.
 
-\noindent\textbf{A single translation pass determines the 71.9\%
+\noindent\textbf{A single Agent translation pass determines the 71.9\%
 detection rate.}
 We decompose violation-trace outcomes into \emph{detection rate} (the
 fraction of 114~violation traces on which enforcement triggered) and
 \emph{recovery rate} (the fraction of detected violations where the
 agent subsequently complied).
+Translation quality determines both: rules too narrow miss violations
+(lowering detection), while rules too broad match compliant actions
+(raising false positives).
 In 17 of the 18~false-positive cases the kernel rule fired on a
 compliant action: the LLM-translated DSL rule matched an operation near
 the boundary of the prohibited scope.
-The agent correctly deferred to the enforcement signal, as it would for
-a true violation; the boundary lies in the translated rule, not in the
+The agent correctly deferred to the enforcement signal; the boundary lies in the translated rule, not in the
 agent's response to feedback.
 Under \textsc{\sys{}-opaque}, which enforces identical kernel rules,
 the same 17~traces are judged TN because the agent lacks a feedback
@@ -237,8 +238,8 @@ channel and completes the task through an alternative path.
 agent compliance at 97.6\%.}
 Full \sys{} produces $3\times$ more correct violation-trace outcomes
 than the same engine without feedback (80 vs.\ 27).
-The \textsc{\sys{}-opaque} ablation, which retains identical kernel
-enforcement but removes structured feedback, reduces correct responses
+The \textsc{\sys{}-opaque} ablation, which removes structured feedback,
+reduces correct responses
 from 144 to 102 (FN rises from 28 to 87; FP drops from 18 to 1):
 it detects 58.8\% of violations, but only 40.3\% of those detections
 lead to compliance.
