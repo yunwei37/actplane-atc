@@ -278,32 +278,22 @@ consumed directly by the eBPF loader. Human-readable rule names and
 reasons stay in userspace metadata; the kernel receives only compact rule
 tables and emits rule identifiers when events match.
 
-The eBPF engine attaches to process, file, and network hooks via BPF-LSM
-(pre-operation enforcement) and tracepoints (observation and
-post-operation termination). It maintains label state in per-object BPF
-maps, applies the transfer functions from \S\ref{sec:design}, and
-evaluates the compiled rules on each observed event. Userspace does not
-re-detect violations: it loads the policy, starts the target process, and
-formats kernel-reported matches into semantic feedback.
+The eBPF engine attaches to process, file, and network hooks via
+BPF-LSM for pre-operation enforcement (block effects) and tracepoints
+for observation and post-operation termination (kill effects),
+maintaining label state in per-object BPF maps. Userspace does not 
+re-detect violations; it only formats
+kernel-reported matches into semantic feedback.
 
-The runner (\texttt{\sys{} run -- <cmd>}) discovers the project policy
-file, compiles and loads it before the target starts, seeds the target
-process tree with the agent label, and records kernel matches in a
-feedback file. Higher-authority policy blobs are pre-compiled and loaded
-through the same path; the runner treats them as opaque signed inputs.
-Compatible agent hooks relay this feedback into the model's
-next turn. The runner is intentionally thin: policy decisions remain in
-the kernel; it mediates between the compiled policy, the target
-process, and agent-facing diagnostics.
-
-The domain hierarchy and authority checker are implemented in the eBPF
-engine. Each domain is a BPF map entry storing a parent pointer, an
-inherited-rule mask, and an inherited-label mask. Each pid-to-domain
-mapping is stored in a separate BPF map. When a runtime delta arrives
-through the userspace ring buffer, the checker looks up the submitting
-process's domain via \texttt{bpf\_get\_current\_pid\_tgid()}, verifies
-the target domain is the submitter's own or a descendant, and validates
-the delta against the inherited masks: new rules and labels are admitted
-only if they do not clear any inherited-mask bit or modify any
-inherited rule effect, source, gate, or exception predicate. Weakening
-deltas are rejected before they reach the effective policy.
+The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy
+before the target starts, seeds the agent label, and records
+kernel-reported matches in a feedback file that agent hooks relay into
+the model's next turn.
+The authority checker runs entirely in the kernel eBPF engine. 
+Each domain is a
+BPF map entry storing a parent pointer, an inherited-rule mask, and an
+inherited-label mask; pid-to-domain mappings are in a separate map.
+Runtime deltas arrive through a ring buffer; the checker resolves 
+the submitting domain via \texttt{bpf\_get\_current\_pid\_tgid()} 
+and rejects any delta that clears an inherited-mask bit or modifies
+ an inherited effect.
