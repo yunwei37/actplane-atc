@@ -98,7 +98,9 @@ tool-input regex policy, \sys{} without semantic feedback
 baselines instantiate two common runtime enforcement layers:
 LLM/prompt-based rails over proposed
 actions~\cite{rebedea2023nemo,xiang2025guardagent} and deterministic
-tool-call policies over tool names and arguments in the style of
+tool-call policies over tool names and arguments, as deployed in
+Claude Code hooks~\cite{anthropic2026hooks}, Codex
+approval policies~\cite{openai2025codex}, and
 AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
 value of semantic feedback on top of OS-level observation.
 A translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5)
@@ -333,7 +335,8 @@ cases are excluded. the remaining 197~tasks lack an OS-observable
 checklist item and fall outside
 \sys{}'s enforcement scope.
 Each task runs under three conditions: baseline (no enforcement),
-tool-call hooks in claude code\cite{}, and \sys{} (OS-level hooks
+Claude Code hooks~\cite{anthropic2026hooks}
+(the official sandbox approval policy), and \sys{} (OS-level hooks
 plus semantic feedback).
 
 \paragraph{Metrics.}
@@ -349,7 +352,7 @@ official LLM-based checklist judge.
 \centering
 \includegraphics[width=\columnwidth]{figures/octobench_rq3.png}
 \caption{OctoBench 20-task subset: reward breakdown by system.}
-\Description{Grouped bar chart of baseline, tool-regex, and \sys{}
+\Description{Grouped bar chart of baseline, Claude Code hooks, and \sys{}
 reward components.}
 \label{fig:octobench-rq3}
 \end{figure}
@@ -357,7 +360,7 @@ reward components.}
 \paragraph{Results.}
 \noindent\textbf{On the 20-task subset, \sys{} achieves 0.888 official
 reward, a 10.0-point gain over baseline (0.788) and 7.0~points over
-tool-regex (0.818).}
+Claude Code hooks (0.818).}
 The improvement is not limited to compliance-typed checks:
 user-query reward rises by 28.2~points and
 implementation/test reward by 25.0~points over baseline. These results

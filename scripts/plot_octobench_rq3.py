@@ -24,13 +24,13 @@ METRICS = [
 
 SERIES = {
     "Baseline": [0.788, 0.424, 0.452, 0.907],
-    "Tool-regex": [0.818, 0.452, 0.498, 0.931],
+    "Claude Code hooks": [0.818, 0.452, 0.498, 0.931],
     "AgPlane": [0.888, 0.706, 0.702, 0.953],
 }
 
 COLORS = {
     "Baseline": "#9aa1aa",
-    "Tool-regex": "#3286a2",
+    "Claude Code hooks": "#3286a2",
     "AgPlane": "#c9532b",
 }
 
@@ -44,7 +44,7 @@ def main() -> None:
 
     offsets = {
         "Baseline": -width,
-        "Tool-regex": 0,
+        "Claude Code hooks": 0,
         "AgPlane": width,
     }
 
