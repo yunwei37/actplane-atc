@@ -29,15 +29,21 @@ CPU (24~hardware cores), 125\,GiB RAM, and Linux~6.15.11.
 \subsection{RQ1: DSL Expressiveness and Generation Cost}
 \label{sec:eval:rq1}
 
-The empirical study identifies 607~OS-enforceable rules. RQ1 uses the full subset. A
-translation agent reads each rule,
+The empirical study identifies 607~OS-enforceable rules. 
+RQ1 uses the full subset. A
+Codex with GPT 5.5 agent reads each rule,
 the repository context, and the DSL reference, then emits one
 \sys{} policy. The runner invokes the \sys{} compiler for a bounded
-retry to make sure successful compilation. We report compile coverage, retry rate and failure reasons,
-generated DSL tokens relative to the natural-language rule, and
-compiled policy blob size by per-event versus cross-event rules.
-This RQ stops at translation and compilation; runtime behavior is
-measured separately in RQ2.
+retry to ensure successful compilation. Across all 607~directives, 
+the translator produced compilable
+\sys{} policies for every rule: 392~per-event and
+215~cross-event compiled successfully. Only
+2~rules required a retry, giving a 0.3\% retry rate and no
+compilation failures. The generated policies use 70.9~DSL tokens on
+average and 65~tokens at the median, compared with 54.1 and
+33~tokens for the original natural-language directives. Full
+translation takes ~1h with 8 subagents. 
+The effectiveness of generated policies is evaluated in RQ2/3/5.
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: End-to-End Policy Compliance}
