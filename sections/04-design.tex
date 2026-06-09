@@ -1,11 +1,19 @@
 \section{Design}
 \label{sec:design}
 
-The empirical study establishes four requirements for a policy engine in AI agent harnesses:
-\emph{agent-defined policy with semantic feedback}, since most rules need project or task context that mainly resides within the agent, and the agent must understand violations to recover;
-\emph{OS-level cross-event enforcement}, since most directives involve system-level behavior spanning multiple operations, invisible to tool-call guardrails;
-\emph{safety}, so enforcement holds under planning errors or prompt injection, and agent-authored policy cannot weaken safety constraints;
-and \emph{low overhead}, so enforcement does not slow the agent's normal workload.
+The empirical study establishes four requirements for 
+a policy engine in AI agent harnesses:
+\emph{agent-defined policy with semantic feedback}, 
+since most rules need project or task context within the agent, 
+and the agent must understand violations to recover;
+\emph{OS-level cross-event enforcement}, since most 
+rules involve system-level behavior spanning multiple operations, 
+invisible to tool-call guardrails;
+\emph{safety}, so enforcement holds under probabilistic
+errors or prompt injection, and agent-authored 
+policy cannot weaken safety constraints;
+and \emph{low overhead}, so enforcement 
+does not slow the agent's normal workload.
 
 \textbf{C1: Expressive yet enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).

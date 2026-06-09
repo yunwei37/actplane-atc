@@ -1,10 +1,9 @@
 \section{Introduction}
 
 % ¶1: Context — agents are powerful and widely deployed through harnesses
-AI agents operate as long-running actors with access to
-external tools and memory~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. 
-They are widely used for coding,
-DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands}, increasingly in production
+AI agents are widely used for coding,
+DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands, 
+debenedetti2024agentdojo,zhan2024injecagent,agentsight}, increasingly in production
 deployments that run on real infrastructure, handle sensitive data, and
 interact with CI/CD pipelines. Besides the LLM,
 agents require AI agent harnesses: software around
@@ -28,13 +27,14 @@ harnesses also require deterministic policy engines to enforce compliance
 at runtime~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
-Many of these policies constrain system-level actions, yet existing policy engines leave a \emph{semantic gap}:
-\emph{AI agent intent and directives} are expressed in natural language, but enforcement must decide over
+Many of these policies constrain system-level actions, yet existing policy
+ engines leave a \emph{semantic gap}:
+\emph{AI agent intent and directives} are expressed in natural language,
+ but enforcement must decide over
 \emph{system actions}.
-Our
-empirical study of 64~projects (\S\ref{sec:empirical}) finds that 64\%
-of instruction-file statements are behavioral directives, and 83\% of
-those involve system-level behavior: commands executed, files accessed,
+Our empirical study of instruction-files in 64~highly popular projects (\S\ref{sec:empirical}) 
+finds that 64\% statements are behavioral directives, and 83\%
+ involving system-level behavior: commands executed, files accessed,
 and network connections made.
 Existing approaches cannot close this gap.
 Tool-call-based policy systems~\cite{xiang2025guardagent,wang2025agentspec,
@@ -42,17 +42,23 @@ shi2025progent,costa2025fides,debenedetti2025camel} in agent
 runtimes such as Claude Code and Codex, whether LLM
 guardrails or regex-like checkers, lose track of indirect system actions when
 agents shell out or spawn subprocesses: the same \texttt{git~push} can
-be reached through a tool call, a \texttt{bash~-c} wrapper, or a
+be reached through a \texttt{bash~-c} wrapper, or a
 compiled binary created in a previous session; and at the repository
-level, 81\% of projects contain cross-event directives that single
+level, 81\% projects contain cross-event directives that single
 tool-level interception cannot enforce (e.g., ``run tests before
 commit'').
 
-OS-level enforcement with static policy is also insufficient: most directives reference project or task concepts that static rules cannot resolve (e.g., ``never modify upstream source,'' where \emph{upstream source} must be resolved from the repository; ``do not update dependencies unless requested''; ``the reviewer sub-agent only writes to its project directory'').
-We find that 74\% of system-level directives
-require project or task context absent from low-level OS events.
+OS-level enforcement with static policy is also insufficient: 
+most directives reference project or task context that 
+static rules cannot resolve (e.g., ``never modify upstream source,'' 
+where \emph{upstream source} must be resolved from the repository; 
+``do not update dependencies unless requested''; 
+``the reviewer sub-agent only writes to its project directory'').
+We find that 74\% system-level directives
+require context absent from low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
-software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon} can observe all system actions but expect
+software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon} can 
+observe all system actions but expect
 pre-defined static policy and return only system events without semantic
 context, leaving the agent unable to follow its behavioral directives.
 
@@ -60,7 +66,9 @@ context, leaving the agent unable to follow its behavioral directives.
 We argue that an agent-harness policy engine should be programmable by
 agents and take effect at OS level: it should let agents
 use live project and task context to enforce actions and adapt at
-runtime. Our key observation is that while safety constraints must come from higher authority, the required context is mainly within agents closest to the task: they already read
+runtime. Our key observation is that, while safety constraints must 
+come from higher authority, the required context is mainly within agents 
+closest to the task: they already read
 the repository, interpret the current task, and resolve abstract
 references into concrete
 commands and paths before enforcement can begin. This makes agents
@@ -68,11 +76,16 @@ the natural producer of concrete policy from directives,
 also reflecting the fact that instruction files are 
 increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 
-Realizing this creates three challenges. First, policy specification must be \emph{expressive} enough to
-capture directive intent yet \emph{concrete} enough to compile to
-deterministic kernel checks, with minimal token consumption. Second, enforcement must track
-policy-relevant state across full system without imposing prohibitive per-syscall overhead. Third, since many rules are about safety and security, 
-programmability must not become an authority bypass. Unlike traditional sandboxes threat model where a trusted
+Realizing this creates three challenges. First, policy specification must be
+high-level enough to for agents to easily generate
+from natural language with minimal token consumption, 
+yet concrete enough to compile to
+deterministic kernel checks. Second, 
+enforcement must track
+policy-relevant state across full system without imposing prohibitive per-syscall 
+overhead. Third, since many rules are about safety and security, 
+programmability must not become an authority bypass. Unlike 
+traditional sandboxes threat model where a trusted
 administrator authors policy, here agents are both author and
 constrained subject, so they need an interface to add constraints
 without weakening inherited policy set by trusted administrators or
@@ -80,10 +93,12 @@ parent agents or introducing safety risks.
 
 % ¶6: System — \sys{}
 \sys{} is a programmable OS-level policy enforcement system for
-AI agent harnesses. Agents express policies in a compact DSL generated from natural-language; \sys{} compiles them into labeled information-flow rules and
+AI agent harnesses. Agents express policies in a compact DSL 
+generated from natural-language; \sys{} compiles them into labeled information-flow rules and
 loads them into an eBPF enforcement engine across processes, files, and network kernel hooks.
 When matching a rule, \sys{} returns semantic
-feedback: which rule matched, why, and what to do next. Each rule independently selects one of three effects:
+feedback: which rule matched, why, and what to do next. Each rule 
+independently selects one of three effects:
 notify (observe), block (pre-operation denial), or kill (process 
 termination). A layered authority model ensures that higher-authority
 rules (e.g., global ``do not leak secrets'') cannot be weakened by

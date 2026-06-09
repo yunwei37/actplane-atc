@@ -75,31 +75,26 @@ connection.
 \section{Empirical Study}
 \label{sec:empirical}
 
-We analyze real agent instruction files to answer a prerequisite question:
-do project instructions contain behavioral policies that demand
-OS-level, cross-event enforcement? This section characterizes the
-directives, classifies their enforcement requirements, and quantifies the
+We analyze real agent instruction files to characterize the
+directives, classify their enforcement requirements, and quantify the
 context they need to become concrete rules.
 
 \subsection{Methodology}
 
 We collected public GitHub repositories containing \texttt{CLAUDE.md} or
-\texttt{AGENTS.md}, prioritizing the AI-agent ecosystem over
-filename-only matches and excluding non-code, inactive, fake-star, and
+\texttt{AGENTS.md}, prioritizing the AI-agent project created after 2025
+and excluding non-code, inactive, fake-star, and
 stub repositories. The snapshot (2026-05-23 UTC) contains
 64~repositories (median 20K GitHub stars, min 9.8K, total 2.2M),
-84~deduplicated instruction files, and
+84 instruction files, and
 2{,}116~extracted statements. A \emph{statement} is a coherent unit
-expressing one claim, directive, or constraint. A two-pass LLM-assisted
+expressing one claim or constraint. A two-pass LLM-assisted
 pipeline extracted statements with source line ranges and four labels
 (content type, topic, enforcement level, context requirement); a
 validation script verified full source coverage and verbatim span
 matching. A stratified sample of 100~statements was independently
 reviewed by human annotators, with enforceability labels additionally
-cross-checked by independent Claude and Codex agents. The following
-subsections report results along the four labeling axes; E-RQ3
-identifies the OS-enforceable subset used in the evaluation
-(\S\ref{sec:evaluation}).
+cross-checked by independent Claude and Codex agents. 
 Table~\ref{tab:examples} collects representative statements that
 illustrate all four axes; the labels \textbf{S1}--\textbf{S8} are
 referenced throughout.
@@ -137,14 +132,14 @@ or condition an action; otherwise it is descriptive context.
 Of the 2{,}116~statements, 1{,}361 (64.3\%) are directives and
 755 (35.7\%) are descriptions (Figure~\ref{fig:empirical-rq1}).
 
-\noindent\textbf{Instruction files are predominantly behavioral
+\noindent\textbf{Instruction files are mainly behavioral
 policies: the median repository has 71\% directives.}
 75\% of repositories have a directive fraction above 50\%.
 At the extremes, one repository is entirely descriptive (0\% directives)
 while another is 97\% directives.
 This majority is invisible at line level: directives average 3.6~lines
 per statement while descriptions average 6.8~lines, so the same files
-appear balanced (49\% directive) when measured by lines.
+appear balanced (49\% directives) when measured by lines.
 
 \begin{figure}[t]
 \centering
@@ -168,10 +163,7 @@ applied at statement granularity rather than file granularity
 Development Process and Implementation Details are directive-heavy
 (86.7\% and 85.2\%, respectively). Architecture is mostly descriptive:
 directory layouts and design summaries make it one of the largest topics
-by line count, yet only 23.0\% of its statements are directives. A file
-classified as ``Architecture'' by prior studies may mostly describe the
-project, while a shorter Development Process section packs many
-enforceable rules.
+by line count, yet only 23.0\% of its statements are directives.
 
 \begin{figure}[t]
 \centering
@@ -209,7 +201,8 @@ committing''), cross-file consistency (``update docs when behavior
 changes''), multi-step workflows (release checklists with verification
 steps), and conditional triggers (``if you change specs, also update
 SDK''). These map directly to IFC primitives: lineage gates, label
-propagation, and staleness-aware re-arming.
+propagation, and staleness-aware re-arming. Nearly all of the operations 
+are around files, processes, and network connections.
 
 \noindent\textbf{At the repository level, 81\% of repositories contain
 at least one cross-event directive, and 43\% require all four
