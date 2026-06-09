@@ -20,19 +20,17 @@
   \country{}}
 
 \begin{abstract}
-AI agents increasingly run autonomously in production for coding, DevOps, and enterprise workflows.
-They operate through harnesses that maintain
+AI agents increasingly run autonomously in production for coding, DevOps, and enterprise workflows,operate through harnesses that maintain
 tools and memory, and apply behavioral constraints for safe, effective operation. In practice,
-projects specify these constraints in natural language: our empirical study of 64 projects finds that 64\% of
-instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. 
+projects specify them in natural language and policy configuration: our empirical study finds that 64\% of
+instruction-file statements are directives, e.g. do not leak secrets, run tests before committing. 
 A major part of such a harness is a runtime policy engine that
-enforces these constraints deterministically over the agent's actions. Yet existing policy engines fail to connect agent intent
-to system-level actions, leaving a \emph{semantic gap}.
-Tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
-Our key observation is that while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task, so the engine should let agents dynamically define and adapt policy, and take effect at OS level.
-We introduce \sys{}, a policy engine that allows agents to declare, observe and enforce cross-event
-behavior across process, file, and
-network as information-flow control (IFC) policies with semantic feedback, under
+enforces these constraints deterministically over the agent's actions. Yet existing policy engines fail to connect agent intent to system-level actions, leaving a \emph{semantic gap}:
+tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all process, file, and
+network actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
+
+Our key observation is that, while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task.
+We introduce \sys{}, a system-level policy engine that allows agents to dynamically declare, adapt, observe and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback, under
 a layered authority model that ensures higher-authority rules cannot be
 weakened.
 We implement \sys{} with eBPF and evaluate it across empirically studied
