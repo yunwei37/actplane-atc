@@ -1,18 +1,19 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
-We evaluate \sys{} along four research questions
-(RQ1--RQ4, distinct from the empirical E-RQs in \S\ref{sec:empirical}).
+We evaluate \sys{} along five research questions
+(RQ1--RQ5, distinct from the empirical E-RQs in \S\ref{sec:empirical}).
 
 \begin{description}
-\item[RQ1 (Policy compliance)] Compared with  baselines, does \sys{} improve policy
+\item[RQ1 (DSL expressiveness)] Can a translation agent generate \sys{} policies for all 607 OS-enforceable directives?
+\item[RQ2 (Policy compliance)] Compared with  baselines, does \sys{} improve policy
   compliance for rules from our empirical study across direct and indirect
   execution paths?
-\item[RQ2 (Overhead)] What is the per-event and end-to-end overhead of
+\item[RQ3 (Overhead)] What is the per-event and end-to-end overhead of
   \sys{}'s label propagation and rule checking?
-\item[RQ3 (Real-world coding tasks)] On coding-agent tasks in
+\item[RQ4 (Real-world coding tasks)] On coding-agent tasks in
   real repositories, does \sys{} improve policy compliance and task success rate?
-\item[RQ4 (Safety beyond coding)] On a safety benchmark
+\item[RQ5 (Safety beyond coding)] On a safety benchmark
   covering data handling, system administration, and workplace tasks,
   does \sys{}'s agent-generated policies prevent unsafe agent behaviors?
 \end{description}
@@ -25,13 +26,27 @@ All experiments run on a machine with an Intel Core Ultra~9~285K
 CPU (24~hardware cores), 125\,GiB RAM, and Linux~6.15.11.
 
 %% ----------------------------------------------------------------
-\subsection{RQ1: End-to-End Policy Compliance}
+\subsection{RQ1: DSL Expressiveness and Generation Cost}
 \label{sec:eval:rq1}
+
+The empirical study identifies 607~OS-enforceable rules. RQ1 uses the full subset. A
+translation agent reads each rule,
+the repository context, and the DSL reference, then emits one
+\sys{} policy. The runner invokes the \sys{} compiler for a bounded
+retry to make sure successful compilation. We report compile coverage, retry rate and failure reasons,
+generated DSL tokens relative to the natural-language rule, and
+compiled policy blob size by per-event versus cross-event rules.
+This RQ stops at translation and compilation; runtime behavior is
+measured separately in RQ2.
+
+%% ----------------------------------------------------------------
+\subsection{RQ2: End-to-End Policy Compliance}
+\label{sec:eval:rq2}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1-pipeline.pdf}
-\caption{RQ1 evaluation pipeline: three enforcement paths from
+\caption{RQ2 evaluation pipeline: three enforcement paths from
 natural-language rule to agent-level decision.}
 \Description{Flow diagram showing prompt-filter, tool-regex, and
 \sys{} paths through translation, enforcement, and judging.}
@@ -55,7 +70,7 @@ agent reaches the same system effect through indirect path.
 
 \paragraph{Rule set and scope.}
 The empirical study identifies 607~OS-enforceable directives:
-392~per-event and 215~cross-event. RQ1 uses this subset.
+392~per-event and 215~cross-event. RQ2 samples this subset.
 Semantic-only and content directives are excluded: the former have no
 system-observable counterpart; the latter require linter
 rather than OS-level IFC.
@@ -86,12 +101,12 @@ in an auxiliary artifact whose entrypoint appears
 benign~\cite{wu2026skillject}, so the real action is observable only at
 the OS level. This yields 190 traces.
 In the primary model setting, we replay them on codex-sdk with
-Qwen3.6-27B as the LLM: and the tested agent continues for up to five real tool steps. We repeat the full RQ1 pipeline with
+Qwen3.6-27B as the LLM: and the tested agent continues for up to five real tool steps. We repeat the full RQ2 pipeline with
 DeepSeek-Pro V4. Ground truth and
 policy artifacts are not shown to the tested agent.
 
 \paragraph{Compared systems.}
-RQ1 compares four runtime policy enforcement systems on the same agent
+RQ2 compares four runtime policy enforcement systems on the same agent
 traces (Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
 tool-input regex policy, \sys{} without semantic feedback
 (\textsc{\sys{}-opaque}), and full \sys{}. The prompt and regex
@@ -108,10 +123,9 @@ reads the sampled directive text, the project's \texttt{CLAUDE.md}, and
 the cloned repository, then produces the DSL rule for \sys{} or the
 regex for the tool-regex baseline; it does not have access to the
 ground-truth traces.
-For \sys{}, the agent iteratively invokes the compiler: if a rule fails
-to compile, it observes the diagnostic, revises, and retries until
+For \sys{}, the agent iteratively invokes the compiler and retries until
 compilation succeeds.
-The prompt-filter baseline does not require translation; it directly
+The prompt-filter baseline directly
 decides whether to allow or block each proposed tool call based on the
 directive text and the tool input.
 When a violation is detected, the harness returns semantic feedback to
@@ -142,7 +156,7 @@ translation, runtime enforcement, feedback delivery, and agent recovery.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_dcr_bar.pdf}
-\caption{Overall RQ1 Decision Compliance Rate across 190 traces under
+\caption{Overall RQ2 Decision Compliance Rate across 190 traces under
 two end-to-end model settings. In each setting, the tested agent,
 prompt-filter classifier, and trajectory judge use the indicated model.}
 \Description{Grouped bar chart comparing overall directive compliance
@@ -156,7 +170,7 @@ AgPlane-opaque is 61.7 percent, and AgPlane is 77.4 percent.}
 
 \begin{table}[tb]\small
 \centering
-\caption{RQ1 confusion matrix by runtime policy enforcement system
+\caption{RQ2 confusion matrix by runtime policy enforcement system
 under the primary Qwen3.6-27B model setting.}
 \label{tab:rq1-confusion}
 \begin{tabular}{lrrrrrr}
@@ -181,7 +195,7 @@ prompt-filter and 29.8\% for tool-regex.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_family_breakdown.pdf}
-\caption{RQ1 breakdown by trace family. Cells show DCR~(\%) for each
+\caption{RQ2 breakdown by trace family. Cells show DCR~(\%) for each
 system$\times$family; darker is higher.}
 \Description{Heatmap of directive compliance rate by trace family and
 system.}
@@ -239,8 +253,8 @@ deterministic enforcement (tool-regex $\kappa=0.905$, \sys{}
 $\kappa=0.845$) and lowest for prompt-filter ($\kappa=0.581$), consistent
 with the expected gradient from objective to subjective evaluation.
 %% ----------------------------------------------------------------
-\subsection{RQ2: Overhead}
-\label{sec:eval:rq2}
+\subsection{RQ3: Overhead}
+\label{sec:eval:rq3}
 
 \subsubsection{Macrobenchmarks (End-to-End Workloads)}
 
@@ -315,11 +329,11 @@ is 5--6 orders of magnitude smaller than a single LLM inference turn
 (2--10\,s). All overhead measurements use no-hit configurations.
 
 %% ----------------------------------------------------------------
-\subsection{RQ3: Real-World Coding Tasks (OctoBench)}
-\label{sec:eval:rq3}
+\subsection{RQ4: Real-World Coding Tasks (OctoBench)}
+\label{sec:eval:rq4}
 
 \paragraph{Goal.}
-Unlike RQ1, which isolates single decision points, RQ3 evaluates
+Unlike RQ2, which isolates single decision points, RQ4 evaluates
 \sys{} on complete coding-agent tasks (implementing features, fixing
 bugs, configuring builds) in real repositories, scored by
 the official OctoBench checklist judge.
@@ -372,8 +386,8 @@ tasks, with gains extending beyond compliance-typed checks to user-task
 and implementation quality.
 
 %% ----------------------------------------------------------------
-\subsection{RQ4: Safety Enforcement Beyond Coding Tasks}
-\label{sec:eval:rq4}
+\subsection{RQ5: Safety Enforcement Beyond Coding Tasks}
+\label{sec:eval:rq5}
 
 
 \paragraph{Benchmark and setup.}
@@ -388,7 +402,7 @@ OpenHands~\cite{wang2025openhands} runtime with service dependencies
 workspace state. We run every task under two conditions:
 \emph{baseline} (OpenHands with no enforcement) and \emph{\sys{}}
 (OpenHands with an OS-level \sys{} watcher loading a per-task policy).
-This setup differs from RQ1--RQ3 in two dimensions: the agent framework
+This setup differs from RQ1--RQ4 in two dimensions: the agent framework
 (OpenHands, not Codex CLI) and the workload (workplace safety tasks, not
 repository coding tasks).
 
@@ -408,7 +422,7 @@ the task description names no concrete OS sink.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq4_safety_bar.pdf}
-\caption{RQ4: Outcome distribution on all 361 OpenAgentSafety tasks.
+\caption{RQ5: Outcome distribution on all 361 OpenAgentSafety tasks.
 \sys{} reduces baseline-unsafe outcomes from 145 to 20
 (76\% prevention rate) using policies generated from task descriptions
 without human tuning.}
@@ -448,7 +462,7 @@ protocol-level sinks is a natural next step; broadening process-kill
 rules would introduce false positives without addressing the root cause.
 
 \paragraph{Runtime independence.}
-RQ1--RQ3 use Codex CLI (Node.js, local); RQ4 uses OpenHands (Python,
+RQ1--RQ4 use Codex CLI (Node.js, local); RQ5 uses OpenHands (Python,
 Docker). The same eBPF engine enforces both without adaptation, and
 the only misses are actions that never cross an OS boundary (editor
 APIs, service-internal state), not actions specific to either runtime.

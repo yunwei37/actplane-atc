@@ -48,54 +48,59 @@ actor write or specialize policy introduces a privilege-weakening risk.
 
 \subsection{Threat Model}
 
-\sys{} targets \emph{cooperative but unreliable} agents: their
-original intents are honest, but execution may diverge due to planning
-errors, shell-script side effects, opaque tool behavior, or prompt
-injection~\cite{perez2022prompt}. \sys{} does not detect prompt
-injection; it enforces loaded rules for actions that rules cover.
-
+\textbf{Adversary model.}
+The adversary may compromise the agent through prompt
+injection~\cite{perez2022prompt} or causing unsafe behavior. \sys{} does not detect prompt injection itself;
+it limits what a compromised agent can execute, providing
+defense-in-depth at the OS layer.
+The adversary's influence is bounded by the agent's normal
+capabilities. The kernel enforcement engine
+and pre-compiled higher-authority policy blobs are outside adversary
+reach. Accidental violations (planning errors, opaque tool side effects)
+are a strict subset of this model.
 
 \textbf{Security properties.}
-The adversary may cause the agents to exfiltrate sensitive data, modify
-out-of-scope files, execute forbidden commands, or bypass required
-workflow steps. Given correctly authored rules that cover these actions,
-\sys{} enforces two kernel-level properties:
+Given loaded rules that cover the relevant actions, \sys{} enforces two
+kernel-level properties:
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
-never weaken, inherited higher-authority constraints; and
-(2)~\emph{mediation completeness}: no event delivered to a configured
-\sys{} hook bypasses the rule check (hooks include exec, open, read,
-write, unlink, connect, and fork, among others).
-Mediation guarantees that every hooked operation is checked, not
-that all policy-violating behaviors are caught: detection depends on
-rule coverage and accumulated label state.
-Block effects are synchronous at pre-operation hooks (no TOCTOU gap).
-Kill effects are post-operation: the triggering syscall completes and its
-side effect may already be visible, but the process is terminated before
-any subsequent monitored action; exfiltration-preventing rules should
-therefore use block. Notify effects are observation-only.
+never weaken, inherited higher-authority constraints, even if the agent
+is compromised; and
+(2)~\emph{mediation completeness}: every event delivered to a configured
+hook is checked (hooks include exec, open, read, write, unlink, connect,
+and fork, among others).
+Mediation guarantees that every hooked operation is checked; whether a
+violation is caught depends on \emph{policy coverage}: rules must exist
+for the relevant operations. Higher-authority rules are authored by
+trusted principals responsible for their coverage; agent-authored rules
+may have gaps, but such gaps affect only the agent's own constraints,
+not inherited policy.
+
+\textbf{Effect semantics.}
+Block effects are synchronous at pre-operation hooks (no TOCTOU gap);
+exfiltration-preventing rules should use block. Kill effects are
+post-operation: the triggering syscall completes and its side effect may
+already be visible, but the process is terminated before any subsequent
+monitored action. Notify effects are observation-only.
 
 \textbf{Trust boundaries.}
-Higher-authority policies (platform, project) are authored by trusted
-principals. Arbitrary commands are in scope with respect to policies
-expressed over monitored events; \sys{} covers indirect execution paths
-(subprocesses, shell wrappers, compiled binaries) that manifest as
-hooked OS events. Semantic equivalents outside the policy vocabulary are
-out of scope (e.g., a custom Git-protocol client bypassing
-\texttt{git push}).
-
 The trusted computing base (TCB) consists of the eBPF enforcement engine
 and pre-compiled higher-authority policy blobs, assumed signed and loaded
 through a trusted path; the loader is trusted for this launch phase.
 Security properties hold once policy is loaded and the target process
 enters the monitored domain.
-The compiler and runner handle only agent-authored rules
-and are outside the TCB: bugs in these components can weaken the agent's
-own constraints but cannot affect higher-authority policy.
+The compiler and runner handle only agent-authored rules and are outside
+the TCB: bugs in these components can weaken the agent's own constraints
+but cannot affect higher-authority policy.
+Arbitrary commands are in scope with respect to policies expressed over
+monitored events; \sys{} covers indirect execution paths (subprocesses,
+shell wrappers, compiled binaries) that manifest as hooked OS events.
+Semantic equivalents outside the policy vocabulary are out of scope
+(e.g., a custom Git-protocol client bypassing \texttt{git push}).
 The monitored domain is the agent's entire process tree.
-Kernel compromise, root or \texttt{CAP\_BPF} compromise,
-deliberate side channels, and semantic content checks not observable at
-syscall boundaries (e.g., whether a written file contains a credential)
-are out of scope.
+Kernel compromise, root or \texttt{CAP\_BPF} compromise, deliberate
+side channels, and semantic content checks not observable at syscall
+boundaries (e.g., whether a written file contains a credential) are
+out of scope.
 
 \subsection{System Overview}
 
