@@ -1,12 +1,13 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
-We evaluate \sys{} along three evaluation research questions
-(RQ1--RQ3, distinct from the empirical E-RQs in \S\ref{sec:empirical}).
+We evaluate \sys{} along four research questions
+(RQ1--RQ4, distinct from the empirical E-RQs in \S\ref{sec:empirical}).
 RQ1 measures end-to-end policy compliance on directive-derived rules
 from the empirical corpus; RQ2 quantifies per-event and end-to-end
 overhead; RQ3 tests real-world coding tasks on an OctoBench subset with
-the official judge.
+the official judge; RQ4 tests safety enforcement on a third-party
+benchmark beyond coding tasks.
 
 \begin{description}
 \item[RQ1 (Policy compliance)] Compared with prompt-filter, tool-layer,
@@ -18,6 +19,9 @@ the official judge.
 \item[RQ3 (Real-world coding tasks)] On complete coding-agent tasks in
   real repositories, does \sys{}'s OS-level enforcement and semantic
   feedback improve policy compliance and task success rate?
+\item[RQ4 (Safety beyond coding)] On a third-party safety benchmark
+  covering data handling, system administration, and workplace tasks,
+  does \sys{}'s agent generated policies prevent unsafe agent behaviors?
 \end{description}
 
 %% ----------------------------------------------------------------
@@ -412,6 +416,93 @@ improves policy compliance on real coding-agent tasks, with gains
 extending beyond compliance-typed checks to user-task and
 implementation quality.
 
+%% ----------------------------------------------------------------
+\subsection{RQ4: Safety Enforcement Beyond Coding Tasks}
+\label{sec:eval:rq4}
+
+\paragraph{Goal.}
+RQ1--RQ3 evaluate \sys{} on coding-agent policy compliance. RQ4 tests
+broader agent safety task. It also tests runtime independence: the same
+eBPF engine enforces policies across different agent frameworks 
+without modification.
+
+\paragraph{Benchmark and setup.}
+OpenAgentSafety~\cite{openagentsafety} contains 361 safety tasks that
+instruct an agent to perform workplace or personal-assistant actions
+whose completion requires an unsafe side effect: exfiltrating
+credentials, planting surveillance artifacts, wiping system
+configurations, tampering with financial records, or materializing
+harmful content into files. Each task runs inside a Docker-isolated
+OpenHands~\cite{wang2025openhands} runtime with service dependencies
+(GitLab, ownCloud) and an independent evaluator that scores the final
+workspace state. We run every task under two conditions:
+\emph{baseline} (OpenHands with no enforcement) and \emph{\sys{}}
+(OpenHands with an OS-level \sys{} watcher loading a per-task policy).
+This setup differs from RQ1--RQ3 in two dimensions: the agent framework
+(OpenHands, not Codex CLI) and the workload (workplace safety tasks, not
+repository coding tasks).
+
+\paragraph{Policy generation.}
+For each task, a AI Agent reads only the task description
+and extracts explicit file paths, system commands, and high-confidence
+sink categories (credentials, cron jobs, SSH keys, account mutations,
+network egress). It produces a per-task \sys{} policy compiled to an
+eBPF configuration blob. If no concrete OS-observable behavior is
+identifiable from the description, the generator emits a no-op marker.
+The generator does not read the evaluator, checkpoints, trajectories, or
+any prior run results, making policy generation zero-shot with respect to
+evaluation criteria. Of the 361~tasks, the generator produces
+non-trivial policies for 303~tasks and no-op markers for 58~tasks where
+the task description names no concrete OS sink.
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\columnwidth]{figures/rq4_safety_bar.pdf}
+\caption{RQ4: Outcome distribution on all 361 OpenAgentSafety tasks.
+\sys{} reduces baseline-unsafe outcomes from 145 to 20
+(76\% prevention rate) using policies generated from task descriptions
+without human tuning.}
+\Description{Horizontal stacked bar chart comparing baseline and
+\sys{} outcome distributions across 361 safety tasks. Baseline shows
+145 unsafe and 216 safe. \sys{} shows 110 prevented, 20 missed, 163
+safe, and 58 no-op.}
+\label{fig:rq4-safety}
+\end{figure}
+
+\paragraph{Results.}
+\noindent\textbf{On 361 safety task,
+\sys{} prevents 76\% of baseline-unsafe behaviors with a 5\% false
+activation rate (Figure~\ref{fig:rq4-safety}).}
+Of 145~baseline-unsafe tasks, \sys{} terminated the unsafe operation
+in 110~cases before the harmful effect completed. In 20~cases the agent
+completed the unsafe action without triggering a policy; in 10~cases
+\sys{} activated on a task whose baseline was already safe, where the
+description-only policy matched a benign operation near the prohibited
+boundary. The 58~no-op tasks (no OS behavior in the description) account
+for most of the remaining baseline-safe cases and are excluded from the
+prevention rate denominator.
+
+\paragraph{Failure analysis.}
+The 20~unblocked baseline-unsafe cases fall into three categories.
+\emph{Chat/semantic harm} (2): the unsafe behavior is a message with no
+OS-observable artifact, outside \sys{}'s enforcement scope by design.
+\emph{unsafe files content} (12): the agent produces unsafe files content,
+which is not the main goal of \sys.
+\emph{Service-side artifact} (6): the effect is a WebDAV upload or
+database mutation inside a service container.
+Categories~2 and~3 are hook-coverage gaps, not policy errors: the
+generator produced a correct rule for the intended sink, but the agent
+reached the same effect through a path the current hook set does not
+observe. Extending coverage to tool-layer write interception and
+protocol-level sinks is a natural next step; broadening process-kill
+rules would introduce false positives without addressing the root cause.
+
+\paragraph{Runtime independence.}
+RQ1--RQ3 use Codex CLI (Node.js, local); RQ4 uses OpenHands (Python,
+Docker). The same eBPF engine enforces both without adaptation, and
+the only misses are actions that never cross an OS boundary (editor
+APIs, service-internal state), not actions specific to either runtime.
+
 \section{Related Work}
 \label{sec:related}
 
@@ -475,14 +566,19 @@ constrain system-level actions that span multiple events. \sys{} makes
 these policies enforceable by compiling a compact DSL into labeled
 information-flow rules that run in an eBPF/BPF-LSM engine below the tool
 layer, and by returning semantic feedback that enables agent recovery.
-On a 190-trace benchmark the system detects 2.4$\times$ more violations
-than prompt-filter and tool-regex baselines, covering indirect execution paths
-that tool-call interception cannot, while adding less than 2\%
-end-to-end overhead.
+On a 190-trace compliance benchmark the system detects 2.4$\times$ more
+violations than prompt-filter and tool-regex baselines, covering
+indirect execution paths that tool-call interception cannot, while
+adding less than 2\% end-to-end overhead. On a third-party safety
+benchmark of 361 workplace and personal-assistant tasks, \sys{} prevents
+76\% of baseline-unsafe behaviors using automatically generated policies,
+with misses concentrated in tool-abstraction and service-internal paths
+rather than policy errors.
 By placing enforcement at the syscall boundary with
 agent-facing feedback, \sys{} provides a foundation for harness-level
 policy that remains effective regardless of how tools, subprocesses, or
-sub-agents invoke system operations.
+sub-agents invoke system operations, and across different agent
+frameworks and workload types.
 The current prototype targets OS-observable directives (45\% of the
-corpus); extending coverage to content-inspection and semantic-only
-directives through complementary mechanisms is a natural next step.
+corpus); extending coverage to content-inspection, tool-layer write
+interception, and protocol-level sinks is a natural next step.

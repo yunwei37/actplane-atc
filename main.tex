@@ -20,7 +20,8 @@
   \country{}}
 
 \begin{abstract}
-AI agents operate through harnesses that maintain
+AI agents increasingly run autonomously in production for coding, DevOps, and enterprise workflows.
+They operate through harnesses that maintain
 tools and memory, and apply behavioral constraints for safe, effective operation. In practice,
 projects specify these constraints in natural language: our empirical study of 64 projects finds that 64\% of
 instruction-file statements are behavioral directives, e.g. do not leak secrets, run tests before committing. 
@@ -28,7 +29,7 @@ A major part of such a harness is a runtime policy engine that
 enforces these constraints deterministically over the agent's actions. Yet existing policy engines fail to connect agent intent
 to system-level actions, leaving a \emph{semantic gap}.
 Tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
-Our key observation is that the required context is already mainly within the agent working in the project and task itself, so the engine should let agents dynamically define and adapt policy, and take effect at OS level for their own actions.
+Our key observation is that the required context is already mainly within agents operating in the project and task, so the engine should let agents dynamically define and adapt policy, and take effect at OS level.
 We introduce \sys{}, a policy engine that allows agents to declare cross-event
 behavior as labeled information-flow control (IFC) policies under
 a layered authority model that ensures higher-authority rules cannot be

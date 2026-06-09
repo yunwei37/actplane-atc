@@ -1,13 +1,14 @@
 \section{Introduction}
 
 % ¶1: Context — agents are powerful and widely deployed through harnesses
-AI agents increasingly operate as long-running actors with access to
-tools, files, shells, browsers, package managers, and external
-APIs~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. 
-They are widely used for coding ~\cite{yang2024sweagent,wang2025openhands}, 
-personal assistant and working. Besides the LLM, 
+AI agents operate as long-running actors with access to
+external tools and memory~\cite{debenedetti2024agentdojo,zhan2024injecagent,agentsight}. 
+They are widely used for coding,
+DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands}, increasingly in production
+deployments that run on real infrastructure, handle sensitive data, and
+interact with CI/CD pipelines. Besides the LLM,
 agents require AI agent harnesses: software around
-the model that improves agent performance while enforcing behavioral 
+the model that improves agent performance while enforcing behavioral
 constraints for safety, security, and compliance~\cite{fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
@@ -57,13 +58,13 @@ context, leaving the agent unable to follow its behavioral directives.
 
 % ¶5: Insight — programmable policy engine below the tool layer
 We argue that an agent-harness policy engine should be programmable by
-the agent itself and take effect at OS level: it should let the agent
-use live project and task context to enforce its own actions and adapt at
-runtime. Our key observation is that the required context is mainly within the agent itself: the agent already reads
-the repository, interprets the current task, and resolves abstract
+agents and take effect at OS level: it should let agents
+use live project and task context to enforce actions and adapt at
+runtime. Our key observation is that the required context is mainly within agents closest to the task: they already read
+the repository, interpret the current task, and resolve abstract
 references into concrete
-commands and paths before its enforcement can begin. This makes the agent
-the natural producer of concrete policy from its own directives, also reflecting the fact that instruction files are mainly maintained by the agent itself~\cite{anthropic2025claudecode,galster2026configuring} as its persistent memory.
+commands and paths before enforcement can begin. This makes agents
+the natural producer of concrete policy from directives, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 
 Realizing this creates three challenges. First, policy specification must be \emph{expressive} enough to
 capture directive intent yet \emph{concrete} enough to compile to
@@ -90,7 +91,9 @@ On our decision-compliance benchmark,
 tool-regex hooks by covering indirect execution paths that tool-call
 interception cannot, while
 adding 1.9\% end-to-end overhead on agent workloads and 8.4\% on
-I/O-intensive kernel builds.
+I/O-intensive kernel builds. On a third-party safety benchmark of 361
+workplace and personal-assistant tasks, \sys{} prevents 76\% of
+baseline-unsafe behaviors using automatically generated policies.
 
 We make three contributions:
 \begin{enumerate}
@@ -99,6 +102,8 @@ gaps (\S\ref{sec:empirical}).
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system
 that addresses them
 (\S\ref{sec:design}--\ref{sec:implementation}).
-\item An \textbf{evaluation} on our decision-compliance benchmark building on empirical study, coding task and safety benchmark.
+\item An \textbf{evaluation} on our decision-compliance benchmark building on empirical study, external
+coding-task and safety benchmarks covering
+workplace and personal-assistant tasks.
 (\S\ref{sec:evaluation}).
 \end{enumerate}
