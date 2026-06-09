@@ -505,7 +505,7 @@ whole-session coverage.
 \textbf{eBPF enforcement and agent policy systems.}
 BPF-LSM~\cite{singh2019krsi,linuxbpflsm} lets eBPF programs attach to
 security hooks and return allow/deny verdicts; \sys{} uses it as its
-pre-operation enforcement backend. Contemporary eBPF tools such as Tetragon,
+pre-operation enforcement backend. Crab~\cite{wu2026crab} uses eBPF to detect agents' file and process changes to help C/R decision; \sys{} lifts the use scope of eBPF to regulating agents' behaviors. Contemporary eBPF tools such as Tetragon,
 Tracee, and eBPF-PATROL~\cite{ciliumtetragon,aquasecuritytracee,ghimire2025ebpfpatrol} provide
 per-event predicates or single-channel lineage flags; \sys{} propagates
 multi-label information flow across channels and checks cross-event
