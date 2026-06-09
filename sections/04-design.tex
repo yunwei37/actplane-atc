@@ -15,22 +15,22 @@ policy cannot weaken safety constraints;
 and \emph{low overhead}, so enforcement 
 does not slow the agent's normal workload.
 
-\textbf{C1: Expressive yet enforceable policy specification}
+\textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-Instruction-file directives are written over high-level repository and task context
-such as ``the test suite,'' ``approved endpoints,'' or ``do not push to
-main.'' Kernel enforcement operates over syscalls, file paths, arguments, processes,
-and endpoints. A specification at the directive level is too
-ambiguous to enforce deterministically; one at the
-syscall level is verbose, brittle, and exposes kernel internals that
-agents and operators cannot reliably audit.
+Agents must translate natural-language directives (``the test suite,''
+``approved endpoints,'' ``do not push to main'') into enforceable
+rules. Generating policy directly at the directive level is too
+ambiguous to enforce deterministically; generating at the
+syscall level requires kernel expertise agents lack, produces
+verbose rules that consume tokens, and exposes internals that
+operators cannot audit.
 Moreover, 81\% of repositories require policies spanning multiple
-operations: ``run tests before committing'' depends on whether a test
-execution occurred after the last source change; no single event
-reveals the full behavior. The DSL must be
-\emph{concrete} enough to lower to fixed-size kernel predicates, yet
-\emph{expressive} enough to capture cross-event constraints and preserve
-the directive's scope, context, and rationale.
+operations; no single event
+captures this. The DSL must be
+\emph{high-level} enough for agents to generate from natural language
+in a single pass with minimal tokens, yet
+\emph{concrete} enough to compile to fixed-size kernel predicates for
+cross-event constraints.
 
 \textbf{C2: Efficient enforcement} (\S\ref{sec:ifc}).
 Cross-event policies require tracking execution history across tools,
