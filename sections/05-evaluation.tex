@@ -47,7 +47,7 @@ natural-language rule to agent-level decision.}
 \end{figure}
 
 \paragraph{Benchmark Motivation.}
-We build a new trace-level benchmark using similar methodology 
+We build a new trace-level benchmark using similar methodology
 to existing benchmarks, but designed to challenge runtime enforcement
 systems with indirect execution paths invisible to tool-call interception.
 Existing enforcement benchmarks such as
@@ -561,24 +561,11 @@ and which need project or task context to instantiate.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Agent instruction files are behavioral policies, and most of them
-constrain system-level actions that span multiple events. \sys{} makes
-these policies enforceable by compiling a compact DSL into labeled
-information-flow rules that run in an eBPF/BPF-LSM engine below the tool
-layer, and by returning semantic feedback that enables agent recovery.
-On a 190-trace compliance benchmark the system detects 2.4$\times$ more
-violations than prompt-filter and tool-regex baselines, covering
-indirect execution paths that tool-call interception cannot, while
-adding less than 2\% end-to-end overhead. On a third-party safety
-benchmark of 361 workplace and personal-assistant tasks, \sys{} prevents
-76\% of baseline-unsafe behaviors using automatically generated policies,
-with misses concentrated in tool-abstraction and service-internal paths
-rather than policy errors.
-By placing enforcement at the syscall boundary with
-agent-facing feedback, \sys{} provides a foundation for harness-level
-policy that remains effective regardless of how tools, subprocesses, or
-sub-agents invoke system operations, and across different agent
-frameworks and workload types.
-The current prototype targets OS-observable directives (45\% of the
-corpus); extending coverage to content-inspection, tool-layer write
-interception, and protocol-level sinks is a natural next step.
+\sys{} compiles agent behavioral policies into labeled information-flow
+rules enforced by an eBPF engine below the tool layer, returning semantic
+feedback that enables agent recovery. It detects 2.4$\times$ more
+violations than tool-call baselines, prevents 76\% of baseline-unsafe
+behaviors on 361 safety tasks, and adds less than 2\% end-to-end
+overhead. The current prototype targets OS-observable directives (45\%
+of the corpus); extending coverage to content-inspection and
+protocol-level sinks is a natural next step.
