@@ -352,14 +352,12 @@ with 217 tasks spanning system prompts, tool schemas, project
 files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries.
 We use the official evaluator unchanged. Because \sys{}
 cannot observe purely semantic checks (e.g., tone), 
-we select a 20-task subset which includes mainly OS-observable rules.
-A task is eligible when at least one checklist item maps to a
-concrete command, file operation, generated artifact, or tool-execution
-constraint that can be expressed as a case-specific policy before
-execution. The selected subset spans \texttt{CLAUDE.md},
+we select a 21-task subset whose user-query checklist contains at least
+one OS-enforceable item (command, file operation,  tool-execution).
+The selected subset spans \texttt{CLAUDE.md},
 \texttt{AGENTS.md}, and user-query policy sources, two agent harnesses,
 and seven repos. Pure file content, style, tone, and natural-language-only
-cases are excluded. The remaining 197~tasks lack OS-observable
+cases are excluded. The remaining 196~tasks lack OS-enforceable
 checklist items and fall outside \sys{}'s enforcement scope.
 Each task runs under three conditions: baseline (no enforcement),
 Claude Code hooks~\cite{anthropic2026hooks}
@@ -369,8 +367,8 @@ reads the task description and produces the policy
 without any human involvement.
 
 \paragraph{Metrics.}
-The primary metric is official OctoBench reward (fraction of checklist
-policies judged satisfied). We additionally report three diagnostic
+The primary metric is official OctoBench RL reward.
+We additionally report three diagnostic
 submetrics from the same checklist results: \emph{user-query reward}
 (user-task checks only), \emph{implementation/test reward}
 (implementation, testing, configuration, and modification checks), and
@@ -380,22 +378,22 @@ official LLM-based checklist judge.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/octobench_rq3.png}
-\caption{OctoBench 20-task subset: reward breakdown by system.}
+\caption{OctoBench 21-task subset: reward breakdown by system.}
 \Description{Grouped bar chart of baseline, Claude Code hooks, and \sys{}
 reward components.}
 \label{fig:octobench-rq3}
 \end{figure}
 
 \paragraph{Results.}
-\noindent\textbf{On the 20-task subset, \sys{} achieves 0.888 official
-reward, a 10-point gain over baseline and 7-point gain over
-Claude Code hooks.}
-The improvement is not limited to compliance-typed checks:
-user-query reward rises by 28.2~points and
-implementation/test reward by 25.0~points over baseline. These results
-confirm that \sys{} improves policy compliance on real coding-agent
-tasks, with gains extending beyond compliance-typed checks to user-task
-and implementation quality.
+\noindent\textbf{\sys{} is the only condition that improves all four
+reward metrics over baseline.}
+The improvement concentrates on task-specific checks:
+user-query reward rises by 9.9~points and
+implementation/test reward by 9.7~points over baseline, while
+compliance reward shows a smaller 2.8-point gain.
+These results confirm that OS-level enforcement with semantic feedback
+improves task completion on real coding-agent tasks, with gains
+extending beyond compliance-typed checks.
 
 %% ----------------------------------------------------------------
 \subsection{RQ5: Safety Enforcement Beyond Coding Tasks}
