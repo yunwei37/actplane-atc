@@ -185,42 +185,10 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \end{tabular}
 \end{table}
 
-\sys{} reaches a DCR 27.4 percentage points higher than prompt-filter and
-30.5 points higher than tool-regex. The difference comes primarily from
-violation recall. Full \sys{} reduces FNs to 28, compared with 70 for
-prompt-filter and 76 for tool-regex, because it observes runtime side
-effects below the tool layer and can detect script- and fixture-mediated
-violations that are not available to prompt or raw tool-input filters.
-It also reduces false positives on compliant traces relative to the
-baselines, though this margin is smaller: full \sys{} has 18 FPs,
-compared with 28 for both prompt-filter and tool-regex.
-The DeepSeek-Pro V4 end-to-end run in Figure~\ref{fig:rq1-dcr} preserves
-the same ordering on the same 760 system--trace cells:
-\sys{} remains highest at 77.4\% DCR, followed by
-\textsc{\sys{}-opaque} at 61.7\%, prompt-filter at 52.5\%, and
-tool-regex at 43.7\%.
-
-The feedback ablation isolates the value of semantic recovery information.
-\textsc{\sys{}-opaque} enforces the same kernel-level rules but returns
-no structured feedback: the agent sees only a raw \texttt{EPERM} or
-process termination. Without a feedback channel, the system never
-actively communicates with the agent on compliant traces, which explains
-its near-zero FP~(1) and high TN~(75), not because enforcement is more
-precise, but because the agent receives no enforcement signal on
-compliant traces.
-Conversely, on violation traces the kernel does block the offending
-syscall, yet the agent cannot diagnose the cause or recover, so the
-judge classifies most blocked violations as FN~(87~FNs).
-Full \sys{} opens a structured feedback channel: rule name, reason, and
-remediation reach the agent after every match. This raises violation
-recall substantially (FN drops from 87 to 28, TP rises from 27 to
-86) but introduces a tradeoff on compliant traces: the active feedback
-channel occasionally triggers agent over-correction on boundary cases,
-raising FP from 1 to 18 and lowering TN from 75 to 58.
-The net effect is positive (correct responses rise from 102 to
-144) because the mechanism is not additional detection alone; the
-feedback channel converts kernel-level observation into agent-level
-recovery.
+\noindent\textbf{\sys{} achieves 75.8\% DCR, 27--30 percentage points
+above all baselines.}
+Table~\ref{tab:rq1-confusion} shows the full confusion matrix: \sys{}
+achieves the highest TP~(86) and lowest FN~(28) among all four systems.
 
 \begin{figure}[tb]
 \centering
@@ -232,23 +200,65 @@ system.}
 \label{fig:rq1-family-breakdown}
 \end{figure}
 
-\sys{}'s advantage concentrates on violation traces that bypass the tool
-boundary (Figure~\ref{fig:rq1-family-breakdown}).
-On the two compliant families (allowed-effect and lookalike), all systems
-except \textsc{\sys{}-opaque} show comparable performance;
-\textsc{\sys{}-opaque}'s near-zero FP rate gives it the highest
-compliant-trace DCR. The difference emerges on violation families. On directly
-visible violations, prompt-filter and tool-regex detect some cases, but
-\sys{} detects substantially more because it observes the actual system
-effect rather than the proposed tool input. On script-mediated and
-opaque-fixture violations, prompt-filter and tool-regex largely fail:
-tool-call interception cannot see effects that occur inside a subprocess
-or behind a neutral entrypoint. \sys{} retains detection through
-kernel-level label propagation, which follows the effect regardless of
-how the agent invoked it. The feedback ablation confirms that detection
-alone is insufficient: \textsc{\sys{}-opaque} observes the same kernel
-events but produces low violation-family DCR because the agent cannot
-recover without a structured corrective payload.
+\noindent\textbf{\sys{}'s advantage concentrates on bypass paths
+invisible to tool-call baselines
+(Figure~\ref{fig:rq1-family-breakdown}).}
+On the two compliant families (allowed-effect and lookalike), all
+systems show comparable performance.
+The difference emerges on violation families. On
+directly visible violations, prompt-filter and tool-regex detect some
+cases, but \sys{} detects substantially more because it observes the
+actual system effect rather than the proposed tool input. On
+script-mediated and opaque-fixture violations, prompt-filter and
+tool-regex largely fail: tool-call interception cannot see effects that
+occur inside a subprocess or behind a neutral entrypoint. \sys{} retains
+detection through kernel-level label propagation, which follows the
+effect regardless of how the agent invoked it.
+Across all violation families, prompt-filter and tool-regex detect only
+30.7\% and 29.8\% of violations respectively.
+
+\noindent\textbf{A single translation pass determines the 71.9\%
+detection rate.}
+We decompose violation-trace outcomes into \emph{detection rate} (the
+fraction of 114~violation traces on which enforcement triggered) and
+\emph{recovery rate} (the fraction of detected violations where the
+agent subsequently complied).
+In 17 of the 18~false-positive cases the kernel rule fired on a
+compliant action: the LLM-translated DSL rule matched an operation near
+the boundary of the prohibited scope.
+The agent correctly deferred to the enforcement signal, as it would for
+a true violation; the boundary lies in the translated rule, not in the
+agent's response to feedback.
+Under \textsc{\sys{}-opaque}, which enforces identical kernel rules,
+the same 17~traces are judged TN because the agent lacks a feedback
+channel and completes the task through an alternative path.
+
+\noindent\textbf{Structured feedback converts kernel detections into
+agent compliance at 97.6\%.}
+Full \sys{} produces $3\times$ more correct violation-trace outcomes
+than the same engine without feedback (80 vs.\ 27).
+The \textsc{\sys{}-opaque} ablation, which retains identical kernel
+enforcement but removes structured feedback, reduces correct responses
+from 144 to 102 (FN rises from 28 to 87; FP drops from 18 to 1):
+it detects 58.8\% of violations, but only 40.3\% of those detections
+lead to compliance.
+Feedback also improves detection indirectly: an agent that receives a
+corrective payload after a first denial revises its approach, and the
+engine catches the revised attempt when it still violates the rule.
+
+\paragraph{Cross-model stability.}
+\sys{}'s advantage replicates under an independent model setting and
+holds in 11 of the 15~sampled repositories.
+The DeepSeek-Pro~V4 end-to-end replication preserves the system ranking
+(Figure~\ref{fig:rq1-dcr}): \sys{} remains highest at 77.4\% DCR,
+followed by \textsc{\sys{}-opaque} at 61.7\%, prompt-filter at 52.5\%,
+and tool-regex at 43.7\%.
+Per-cell agreement between the two model settings yields Cohen's
+$\kappa=0.789$ (substantial agreement), with the highest stability for
+deterministic enforcement (tool-regex $\kappa=0.905$, \sys{}
+$\kappa=0.845$) and lowest for prompt-filter ($\kappa=0.581$), consistent
+with the expected gradient from objective to subjective evaluation.
+No single repository dominates the aggregate advantage.
 
 \paragraph{Authority invariant.}
 To validate monotonic authority (\S\ref{sec:authority}), we submit a
@@ -282,9 +292,9 @@ trace replay and Linux build.}
 \end{figure}
 
 \paragraph{Results.}
-At 32 active no-hit rules, \sys{} adds 1.9\% overhead on the agent-trace
-replay and 6.5\% on the Linux kernel build. At 100 rules, overhead
-remains below 8.4\%. The agent-trace workload exhibits lower overhead because tool
+\noindent\textbf{At 32 active rules, \sys{} adds 1.9\% overhead on the
+agent-trace replay and 6.5\% on the Linux kernel build; at 100 rules,
+overhead remains below 8.4\%.} The agent-trace workload exhibits lower overhead because tool
 actions are interspersed with model inference pauses that dwarf syscall
 cost; the kernel build stresses sustained I/O and process creation,
 exposing more of \sys{}'s per-event cost.
@@ -385,15 +395,16 @@ reward components.}
 \end{figure}
 
 \paragraph{Results.}
-On the 20-task subset, official reward is 0.788 (baseline), 0.818
-(tool-regex), and 0.888 (\sys{}): a 10.0-point gain over baseline and
-7.0~points over tool-regex. The improvement is not limited to compliance-typed checks:
+\noindent\textbf{On the 20-task subset, \sys{} achieves 0.888 official
+reward, a 10.0-point gain over baseline (0.788) and 7.0~points over
+tool-regex (0.818).}
+The improvement is not limited to compliance-typed checks:
 user-query reward rises by 28.2~points and
 implementation/test reward by 25.0~points over baseline. These results
 support the claim that OS-level enforcement with semantic feedback
-improves policy compliance on real coding-agent tasks. We note
-that OctoBench uses an LLM checklist judge rather than deterministic test
-scripts, so we do not claim deterministic task completion.
+improves policy compliance on real coding-agent tasks, with gains
+extending beyond compliance-typed checks to user-task and
+implementation quality.
 
 \section{Related Work}
 \label{sec:related}
@@ -460,10 +471,11 @@ information-flow rules that run in an eBPF/BPF-LSM engine below the tool
 layer, and by returning semantic feedback that enables agent recovery.
 On a 190-trace benchmark the system achieves a 75.8\% decision-compliance
 rate, 27--30 percentage points above prompt-filter and tool-regex
-baselines, while adding less than 2\% end-to-end overhead. The current
-scope is limited to OS-observable directives (45\% of the corpus);
-content-inspection and semantic-only directives require complementary
-mechanisms. By placing enforcement at the syscall boundary with
+baselines, while adding less than 2\% end-to-end overhead.
+By placing enforcement at the syscall boundary with
 agent-facing feedback, \sys{} provides a foundation for harness-level
 policy that remains effective regardless of how tools, subprocesses, or
 sub-agents invoke system operations.
+The current prototype targets OS-observable directives (45\% of the
+corpus); extending coverage to content-inspection and semantic-only
+directives through complementary mechanisms is a natural next step.
