@@ -81,8 +81,9 @@ termination). A layered authority model ensures that higher-authority
 rules (e.g., global ``do not leak secrets'') cannot be weakened by
 agent-authored policy.
 On our decision-compliance benchmark,
-\sys{} reaches a 75.8\% decision-compliance rate, 27pp percentage points
-higher than prompt-filter or tool-regex hooks, while
+\sys{} detects 2.4$\times$ more violations than prompt-filter or
+tool-regex hooks, covering script-mediated and subprocess-indirect
+paths where tool-call baselines achieve near-zero detection, while
 adding 1.9\% end-to-end overhead on agent workloads and 8.4\% on
 I/O-intensive kernel builds.
 
