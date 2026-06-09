@@ -11,7 +11,7 @@ the official judge.
 \begin{description}
 \item[RQ1 (Policy compliance)] Compared with prompt-filter, tool-layer,
   and feedback-ablation baselines, does \sys{} improve policy
-  compliance for directive-derived rules across direct and bypass
+  compliance for directive-derived rules across direct and indirect
   execution paths?
 \item[RQ2 (Overhead)] What is the per-event and end-to-end overhead of
   \sys{}'s label propagation and rule checking?
@@ -45,7 +45,7 @@ natural-language rule to agent-level decision.}
 \paragraph{Benchmark Motivation.}
 We build a new trace-level benchmark using similar methodology 
 to existing benchmarks, but designed to challenge runtime enforcement
-systems with bypass paths invisible to tool-call interception.
+systems with indirect execution paths invisible to tool-call interception.
 Existing enforcement benchmarks such as
 ShieldAgent-Bench~\cite{li2025shieldagent} and
 ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall
@@ -205,7 +205,7 @@ system.}
 \label{fig:rq1-family-breakdown}
 \end{figure}
 
-\noindent\textbf{\sys{}'s advantage concentrates on bypass paths
+\noindent\textbf{\sys{}'s advantage concentrates on indirect execution paths
 invisible to tool-call baselines
 (Figure~\ref{fig:rq1-family-breakdown}).}
 On compliant families and directly visible violations, all systems
@@ -473,10 +473,10 @@ constrain system-level actions that span multiple events. \sys{} makes
 these policies enforceable by compiling a compact DSL into labeled
 information-flow rules that run in an eBPF/BPF-LSM engine below the tool
 layer, and by returning semantic feedback that enables agent recovery.
-On a 190-trace benchmark the system achieves a 75.8\% decision-compliance
-rate across direct and indirect execution paths, 27--30 percentage
-points above prompt-filter and tool-regex
-baselines, while adding less than 2\% end-to-end overhead.
+On a 190-trace benchmark the system detects 2.4$\times$ more violations
+than prompt-filter and tool-regex baselines, covering indirect execution paths
+that tool-call interception cannot, while adding less than 2\%
+end-to-end overhead.
 By placing enforcement at the syscall boundary with
 agent-facing feedback, \sys{} provides a foundation for harness-level
 policy that remains effective regardless of how tools, subprocesses, or

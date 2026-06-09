@@ -82,8 +82,8 @@ rules (e.g., global ``do not leak secrets'') cannot be weakened by
 agent-authored policy.
 On our decision-compliance benchmark,
 \sys{} detects 2.4$\times$ more violations than prompt-filter or
-tool-regex hooks, covering script-mediated and subprocess-indirect
-paths where tool-call baselines achieve near-zero detection, while
+tool-regex hooks by covering indirect execution paths that tool-call
+interception cannot, while
 adding 1.9\% end-to-end overhead on agent workloads and 8.4\% on
 I/O-intensive kernel builds.
 
