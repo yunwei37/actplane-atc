@@ -10,9 +10,9 @@ and the agent must understand violations to recover;
 rules involve system-level behavior spanning multiple operations, 
 invisible to tool-call guardrails;
 \emph{safety}, so enforcement holds under probabilistic
-errors or prompt injection, and agent-authored 
+errors or prompt injection, and agent-authored
 policy cannot weaken safety constraints;
-and \emph{low overhead}, so enforcement 
+and \emph{low overhead}, so enforcement
 does not slow the agent's normal workload.
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
@@ -48,15 +48,24 @@ but programmability must not become a privilege-weakening path.
 \subsection{Threat Model}
 
 Extending the self-restriction model of
-Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{} assumes the agent may be compromised at any point, including before or during policy generation, e.g. through prompt injection, e.g.
-through prompt injection~\cite{perez2022prompt}, planning errors, or
-opaque tool side effects, and provides defense-in-depth at the OS layer.
+Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{}
+assumes the agent may be compromised at any point, including before or
+during policy generation, e.g.\ through prompt
+injection~\cite{perez2022prompt}, planning errors, or opaque tool side
+effects, and provides defense-in-depth at the OS layer.
 The adversary's influence is bounded by the agent's normal capabilities;
 the kernel enforcement engine and higher-authority policy blobs are
 loaded by a privileged process before the agent starts and are not
 writable by the agent. 
 
-\sys{} provides two levels of assurance, by policy authority. Higher-authority rules carry a security guarantee under the full threat model: they cannot be weakened regardless of when the agent is compromised. Agent-authored rules carry a compliance guarantee under a cooperative-but-fallible agent: enforcement is deterministic, but an adversary controlling the agent at policy-generation time can author weak rules — the worst case degrades to having no self-imposed rules, never to weakened inherited ones.
+\sys{} provides two levels of assurance, by policy authority.
+Higher-authority rules carry a security guarantee under the full threat
+model: they cannot be weakened regardless of when the agent is
+compromised. Agent-authored rules carry a compliance guarantee under a
+cooperative-but-fallible agent: enforcement is deterministic, but an
+adversary controlling the agent at policy-generation time can author weak
+rules; the worst case degrades to having no self-imposed rules, never to
+weakened inherited ones.
 
 Given loaded rules, \sys{} enforces
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
@@ -147,7 +156,7 @@ rule no-force-push:
   because "Write a justification before force-pushing."
 \end{verbatim}
 \caption{Three \sys{} rules drawn from real projects: a per-event rule,
-a cross-event ordering gate, and an compliance gate.}
+a cross-event ordering gate, and a compliance gate.}
 \Description{Code listing of three \sys{} rules from real projects.}
 \label{fig:policy-example}
 \end{figure}
@@ -156,7 +165,12 @@ Figure~\ref{fig:policy-example} illustrates the three main rule shapes.
 The first is per-event: if the agent process pushes to \texttt{main}, the
 event matches immediately. The second is cross-event: committing is
 compliant only if the required test command ran after the most recent
-source write. The third uses the same temporal gate: force-pushing is blocked unless the agent first writes a declaration file, which higher-authority policy can further constrain.
+source write. The third uses the same temporal gate as a
+compliance-friction mechanism:
+force-pushing is blocked unless the agent first writes a declaration
+file; this is not a security boundary, and rules that must withstand a
+compromised agent belong in higher-authority policy without an
+agent-satisfiable gate.
 
 The DSL is intentionally narrower than a general mandatory access-control
 language. It targets the policy shapes that recur in agent instruction
