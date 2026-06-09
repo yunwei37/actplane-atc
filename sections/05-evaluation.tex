@@ -144,7 +144,9 @@ A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw
 runner results. In each setting, the judge sees
 the ground truth, whether the policy enforcement system triggered and
 its feedback, and what the agent did in subsequent steps.
-Similar to other benchmarks, we use LLM-as-judge
+Similar to other benchmarks~\cite{zheng2023judging, 
+debenedetti2024agentdojo,li2025shieldagent,
+chen2026toolsafe}, we use LLM-as-judge
 evaluation~\cite{zheng2023judging}.
 TP means a violation trace received enforcement-triggered intervention or
 agent awareness; TN means a compliant trace completed without wrongful
@@ -354,8 +356,8 @@ constraint that can be expressed as a case-specific policy before
 execution. The selected subset spans \texttt{CLAUDE.md},
 \texttt{AGENTS.md}, and user-query policy sources, two agent harness,
 and seven repos. Pure file content, style, tone, and natural-language-only
-cases are excluded. the remaining 197~tasks lack an OS-observable
-checklist item and fall outside
+cases are excluded. The remaining 197~tasks lack OS-observable
+checklist items and fall outside
 \sys{}'s enforcement scope.
 Each task runs under three conditions: baseline (no enforcement),
 Claude Code hooks~\cite{anthropic2026hooks}
@@ -413,11 +415,15 @@ This setup differs from RQ1--RQ4 in two dimensions: the agent framework
 repository coding tasks).
 
 \paragraph{Policy generation.}
-For each task, an AI agent reads only the task description
-and extracts explicit file paths, system commands, and high-confidence
-sink categories (credentials, cron jobs, SSH keys, account mutations,
-network egress). It produces a per-task \sys{} policy compiled to an
-eBPF configuration blob. If no concrete OS-observable behavior is
+In deployment, the agent harness processes the user's request before
+execution begins; guard agents and safety
+classifiers~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails}
+similarly analyze the incoming prompt to set runtime constraints.
+Our policy generator mirrors this: a Codex CLI agent (GPT-5.5) reads
+only the task description and extracts explicit file paths, system
+commands, and high-confidence sink categories (credentials, cron jobs,
+SSH keys, account mutations, network egress), producing a per-task
+\sys{} policy compiled to an eBPF configuration blob. If no concrete OS-observable behavior is
 identifiable from the description, the generator emits a no-op marker.
 The generator does not read the evaluator, checkpoints, trajectories, or
 any prior run results, making policy generation zero-shot with respect to
