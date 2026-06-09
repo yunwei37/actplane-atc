@@ -201,7 +201,7 @@ invoked it. Cross-event directives (18 of 38 rules) further widen the
 gap: tool-call baselines lack the persistent state needed to track
 ordering constraints such as ``run tests before commit.''
 
-\noindent\textbf{Agents can learn from failure: single Agent translation pass detect 71.9\%, revision fix it to xx\%}
+\noindent\textbf{Agents can learn from failure: single Agent translation pass detect 71.9\%, revision fix it to 94.7\%.}
 We decompose violation-trace outcomes into \emph{detection rate} (the
 fraction of 114~violation traces on which enforcement triggered) and
 \emph{recovery rate} (the fraction of detected violations where the
@@ -212,6 +212,9 @@ Translation quality determines both: rules too narrow miss violations
 Under \textsc{\sys{}-opaque}, which enforces identical kernel rules,
 the same 17~traces are judged TN because the agent lacks a feedback
 channel and completes the task through an alternative path.
+We feed each false-negative trace's evidence and corrective feedback      
+to the translation agent and let it revise the DSL rule once;             
+rerunning the 28~FN traces with revised rules recovers 26 (92.9\%).
 
 \noindent\textbf{Semantic feedback converts kernel detections into
 agent compliance at 97.6\%.}

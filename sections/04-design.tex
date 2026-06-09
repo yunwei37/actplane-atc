@@ -17,16 +17,14 @@ does not slow the agent's normal workload.
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-Agents must translate natural-language directives (``the test suite,''
-``approved endpoints,'' ``do not push to main'') into enforceable
-rules. Generating policy directly at the directive level is too
+Agents must translate natural-language rules into enforceable
+rules. Generating policy directly at the intent level is too
 ambiguous to enforce deterministically; generating at the
 syscall level requires kernel expertise agents lack, produces
 verbose rules that consume tokens, and exposes internals that
 operators cannot audit.
-Moreover, 81\% of repositories require policies spanning multiple
-operations; no single event
-captures this. The DSL must be
+Moreover, cross-event policies spanning multiple
+operations are hard for permission checks to capture. The DSL must be
 \emph{high-level} enough for agents to generate from natural language
 in a single pass with minimal tokens, yet
 \emph{concrete} enough to compile to fixed-size kernel predicates for
@@ -46,26 +44,19 @@ an untrusted process is constrained by it. Here the
 agent is both policy author and constrained subject: it must adapt
 policy at runtime (a sub-agent may need a narrower scope, or the current
 task may require a new constraint), but letting the constrained
-actor write or specialize policy introduces a privilege-weakening risk. Agents and sub-agents may add rules,
-specialize targets, or narrow scope, but must never weaken platform or
-project constraints.
+actor write or specialize policy introduces a privilege-weakening risk. 
 
 \subsection{Threat Model}
 
-Given the dual role described in C3,
-\sys{} targets a \emph{cooperative but unreliable} agent: its
-original intent is honest, but execution may diverge due to planning
+\sys{} targets \emph{cooperative but unreliable} agents: their
+original intents are honest, but execution may diverge due to planning
 errors, shell-script side effects, opaque tool behavior, or prompt
 injection~\cite{perez2022prompt}. \sys{} does not detect prompt
-injection; it enforces loaded rules independently of agent intent,
-providing defense-in-depth for actions that rules cover.
-The adversary can control prompt content, tool outputs, browser pages,
-and API responses, inducing the agent to issue arbitrary tool calls or
-shell commands; the adversary cannot compromise the kernel, the eBPF
-loader, the runner, or higher-authority policy blobs.
+injection; it enforces loaded rules for actions that rules cover.
+
 
 \textbf{Security properties.}
-The adversary may cause the agent to exfiltrate sensitive data, modify
+The adversary may cause the agents to exfiltrate sensitive data, modify
 out-of-scope files, execute forbidden commands, or bypass required
 workflow steps. Given correctly authored rules that cover these actions,
 \sys{} enforces two kernel-level properties:
@@ -188,9 +179,9 @@ The DSL is intentionally narrower than a general mandatory access-control
 language. It targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, require a validation step before a release action, and
-route sensitive data through an approved tool. In our evaluation, an LLM
-translation agent translates all 607~OS-enforceable
-directives from the corpus into compilable DSL rules
+route sensitive data through an approved tool. To validate this claim,
+RQ1 translates all 607~OS-enforceable directives from the corpus and
+measures compile coverage, retry rate, token cost, and rule complexity
 (\S\ref{sec:evaluation}). The compiler lowers these
 patterns into fixed-size kernel tables; policy authors need not reason
 about BPF maps, verifier constraints, or binary layout.
