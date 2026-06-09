@@ -29,15 +29,14 @@ A major part of such a harness is a runtime policy engine that
 enforces these constraints deterministically over the agent's actions. Yet existing policy engines fail to connect agent intent
 to system-level actions, leaving a \emph{semantic gap}.
 Tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
-Our key observation is that the required context is already mainly within agents operating in the project and task, so the engine should let agents dynamically define and adapt policy, and take effect at OS level.
-We introduce \sys{}, a policy engine that allows agents to declare cross-event
-behavior as labeled information-flow control (IFC) policies under
+Our key observation is that while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task, so the engine should let agents dynamically define and adapt policy, and take effect at OS level.
+We introduce \sys{}, a policy engine that allows agents to declare, observe and enforce cross-event
+behavior across process, file, and
+network as information-flow control (IFC) policies with semantic feedback, under
 a layered authority model that ensures higher-authority rules cannot be
-weakened by agent-authored policy.
-\sys{} observes and enforces actions across process, file, and
-network boundaries with semantic feedback.
+weakened.
 We implement \sys{} with eBPF and evaluate it across empirically studied
-policies, system workloads, and coding tasks, showing improved policy compliance that covers indirect execution paths
+policies, coding tasks and safety benchmarks, showing improved policy compliance that covers indirect execution paths
 traditional tool-call interception cannot, with 2\% end-to-end overhead
 on agent workloads.
 \end{abstract}
