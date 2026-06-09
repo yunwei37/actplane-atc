@@ -49,39 +49,33 @@ actor write or specialize policy introduces a privilege-weakening risk.
 \subsection{Threat Model}
 
 Following the self-restriction model of
-Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{} assumes
-the agent may be compromised after policy is loaded, e.g.\ through
-prompt injection~\cite{perez2022prompt}, planning errors, or opaque tool
-side effects.
-\sys{} does not detect prompt injection; it limits what a compromised
-agent can execute, providing defense-in-depth at the OS layer.
+Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{}
+assumes the agent may be compromised after policy is loaded, e.g.\
+through prompt injection~\cite{perez2022prompt}, planning errors, or
+opaque tool side effects, and provides defense-in-depth at the OS layer.
 The adversary's influence is bounded by the agent's normal capabilities;
-the kernel enforcement engine and pre-compiled higher-authority policy
-blobs are loaded by a privileged process before the agent starts and are
-not writable by the agent.
+the kernel enforcement engine and higher-authority policy blobs are
+loaded by a privileged process before the agent starts and are not
+writable by the agent.
 
-Given loaded rules, \sys{} enforces two kernel-level properties:
+Given loaded rules, \sys{} enforces
 (1)~\emph{monotonic authority}: agent-authored rules can only tighten,
-never weaken, inherited higher-authority constraints; and
+never weaken, inherited constraints; and
 (2)~\emph{mediation completeness}: every event delivered to a configured
 hook is checked (hooks: exec, open, read, write, unlink, connect, fork).
-Whether a violation is caught depends on \emph{policy coverage}: rules
-must exist for the relevant operations; gaps in agent-authored rules
-affect only the agent's own constraints, not inherited policy.
+Whether a violation is caught depends on \emph{policy coverage}; gaps in
+agent-authored rules affect only the agent's own constraints.
 Block effects are synchronous (no TOCTOU gap); kill effects are
-post-operation (the triggering syscall may complete, but the process is
-terminated before any subsequent monitored action); notify is
-observation-only.
+post-operation (the process is terminated before any subsequent monitored
+action); notify is observation-only.
 
-The trusted computing base (TCB) is the eBPF engine and pre-compiled
-higher-authority blobs, loaded through a trusted path before the agent
-starts. The compiler and runner are outside the TCB: bugs weaken only
-the agent's own constraints.
+The TCB is the eBPF engine and higher-authority blobs; the compiler and
+runner are outside it (bugs weaken only the agent's own constraints).
 \sys{} covers indirect execution paths (subprocesses, shell wrappers,
-compiled binaries) that produce hooked OS events.
-Semantic equivalents that bypass command-level matching are a coverage
-limitation (e.g., a custom Git client avoids \texttt{exec "git"} rules,
-but its connect/write syscalls remain visible).
+compiled binaries) that produce hooked OS events; semantic equivalents
+that bypass command-level matching are a coverage limitation (e.g., a
+custom Git client avoids \texttt{exec "git"} rules, but its
+connect/write syscalls remain visible).
 The monitored domain is the agent's entire process tree.
 Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and
 content-level checks are out of scope.
@@ -170,9 +164,9 @@ The DSL is intentionally narrower than a general mandatory access-control
 language. It targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, require a validation step before a release action, and
-route sensitive data through an approved tool. To validate this claim,
-RQ1 translates all 607~OS-enforceable directives from the corpus and
-measures compile coverage, retry rate, token cost, and rule complexity
+route sensitive data through an approved tool. In our evaluation, an LLM
+translation agent translates all 607~OS-enforceable
+directives from the corpus into compilable DSL rules
 (\S\ref{sec:evaluation}). The compiler lowers these
 patterns into fixed-size kernel tables; policy authors need not reason
 about BPF maps, verifier constraints, or binary layout.
@@ -223,11 +217,13 @@ Once an object carries a label, every subsequent consumer inherits it.
 This ensures that cross-event constraints remain checkable for the
 entire session without requiring explicit label cleanup.
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
-record an irrevocable fact. An agent may declassify labels it authored
-by submitting a narrowing delta to its own domain; labels governed by
-higher-authority rules cannot be declassified, and the recommended
-mitigation is process-level isolation (fork a subprocess for the
-sensitive read, confining acquired labels to that subtree).
+on objects are irrevocable. Declassification follows Flume's
+capability model: the author of a label holds the declassification
+privilege and may exempt its own domain's rules from checking that
+label; the labels themselves remain on all objects.
+Inherited labels and the rules that check them cannot be declassified.
+The recommended mitigation for inherited labels is process-level
+isolation.
 
 \subsection{Layered Policy Authority}
 \label{sec:authority}
@@ -235,12 +231,11 @@ sensitive read, confining acquired labels to that subtree).
 \sys{} must let agents adapt policy at runtime without
 weakening inherited constraints.
 As in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum},
-policy changes are monotonically tightening; \sys{} extends this
-to a multi-agent \emph{domain hierarchy}. A domain is the
-runtime policy boundary for a process tree: 
-every pid maps to a domain,
-and every domain maps to an effective 
-policy set. The core data model is:
+policy changes are monotonically tightening; unlike these systems, which enforce per-process access rights without
+cross-object information-flow tracking, \sys{} extends monotonic
+tightening to a \emph{domain hierarchy} over labeled IFC state that spans process trees.
+
+A domain is the runtime policy boundary for a process tree:
 
 \begin{small}
 \begin{verbatim}
@@ -250,43 +245,32 @@ policy(D) = policy(parent(D)) + local(D)
 \end{verbatim}
 \end{small}
 
-\noindent Policy evolution is \emph{monotonically tightening}: a child
-domain inherits all parent rules and may add local rules, labels, or
-gates, but cannot remove, disable, or weaken any inherited rule.
-When an agent forks a sub-agent, the child process enters a child domain
-that inherits the parent's full policy; the sub-agent may add further
-restrictions but cannot shed inherited constraints.
-
-The root domains correspond to platform/operator and project-maintainer
-policy; the agent creates session and sub-agent domains below them.
+\noindent A child domain inherits all parent rules
+and may add local rules, labels, or gates, but cannot remove, disable,
+or weaken any inherited rule. The root domains correspond to
+platform/operator and project-maintainer policy; the agent creates
+session and sub-agent domains below them.
 Higher-authority rules that admit exceptions use the same temporal gate
 as cross-event workflow rules
 (Figure~\ref{fig:policy-example}, \texttt{no-force-push}): the agent
 satisfies the gate by creating a declaration file, which the IFC engine
-tracks like any other label-propagating event. Higher-authority policy
-can further constrain which processes may write the declaration file,
-keeping exception paths under platform or project authority.
+tracks like any other label-propagating event.
 
-The prototype resolves the initial domain hierarchy at compile or load time.
-Runtime policy additions (sub-agent restrictions, task-specific rules)
-are submitted as precompiled deltas through a userspace ring buffer. The
-kernel derives the submitting domain from the caller's in kernel pid-to-domain
-mapping and admits updates only to the
-submitting domain or its descendants. The
-kernel authority checker admits a delta only if it satisfies a partial
-order: it may introduce fresh local labels, bind new rules, or narrow
-target scope, but it cannot modify inherited labels, sources, gates,
-exception predicates, or rule effects; nor can it remove inherited rules
-or widen scope. A delta cannot create labels that satisfy an inherited
-exception gate unless higher-authority policy explicitly defines that
-path. Accepted deltas are merged into the domain's effective policy; the
-kernel does not parse configuration or resolve project context on the
-event path.
+Runtime policy additions are submitted as precompiled deltas through a eBPF
+userspace ring buffer. The kernel derives the submitting domain from the
+caller's pid-to-domain mapping and admits updates only to the
+submitting domain or its descendants. A delta is accepted only if it
+introduces fresh labels, binds new rules, or narrows scope, without
+modifying inherited rules, labels, or effects; a delta cannot create
+labels that satisfy an inherited exception gate unless higher-authority
+policy explicitly defines that path. Accepted deltas are merged into
+the domain's effective policy on the event path without parsing
+configuration or resolving project context.
 
 \section{Implementation}
 \label{sec:implementation}
 
-\sys{} consists of a Rust compiler/runner (~3.2\,K\,LoC) and an eBPF
+\sys{} consists of a Rust userspace compiler/runner (~3.2\,K\,LoC) and an eBPF
 enforcement engine (~1.8\,K\,LoC of BPF C). The compiler parses the DSL,
 allocates label bits, lowers Boolean label expressions and path/network
 patterns, and emits a fixed-size \texttt{\#[repr(C)]} configuration blob
