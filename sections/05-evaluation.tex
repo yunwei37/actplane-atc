@@ -349,20 +349,24 @@ the official OctoBench checklist judge.
 \paragraph{Benchmark and subset.}
 OctoBench~\cite{octobench} is a coding benchmark
 with 217 tasks spanning system prompts, tool schemas, project
-files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries. We use the official evaluator unchanged. Because \sys{}
-cannot observe purely semantic checks (e.g., tone), we select a 20-task subset which includes mainly OS-observable rules. A task is eligible when at least one checklist item maps to a
+files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries.
+We use the official evaluator unchanged. Because \sys{}
+cannot observe purely semantic checks (e.g., tone), 
+we select a 20-task subset which includes mainly OS-observable rules.
+A task is eligible when at least one checklist item maps to a
 concrete command, file operation, generated artifact, or tool-execution
 constraint that can be expressed as a case-specific policy before
 execution. The selected subset spans \texttt{CLAUDE.md},
-\texttt{AGENTS.md}, and user-query policy sources, two agent harness,
+\texttt{AGENTS.md}, and user-query policy sources, two agent harnesses,
 and seven repos. Pure file content, style, tone, and natural-language-only
 cases are excluded. The remaining 197~tasks lack OS-observable
-checklist items and fall outside
-\sys{}'s enforcement scope.
+checklist items and fall outside \sys{}'s enforcement scope.
 Each task runs under three conditions: baseline (no enforcement),
 Claude Code hooks~\cite{anthropic2026hooks}
 (the official sandbox approval policy), and \sys{} (OS-level hooks
-plus semantic feedback).
+plus semantic feedback). An AI agent (Codex with GPT-5.5) 
+reads the task description and produces the policy 
+without any human involvement.
 
 \paragraph{Metrics.}
 The primary metric is official OctoBench reward (fraction of checklist
@@ -419,11 +423,12 @@ In deployment, the agent harness processes the user's request before
 execution begins; guard agents and safety
 classifiers~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails}
 similarly analyze the incoming prompt to set runtime constraints.
-Our policy generator mirrors this: a Codex CLI agent (GPT-5.5) reads
+Our policy generator mirrors this: a Codex agent (GPT-5.5) reads
 only the task description and extracts explicit file paths, system
 commands, and high-confidence sink categories (credentials, cron jobs,
 SSH keys, account mutations, network egress), producing a per-task
-\sys{} policy compiled to an eBPF configuration blob. If no concrete OS-observable behavior is
+\sys{} policy compiled to an eBPF configuration blob. 
+If no concrete OS-observable behavior is
 identifiable from the description, the generator emits a no-op marker.
 The generator does not read the evaluator, checkpoints, trajectories, or
 any prior run results, making policy generation zero-shot with respect to
