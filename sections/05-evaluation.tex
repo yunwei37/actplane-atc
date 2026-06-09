@@ -39,10 +39,10 @@ the translator produced compilable
 \sys{} policies for every rule: 392~per-event and
 215~cross-event compiled successfully. Only
 2~rules required a retry, giving a 0.3\% retry rate and no
-compilation failures. The generated policies use 70.9~DSL tokens on
-average and 65~tokens at the median, compared with 54.1 and
-33~tokens for the original natural-language directives. Full
-translation takes ~1h with 8 subagents. 
+compilation failures. The generation experiment used 1.7M non-cache input tokens
+and 177k output tokens in total, equal to \$0.0276 per rule. 
+At US SWE rates, a 10-rule/hour write costs about \$10.89 per rule.
+Full translation takes ~34min with 7 subagents in 4 parallel. The 
 The effectiveness of generated policies is evaluated in RQ2/3/5.
 
 %% ----------------------------------------------------------------
