@@ -60,11 +60,13 @@ context, leaving the agent unable to follow its behavioral directives.
 We argue that an agent-harness policy engine should be programmable by
 agents and take effect at OS level: it should let agents
 use live project and task context to enforce actions and adapt at
-runtime. Our key observation is that the required context is mainly within agents closest to the task: they already read
+runtime. Our key observation is that while safety constraints must come from higher authority, the required context is mainly within agents closest to the task: they already read
 the repository, interpret the current task, and resolve abstract
 references into concrete
 commands and paths before enforcement can begin. This makes agents
-the natural producer of concrete policy from directives, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
+the natural producer of concrete policy from directives, 
+also reflecting the fact that instruction files are 
+increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 
 Realizing this creates three challenges. First, policy specification must be \emph{expressive} enough to
 capture directive intent yet \emph{concrete} enough to compile to

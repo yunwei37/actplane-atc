@@ -9,7 +9,7 @@ and \emph{low overhead}, so enforcement does not slow the agent's normal workloa
 
 \textbf{C1: Expressive yet enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-Instruction-file directives are written over high level repository and task context
+Instruction-file directives are written over high-level repository and task context
 such as ``the test suite,'' ``approved endpoints,'' or ``do not push to
 main.'' Kernel enforcement operates over syscalls, file paths, arguments, processes,
 and endpoints. A specification at the directive level is too
@@ -102,11 +102,9 @@ are out of scope.
 
 \sys{} addresses these challenges with three abstractions
 (Figure~\ref{fig:architecture}): a policy DSL
-(\S\ref{sec:dsl}) that compiles directive-level and cross-event
-constraints into kernel-level IFC tables (C1); a labeled
-information-flow model (\S\ref{sec:ifc}) that summarizes execution
-history as compact object labels (C1, C2); and a layered authority model
-(\S\ref{sec:authority}) that ensures monotonic tightening (C3).
+(\S\ref{sec:dsl}, C1); a labeled information-flow model
+(\S\ref{sec:ifc}, C1--C2); and a layered authority model
+(\S\ref{sec:authority}, C3).
 When a rule fires, \sys{} returns semantic feedback: the rule name,
 the author's reason, and a remediation path.
 
@@ -183,7 +181,7 @@ language. It targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, require a validation step before a release action, and
 route sensitive data through an approved tool. In our evaluation, an LLM
-translation agent successfully translates all 607~OS-enforceable
+translation agent translates all 607~OS-enforceable
 directives from the corpus into compilable DSL rules
 (\S\ref{sec:evaluation}). The compiler lowers these
 patterns into fixed-size kernel tables; policy authors need not reason
@@ -317,7 +315,7 @@ feedback file. Higher-authority policy blobs are pre-compiled and loaded
 through the same path; the runner treats them as opaque signed inputs.
 Compatible agent hooks relay this feedback into the model's
 next turn. The runner is intentionally thin: policy decisions remain in
-the kernel; the runner mediates between the compiled policy, the target
+the kernel; it mediates between the compiled policy, the target
 process, and agent-facing diagnostics.
 
 The domain hierarchy and authority checker are implemented in the eBPF
