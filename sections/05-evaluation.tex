@@ -331,7 +331,7 @@ File operations (\texttt{open}, \texttt{write}) and \texttt{connect} are
 sub-microsecond natively; \sys{} adds a path-hash lookup and rule scan,
 raising \texttt{open} to 13.4\,\textmu s at AP-100.
 
-Runtime policy updates are also lightweight. A one-rule hot reload
+A one-rule hot reload
 submitted through the userspace ring buffer reaches the kernel drain path
 in 26.3\,\textmu s on average, and an immediate \texttt{exec} violation is
 observed at p50 176.4\,\textmu s including process launch and event
@@ -441,7 +441,7 @@ The generator does not read the evaluator, checkpoints, trajectories, or
 any prior run results, making policy generation zero-shot with respect to
 evaluation criteria. Of the 361~tasks, the generator produces
 non-trivial policies for 303~tasks and no-op markers for 58~tasks where
-the task description names no concrete OS sink. The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is outside the reach of unsafe execution.
+the task description names no concrete OS sink. The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is independent of unsafe execution.
 
 \begin{figure}[tb]
 \centering
