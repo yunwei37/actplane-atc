@@ -398,7 +398,7 @@ user-query reward rises by 9.9~points and
 implementation/test reward by 9.7~points over baseline, while
 compliance reward shows a smaller 2.8-point gain.
 These results confirm that OS-level enforcement with semantic feedback
-improves task completion on real coding-agent tasks, with gains
+improves reward metrics on real coding-agent tasks, with gains
 extending beyond compliance-typed checks.
 
 %% ----------------------------------------------------------------
@@ -546,7 +546,7 @@ and which need project or task context to instantiate.
 We introduce \sys{}, which enforces agent behavioral policies at the OS level via eBPF
 and returns semantic feedback for agent compliance. It detects 2.4$\times$ more
 violations than tool-call baselines, prevents 74\% of baseline-unsafe
-behaviors on 361 safety tasks, and adds less than 2\% end-to-end
+behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end
 overhead. The current prototype targets OS-observable directives (45\%
 of the corpus); extending coverage to content-inspection and
 protocol-level sinks is a natural next step.
