@@ -161,8 +161,8 @@ policy-correct:
 +\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end from natural language
 directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
-We manual correct 90/1520 samples flagged required double checked,
-and additional random sampled 50 judgments, all of them are expected. 
+We manually corrected 90/1520 samples flagged as requiring double-checking,
+and additionally random-sampled 50 judgments, all of which matched expectations. 
 
 \paragraph{Results.}
 \begin{figure}[tb]
@@ -359,7 +359,8 @@ files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries.
 We use the official evaluator unchanged. Because \sys{}
 cannot observe purely semantic checks (e.g., tone), 
 we select a 21-task subset whose user-query checklist contains at least
-one OS-enforceable item (command, file operation,  tool-execution).
+one targeted OS-enforceable item
+(command, file operation,  tool-execution).
 The selected subset spans \texttt{CLAUDE.md},
 \texttt{AGENTS.md}, and user-query policy sources, two agent harnesses,
 and seven repos. Pure file content, style, tone, and natural-language-only
@@ -397,7 +398,7 @@ The improvement concentrates on task-specific checks:
 user-query reward rises by 9.9~points and
 implementation/test reward by 9.7~points over baseline, while
 compliance reward shows a smaller 2.8-point gain.
-These results confirm that OS-level enforcement with semantic feedback
+These results suggest that OS-level enforcement with semantic feedback
 improves reward metrics on real coding-agent tasks, with gains
 extending beyond compliance-typed checks.
 

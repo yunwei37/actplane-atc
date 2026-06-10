@@ -44,7 +44,7 @@ directives (``run tests before committing'') exhibit. More general OS-level mech
 Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
 BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
 KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
-also observe or restrict system effects below the tool layer, but all of them require
+also observe or restrict system effects below the tool layer, but these require
 statically pre-written policies and return opaque errors with no
 connection to the agent's intent.
 
@@ -190,7 +190,7 @@ Of 1{,}361~directives, 234 (17.2\%) are semantic-only, 520 (38.2\%)
 require content inspection, 392 (28.8\%) match a single OS event, and
 215 (15.8\%) require cross-event state
 (Table~\ref{tab:examples}, S2--S7 illustrate all four levels).
-Content inspection alone covers 55.4\% of directives; adding per-event
+Content inspection covers 55.4\% of directives; adding per-event
 matching reaches 84.2\%; the remaining 15.8\% require cross-event IFC.
 
 \noindent\textbf{Cross-event directives concentrate in Development
@@ -258,7 +258,7 @@ Of cross-event directives, 76.7\% require project context and 18.6\%
 task context (95.3\% total); content directives are only 57.5\%
 context-dependent. This compounds the enforcement challenge: directives
 that require cross-event IFC almost never specify the concrete commands
-and paths needed to write the rule. Statically authored rules can cover
+and paths needed to write the rule. Generic static rules can cover
 only the self-contained fraction; the majority require the agent itself
 to read the repository, interpret the current task, and produce a
 concrete policy before enforcement begins.

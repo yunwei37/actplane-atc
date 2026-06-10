@@ -28,9 +28,9 @@ instruction-file statements are directives, e.g. do not leak secrets, run tests 
 A major part of such a harness is a runtime policy engine that
 enforces these constraints deterministically over the agent's actions.
 Yet existing policy engines fail to connect agent intent to system-level actions, leaving a \emph{semantic gap}:
-83\% of directives include system-level events, where tool-call guardrails can miss indirect system 
-actions, and cross-event state 
-occurs in 81\% of projects; OS-level mechanisms see process,
+83\% of directives include system-level events, where tool-call guardrails can miss indirect system
+actions, and cross-event state
+occurs in 81\% of projects; OS-level mechanisms observe process,
  file, and
 network actions but expect static policy, making it
 hard to instantiate the 74\% of rules that 
@@ -48,31 +48,31 @@ traditional tool-call interception cannot, with 1.9\% overhead on
 agent-trace replay and up to 8.4\% on an I/O-intensive kernel build.
 \end{abstract}
 
-\begin{CCSXML}
-<ccs2012>
- <concept>
-  <concept_id>10010520.10010553.10010562</concept_id>
-  <concept_desc>Computer systems organization~Embedded and cyber-physical systems</concept_desc>
-  <concept_significance>300</concept_significance>
- </concept>
- <concept>
-  <concept_id>10002978.10003022.10003023</concept_id>
-  <concept_desc>Security and privacy~Software and application security</concept_desc>
-  <concept_significance>300</concept_significance>
- </concept>
- <concept>
-  <concept_id>10011007.10010940.10010941.10010949</concept_id>
-  <concept_desc>Software and its engineering~Software safety</concept_desc>
-  <concept_significance>300</concept_significance>
- </concept>
-</ccs2012>
-\end{CCSXML}
+% \begin{CCSXML}
+% <ccs2012>
+%  <concept>
+%   <concept_id>10010520.10010553.10010562</concept_id>
+%   <concept_desc>Computer systems organization~Embedded and cyber-physical systems</concept_desc>
+%   <concept_significance>300</concept_significance>
+%  </concept>
+%  <concept>
+%   <concept_id>10002978.10003022.10003023</concept_id>
+%   <concept_desc>Security and privacy~Software and application security</concept_desc>
+%   <concept_significance>300</concept_significance>
+%  </concept>
+%  <concept>
+%   <concept_id>10011007.10010940.10010941.10010949</concept_id>
+%   <concept_desc>Software and its engineering~Software safety</concept_desc>
+%   <concept_significance>300</concept_significance>
+%  </concept>
+% </ccs2012>
+% \end{CCSXML}
 
-\ccsdesc[300]{Computer systems organization~Embedded and cyber-physical systems}
-\ccsdesc[300]{Security and privacy~Software and application security}
-\ccsdesc[300]{Software and its engineering~Software safety}
+% \ccsdesc[300]{Computer systems organization~Embedded and cyber-physical systems}
+% \ccsdesc[300]{Security and privacy~Software and application security}
+% \ccsdesc[300]{Software and its engineering~Software safety}
 
-\keywords{AI agents, eBPF, information-flow control}
+% \keywords{AI agents, eBPF, information-flow control}
 
 \begin{document}
 \maketitle
