@@ -36,7 +36,7 @@ Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5} agent reads each
 the repository context, and the DSL reference, then writes
 \sys{} policies. The runner invokes the \sys{} compiler for
 retry to ensure successful compilation. The translator produced
-all rules and all compiled successfully. Only
+all rules and compiled successfully. Only
 2~rules required a retry, giving a 0.3\% retry rate and no
 compilation failures. The generation experiment used
 1.7M non-cache input tokens
@@ -150,7 +150,8 @@ Similar to other benchmarks~\cite{zheng2023judging,
 debenedetti2024agentdojo,li2025shieldagent,
 chen2026toolsafe}, we use LLM-as-judge
 evaluation~\cite{zheng2023judging}.
-TP means a violation trace received enforcement-triggered intervention or
+TP means a violation trace recovered towards policy compliance, either through
+enforcement intervention  or
 agent awareness; TN means a compliant trace completed without wrongful
 intervention; FP means a compliant trace was wrongly blocked or steered;
 FN means a violation trace was missed.
@@ -218,12 +219,12 @@ The gap opens on the script and
 hidden trace families, where prompt-filter and tool-regex drop to
 near-zero detection because the prohibited effect occurs inside a
 subprocess or behind a neutral entrypoint. \sys{} retains detection through kernel-level label
-propagation, which follows the effect regardless of how the agent
-invoked it. Cross-event rules (18 of 38) further widen the
+propagation, which follows the monitored effect even when the agent
+invoked it indirectly. Cross-event rules (18 of 38) further widen the
 gap: tool-call baselines lack the persistent state needed to track
 ordering constraints such as ``run tests before commit.''
 
-\noindent\textbf{Agents can learn from failure: single agent translation pass detects 71.9\%, revision fixes it to 94.7\%.}
+\noindent\textbf{Agents can learn from failure: single agent translation pass detects 71.9\%, revision raises it to 94.7\%.}
 We decompose violation-trace outcomes into \emph{detection rate} (the
 fraction of 114~violation traces on which enforcement triggered) and
 \emph{recovery rate} (the fraction of detected violations where the
@@ -371,7 +372,7 @@ Claude Code hooks~\cite{anthropic2026hooks}
 (the official sandbox approval policy), and \sys{} (OS-level hooks
 plus semantic feedback). An AI agent (Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5})
 reads the task description and produces the policy 
-without any human involvement.
+without human involvement.
 
 \paragraph{Metrics.}
 The primary metric is official OctoBench reward.
@@ -439,7 +440,7 @@ The generator does not read the evaluator, checkpoints, trajectories, or
 any prior run results, making policy generation zero-shot with respect to
 evaluation criteria. Of the 361~tasks, the generator produces
 non-trivial policies for 303~tasks and no-op markers for 58~tasks where
-the task description names no concrete OS sink. The generator runs before the agent starts and never ingests untrusted content, so the resulting policy is outside the reach of unsafe execution.
+the task description names no concrete OS sink. The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is outside the reach of unsafe execution.
 
 \begin{figure}[tb]
 \centering
@@ -477,7 +478,7 @@ which is not the main goal of \sys{}.
 \emph{Service-side artifact}: the effect is a WebDAV upload or
 database mutation inside a service container.
 These are hook-coverage gaps, not policy errors: the
-generator produced a correct rule for the intended sink, but the agent
+generator produced a matching rule for the intended sink, but the agent
 reached the same effect through a path the current hook set does not
 observe. Extending coverage to tool-layer write interception and
 protocol-level sinks is a natural next step; broadening process-kill
