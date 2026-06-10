@@ -21,9 +21,10 @@
 \node[box, fill=blue!10, right=2.2cm of nl, yshift=-0.6cm] (dsl) {DSL Policy};
 
 % Enforcement (right column) — system names as labels
-\node[box, fill=orange!15, right=1.6cm of regex, yshift=1.2cm, font=\normalsize\bfseries] (e1) {prompt-filter};
-\node[box, fill=orange!15, right=1.6cm of regex, font=\normalsize\bfseries] (e2) {tool-regex};
-\node[box, fill=orange!15, right=1.6cm of dsl, font=\normalsize\bfseries] (e3) {\sys{}};
+\node[box, fill=orange!15, right=1.6cm of regex, yshift=1.4cm, font=\normalsize\bfseries] (e1) {prompt-filter};
+\node[box, fill=orange!15, right=1.6cm of regex, yshift=0.45cm, font=\normalsize\bfseries] (e2) {tool-regex};
+\node[box, fill=orange!15, right=1.6cm of dsl, yshift=0.45cm, font=\normalsize\bfseries] (e3) {FIDES};
+\node[box, fill=orange!15, below=0.28cm of e3, font=\normalsize\bfseries] (e4) {\sys{}};
 
 % Agent + Judge
 \node[box, fill=green!12, minimum width=2.4cm, right=1.8cm of e2] (agent) {Agent\\(decisions)};
@@ -39,11 +40,13 @@
 % artifacts → enforcement
 \draw[arr] (regex) -- (e2);
 \draw[arr] (dsl) -- (e3);
+\draw[arr] (dsl) -- (e4);
 
 % enforcement → agent
 \draw[arr] (e1.east) -- ++(0.3,0) |- (agent);
 \draw[arr] (e2.east) -- ++(0.3,0) |- (agent);
 \draw[arr] (e3.east) -- ++(0.3,0) |- (agent);
+\draw[arr] (e4.east) -- ++(0.3,0) |- (agent);
 
 % agent → judge
 \draw[arr] (agent) -- (judge);

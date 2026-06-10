@@ -76,7 +76,7 @@ at the tool-call or trajectory level. Runtime enforcement evaluations in
 AgentSpec, Progent, FIDES, and
 CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}
 measure attack-success-rate reduction on AgentDojo
-scenarios~\cite{debenedetti2024agentdojo}. However, all operate at the
+scenarios~\cite{debenedetti2024agentdojo}. However, these operate at the
 tool-call boundary: they do not test whether enforcement holds when an
 agent causes a system effect through an indirect or cross-event path.
 
@@ -486,7 +486,7 @@ rules would introduce false positives without addressing the root cause.
 
 \paragraph{Runtime independence.}
 RQ1--RQ4 use Codex/Claude Code; RQ5 uses OpenHands. The same eBPF engine enforces both without adaptation, and
-the only misses are actions that lack a distinguishable monitored OS event (editor
+misses are actions that lack a distinguishable monitored OS event (editor
 APIs, service-internal state), not actions specific to either runtime.
 
 \section{Related Work}
