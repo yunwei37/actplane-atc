@@ -95,7 +95,7 @@ enforcement, and feedback loop.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_family_breakdown.pdf}
-\caption{RQ1: Decision Compliance Rate by trace family and system. \sys{}'s advantage concentrates on indirect execution paths (script and hidden families) that tool-call baselines cannot observe.}
+\caption{RQ2: Decision Compliance Rate by trace family and system. \sys{}'s advantage concentrates on indirect execution paths (script and hidden families) that tool-call baselines cannot observe.}
 \Description{Heatmap of directive compliance rate by trace family and system.}
 \label{fig:rq1}
 \end{figure}
@@ -103,7 +103,7 @@ enforcement, and feedback loop.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\columnwidth]{figures/rq2_macro_overhead.png}
-\caption{RQ2: End-to-end overhead normalized to native execution, for agent trace replay and Linux kernel build.}
+\caption{RQ3: End-to-end overhead normalized to native execution, for agent trace replay and Linux kernel build.}
 \Description{Grouped bar chart of AP-32 and AP-100 overhead.}
 \label{fig:rq2}
 \end{figure}
@@ -153,13 +153,14 @@ tool-regex hooks by covering indirect execution paths that tool-call
 interception cannot, while
 adding 1.9\% end-to-end overhead on agent workloads and 8.4\% on
 I/O-intensive kernel builds. On a third-party safety benchmark of 361
-workplace and personal-assistant tasks, \sys{} prevents 76\% of
-baseline-unsafe behaviors using automatically generated policies.
+workplace and personal-assistant tasks, \sys{} prevents 74\% of
+baseline-unsafe behaviors additionally
+using separate agent-generated policies before unsafe execution.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/octobench_rq3.png}
-\caption{RQ3: OctoBench 20-task subset reward breakdown by system.}
+\caption{RQ4: OctoBench 21-task subset reward breakdown by system.}
 \Description{Grouped bar chart of baseline, Claude Code hooks, and \sys{} reward.}
 \label{fig:rq3}
 \end{figure}
@@ -167,8 +168,11 @@ baseline-unsafe behaviors using automatically generated policies.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq4_safety_bar.pdf}
-\caption{RQ4: Outcome distribution on 361 OpenAgentSafety tasks. \sys{} reduces baseline-unsafe outcomes from 145 to 20 (76\% prevention rate).}
-\Description{Stacked bar chart comparing baseline and \sys{} outcome distributions.}
+\caption{RQ5: Outcome distribution on 361 OpenAgentSafety tasks. \sys{} reduces baseline-unsafe outcomes from 106 to 28 (74\% prevention rate).}
+\Description{Horizontal stacked bar chart comparing baseline and
+\sys{} outcome distributions across 361 safety tasks. Baseline shows
+106 unsafe and 255 safe. \sys{} shows 78 prevented, 28 missed, 139
+safe, and 58 no-op.}
 \label{fig:rq4}
 \end{figure}
 
