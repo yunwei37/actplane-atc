@@ -34,8 +34,8 @@ Many of these policies constrain system-level actions, yet existing policy
  but enforcement must decide over
 \emph{system actions}.
 Our empirical study of instruction-files in 64~highly popular projects (\S\ref{sec:empirical}) 
-finds that 64\% statements are behavioral directives, and 83\%
- involving system-level behavior: commands executed, files accessed,
+finds that 64\% of statements are behavioral directives, and 83\%
+ involve system-level behavior: commands executed, files accessed,
 and network connections made.
 Existing approaches cannot close this gap.
 Tool-call-based policy systems~\cite{xiang2025guardagent,wang2025agentspec,
@@ -51,10 +51,10 @@ tool-level interception cannot enforce (e.g., ``run tests before
 commit'').
 
 OS-level enforcement with static policy is also insufficient. 
-Most rules reference project or task context requires resolving, (e.g., ``never modify upstream source,'' 
+Most rules reference project or task context that requires resolving, (e.g., ``never modify upstream source,'' 
 where \emph{upstream source} must be resolved from the repository; 
 ``do not update dependencies unless requested''; 
-``the reviewer sub-agent only writes to its project directory''), making it hard for human administrator to pre-define policy for them without context.
+``the reviewer sub-agent only writes to its project directory''), making it hard for human administrators to pre-define policy for them without context.
 We find that 74\% system-level directives
 require intent level context outside of low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
@@ -84,13 +84,13 @@ from natural language with minimal token consumption,
 yet concrete enough to compile to
 deterministic kernel checks. Second, 
 enforcement must track
-policy across system without imposing prohibitive
+policy across the system without imposing prohibitive
 overhead. Third, since many rules are about safety, 
 programmability must not become an authority bypass: agents
 cannot weaken inherited
 constraints set by separate
 trusted administrators, safety rules should 
-be defined by separate trust agents.
+be defined by separately trusted agents.
 
 % ¶6: System — \sys{}
 \sys{} is a runtime-agnostic, programmable

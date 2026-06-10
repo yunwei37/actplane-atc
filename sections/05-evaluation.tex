@@ -26,14 +26,14 @@ All experiments run on a machine with an Intel Core Ultra~9~285K
 CPU (24~hardware cores), 125\,GiB RAM, and Linux~6.15.11.
 
 %% ----------------------------------------------------------------
-\subsection{RQ1: DSL Generation Cost and coverage}
+\subsection{RQ1: DSL Generation Cost and Coverage}
 \label{sec:eval:rq1}
 
 The empirical study
  identifies 607~OS-enforceable rules. 
 RQ1 uses the full subset. A
 Codex with GPT 5.5 agent reads each rule,
-the repository context, and the DSL reference, then write 
+the repository context, and the DSL reference, then writes
 \sys{} policies. The runner invokes the \sys{} compiler for
 retry to ensure successful compilation. The translator produced
 all rules and all compiled successfully. Only
@@ -42,7 +42,7 @@ compilation failures. The generation experiment used
 1.7M non-cache input tokens
 and 177k output tokens in total, equal to \$0.0276 per rule. 
 At US SWE rates, a 10-rule/hour write costs about \$10.89 per rule.
-Full translation takes ~34min with 7 subagents in 4 parallel. The 
+Full translation takes ~34min with 7 subagents in 4 parallel.
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
@@ -73,7 +73,7 @@ CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel
 measure attack-success-rate reduction on AgentDojo
 scenarios~\cite{debenedetti2024agentdojo}. However, all operate at the
 tool-call boundary: they do not test whether enforcement holds when an
-agent causes system effect through indirect or cross event path.
+agent causes a system effect through an indirect or cross-event path.
 
 \paragraph{Rule set and scope.}
 RQ2 samples the subset of 607~OS-enforceable rules.
@@ -89,11 +89,11 @@ proportional to the split in the full corpus.
 \paragraph{Traces.}
 A \emph{Codex CLI under GPT-5.5} reads the rule and repo to
 produce five traces, the policy DSL and all enforcement systems,
-including \sys{} is invisible to it to avoid information leakages.
+including \sys{} are invisible to it to avoid information leakages.
 Each trace simulates real-world coding-agent tasks, including user prompts and
  tool calls that read and write files, execute shell commands,
 and invoke build or test on real repository.
-For each rule agent produce two compliant traces and three violation
+For each rule the agent produces two compliant traces and three violation
 traces. Allowed-effect traces exercise explicitly permitted
 system-level behavior close to the prohibited action;
 lookalike traces perform operations that look like the
@@ -111,7 +111,7 @@ We replay them on codex-sdk to trigger enforcement systems
 and the tested agent
 continues for up to five real tool steps to 
 measure the next action agents take when receiving 
-semantics feedback.
+semantic feedback.
 
 \paragraph{Compared systems.}
 RQ2 compares four policy enforcement systems on the same agent
@@ -216,7 +216,7 @@ invoked it. Cross-event directives (18 of 38 rules) further widen the
 gap: tool-call baselines lack the persistent state needed to track
 ordering constraints such as ``run tests before commit.''
 
-\noindent\textbf{Agents can learn from failure: single Agent translation pass detect 71.9\%, revision fix it to 94.7\%.}
+\noindent\textbf{Agents can learn from failure: single agent translation pass detects 71.9\%, revision fixes it to 94.7\%.}
 We decompose violation-trace outcomes into \emph{detection rate} (the
 fraction of 114~violation traces on which enforcement triggered) and
 \emph{recovery rate} (the fraction of detected violations where the
@@ -533,7 +533,7 @@ and which need project or task context to instantiate.
 
 We introduce \sys{}, which enforces agent behavioral policies at the OS level via eBPF
 and returns semantic feedback for agent compliance. It detects 2.4$\times$ more
-violations than tool-call baselines, prevents 76\% of baseline-unsafe
+violations than tool-call baselines, prevents 74\% of baseline-unsafe
 behaviors on 361 safety tasks, and adds less than 2\% end-to-end
 overhead. The current prototype targets OS-observable directives (45\%
 of the corpus); extending coverage to content-inspection and

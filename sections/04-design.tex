@@ -27,7 +27,7 @@ The DSL must be
 express complex cross-event policy
 with minimal tokens, yet
 \emph{concrete} enough to compile to kernel constraints
-and enforced with low overhead.
+and be enforced with low overhead.
 
 \textbf{C2: Authority-safe agent programmability}
 (\S\ref{sec:authority}). Agents need to adapt richer IFC policies 
@@ -49,7 +49,7 @@ writable by the agent.
 Higher-authority rules can carry a safety and security guarantee 
 under our threat model. 
 Agent-authored rules are only a compliance guarantee under a
-cooperative-but-fallible mode: enforcement is deterministic, an
+cooperative-but-fallible model: enforcement is deterministic, an
 adversary controlling the agent at policy-generation time only weaken
 self rules; the worst case degrades to having no self-imposed rules,
 cannot change inherited ones. Given loaded rules, \sys{} enforces
@@ -192,7 +192,7 @@ reached that object through observed execution edges. Rules check whether
 an event's subject or target carries required labels, carries forbidden
 labels, or satisfies a temporal gate.
 
-\sys{} trading precision for 
+\sys{} trades precision for 
 low-overhead whole-session coverage, since content 
 can be tracked by combining other tools when necessary 
 (e.g. linter or static analyzer)
