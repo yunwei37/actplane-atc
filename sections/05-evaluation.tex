@@ -329,6 +329,12 @@ File operations (\texttt{open}, \texttt{write}) and \texttt{connect} are
 sub-microsecond natively; \sys{} adds a path-hash lookup and rule scan,
 raising \texttt{open} to 13.4\,\textmu s at AP-100.
 
+Runtime policy updates are also lightweight. A one-rule hot reload
+submitted through the userspace ring buffer reaches the kernel drain path
+in 26.3\,\textmu s on average, and an immediate \texttt{exec} violation is
+observed at p50 176.4\,\textmu s including process launch and event
+delivery.
+
 Despite these per-call additions, the macrobenchmark impact remains low
 (1.9\%--8.4\%) because absolute added cost is small relative to the
 computation, I/O, and LLM inference time that dominates agent workloads.
