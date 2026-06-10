@@ -156,6 +156,8 @@ policy-correct:
 +\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end from natural language
 directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
+We manual correct 90/1520 samples flagged required double checked,
+and additional random sampled 79 judgments, all of them are expected. 
 
 \paragraph{Results.}
 \begin{figure}[tb]
@@ -360,7 +362,7 @@ reads the task description and produces the policy
 without any human involvement.
 
 \paragraph{Metrics.}
-The primary metric is official OctoBench RL reward.
+The primary metric is official OctoBench reward.
 We additionally report three diagnostic
 submetrics from the same checklist results: \emph{user-query reward}
 (user-task checks only), \emph{implementation/test reward}
@@ -378,8 +380,8 @@ reward components.}
 \end{figure}
 
 \paragraph{Results.}
-\noindent\textbf{\sys{} is the only condition that improves all four
-reward metrics over baseline.}
+\noindent\textbf{\sys{} improves user-query and 
+implementation/test reward metrics over baseline.}
 The improvement concentrates on task-specific checks:
 user-query reward rises by 9.9~points and
 implementation/test reward by 9.7~points over baseline, while
