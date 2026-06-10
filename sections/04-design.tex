@@ -64,7 +64,7 @@ depends on \emph{policy coverage}.
 Block effects are synchronous
 (no TOCTOU gap); kill effects are
 post-operation (the process is terminated 
-before any subsequent monitored
+before subsequent monitored
 action); notify is observation-only.
 
 The TCB is the eBPF engine and higher-authority blobs; the compiler and
@@ -208,7 +208,7 @@ enforcement without log reconstruction or
 history trace queries.
 
 Labels are monotonic: propagation adds labels but never removes them.
-Once an object carries a label, every subsequent consumer inherits it.
+Once an object carries a label, subsequent consumers inherit it.
 This ensures that cross-event constraints remain checkable for the
 entire session without requiring explicit label cleanup.
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
