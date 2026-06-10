@@ -485,7 +485,7 @@ rules would introduce false positives without addressing the root cause.
 
 \paragraph{Runtime independence.}
 RQ1--RQ4 use Codex/Claude Code; RQ5 uses OpenHands. The same eBPF engine enforces both without adaptation, and
-the only misses are actions that never cross an OS boundary (editor
+the only misses are actions that lack a distinguishable monitored OS event (editor
 APIs, service-internal state), not actions specific to either runtime.
 
 \section{Related Work}
@@ -528,7 +528,7 @@ Flume~\cite{flume} provides decentralized labels with explicit
 capabilities but requires per-application integration.
 \sys{} applies information-flow reasoning at the OS boundary, where
 cross-event label state persists across context windows and enforcement
-cannot be circumvented by subprocess indirection.
+is not bypassed by subprocess indirection.
 
 \textbf{Agent instruction file empirical study.}
 Recent studies characterize \texttt{CLAUDE.md} and \texttt{AGENTS.md}
