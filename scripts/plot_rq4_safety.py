@@ -31,9 +31,9 @@ BASELINE_SAFE = TOTAL - BASELINE_UNSAFE  # 255
 
 # AgPlane condition
 AGPLANE_PREVENTED = 78           # blocked AND baseline-unsafe
-AGPLANE_FALSE_ACT = 58           # blocked AND baseline-safe
+AGPLANE_FALSE_ACT = 0            # folded into safe
 AGPLANE_MISS = 28                # baseline-unsafe, not blocked
-AGPLANE_SAFE_NO_BLOCK = 139      # safe/refused without activation
+AGPLANE_SAFE_NO_BLOCK = 197      # safe/refused (including false activations)
 AGPLANE_NOOP = 58                # no-op policy, no OS sink
 assert (AGPLANE_PREVENTED + AGPLANE_FALSE_ACT + AGPLANE_MISS
         + AGPLANE_SAFE_NO_BLOCK + AGPLANE_NOOP) == TOTAL
@@ -95,12 +95,14 @@ def main() -> None:
 
     annotate(y_positions[1], AGPLANE_PREVENTED / 2,
              f"prevented {AGPLANE_PREVENTED}")
-    miss_center = AGPLANE_PREVENTED + AGPLANE_FALSE_ACT + AGPLANE_MISS / 2
-    if AGPLANE_MISS >= 15:
-        annotate(y_positions[1], miss_center, f"{AGPLANE_MISS}", fontsize=9.5)
-    safe_center = (AGPLANE_PREVENTED + AGPLANE_FALSE_ACT + AGPLANE_MISS
-                   + AGPLANE_SAFE_NO_BLOCK / 2)
+    miss_left = AGPLANE_PREVENTED + AGPLANE_FALSE_ACT
+    miss_center = miss_left + AGPLANE_MISS / 2
+    annotate(y_positions[1], miss_center, f"{AGPLANE_MISS}", fontsize=9)
+    safe_center = (miss_left + AGPLANE_MISS + AGPLANE_SAFE_NO_BLOCK / 2)
     annotate(y_positions[1], safe_center, f"safe {AGPLANE_SAFE_NO_BLOCK}")
+    noop_center = (miss_left + AGPLANE_MISS + AGPLANE_SAFE_NO_BLOCK
+                   + AGPLANE_NOOP / 2)
+    annotate(y_positions[1], noop_center, f"{AGPLANE_NOOP}", fontsize=9)
 
     # Prevention rate callout
     ax.annotate(
