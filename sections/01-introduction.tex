@@ -15,7 +15,9 @@ part that observes and enforces constraints over the agent's concrete
 actions. In practice, projects encode many such constraints as
 behavioral policies in instruction files
 (\texttt{CLAUDE.md},
-\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}, so
+\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,
+chatlatanagulchai2025agentreadmes,santos2025claudeconfig,
+lulla2026agentsmd}, so
 harnesses can provide these instructions to the model directly.
 Because LLMs comply with instructions
 probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
@@ -38,7 +40,7 @@ and network connections made.
 Existing approaches cannot close this gap.
 Tool-call-based policy systems~\cite{xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel} in agent
-runtimes such as Claude Code and Codex, whether LLM
+runtimes such as Claude Code~\cite{anthropic2025claudecode} and Codex~\cite{openai2025codex}, whether LLM
 guardrails or regex-like checkers,
 lose track of indirect system actions when
 agents shell out or spawn subprocesses: e.g. 
@@ -56,7 +58,7 @@ where \emph{upstream source} must be resolved from the repository;
 We find that 74\% system-level directives
 require intent level context outside of low-level OS events.
 OS-level enforcement systems and sandboxes for traditional
-software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon} can 
+software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor} can 
 observe all system actions but expect
 pre-defined static policy and return only system events without semantic
 context, leaving the agent unable to follow its behavioral directives.

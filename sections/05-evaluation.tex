@@ -6,7 +6,7 @@ We evaluate \sys{} along five research questions
 
 \begin{description}
 \item[RQ1 (DSL expressiveness)] Can a translation agent generate \sys{} policies for all 607 OS-enforceable directives?
-\item[RQ2 (Policy compliance)] Compared with  baselines, does \sys{} improve policy
+\item[RQ2 (Policy compliance)] Compared with baselines, does \sys{} improve policy
   compliance for rules from our empirical study across direct and indirect
   execution paths?
 \item[RQ3 (Overhead)] What is the per-event and end-to-end overhead of
@@ -26,27 +26,26 @@ All experiments run on a machine with an Intel Core Ultra~9~285K
 CPU (24~hardware cores), 125\,GiB RAM, and Linux~6.15.11.
 
 %% ----------------------------------------------------------------
-\subsection{RQ1: DSL Expressiveness and Generation Cost}
+\subsection{RQ1: DSL Generation Cost and coverage}
 \label{sec:eval:rq1}
 
-The empirical study identifies 607~OS-enforceable rules. 
+The empirical study
+ identifies 607~OS-enforceable rules. 
 RQ1 uses the full subset. A
 Codex with GPT 5.5 agent reads each rule,
-the repository context, and the DSL reference, then emits one
-\sys{} policy. The runner invokes the \sys{} compiler for a bounded
-retry to ensure successful compilation. Across all 607~directives, 
-the translator produced compilable
-\sys{} policies for every rule: 392~per-event and
-215~cross-event compiled successfully. Only
+the repository context, and the DSL reference, then write 
+\sys{} policies. The runner invokes the \sys{} compiler for
+retry to ensure successful compilation. The translator produced
+all rules and all compiled successfully. Only
 2~rules required a retry, giving a 0.3\% retry rate and no
-compilation failures. The generation experiment used 1.7M non-cache input tokens
+compilation failures. The generation experiment used
+1.7M non-cache input tokens
 and 177k output tokens in total, equal to \$0.0276 per rule. 
 At US SWE rates, a 10-rule/hour write costs about \$10.89 per rule.
 Full translation takes ~34min with 7 subagents in 4 parallel. The 
-The effectiveness of generated policies is evaluated in RQ2/3/5.
 
 %% ----------------------------------------------------------------
-\subsection{RQ2: End-to-End Policy Compliance}
+\subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
 \label{sec:eval:rq2}
 
 \begin{figure}[t]
@@ -60,25 +59,26 @@ natural-language rule to agent-level decision.}
 \end{figure}
 
 \paragraph{Benchmark Motivation.}
-We build a new trace-driven benchmark using similar methodology
-to existing benchmarks, but designed to challenge runtime enforcement
-systems with indirect execution paths invisible to tool-call interception.
+In order to measure the effectiveness of \sys{} compare 
+to other tool level checkers and guardrails under the same agent trajectory,
+we build a new benchmark using similar methodology
+to existing ones, but designed to challenge runtime enforcement
+systems with indirect execution paths and cross event system actions.
 Existing enforcement benchmarks such as
 ShieldAgent-Bench~\cite{li2025shieldagent} and
 ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall
-at the tool-call or trajectory level. Runtime enforcement evaluations in
+at the tool-call or trajectories level. Runtime enforcement evaluations in
 AgentSpec, Progent, FIDES, and
 CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}
 measure attack-success-rate reduction on AgentDojo
 scenarios~\cite{debenedetti2024agentdojo}. However, all operate at the
 tool-call boundary: they do not test whether enforcement holds when an
-agent reaches the same system effect through indirect path.
+agent cause system effect through indirect or cross event path.
 
 \paragraph{Rule set and scope.}
-The empirical study identifies 607~OS-enforceable directives:
-392~per-event and 215~cross-event. RQ2 samples this subset.
+RQ2 samples the subset of 607~OS-enforceable rules.
 Semantic-only and content directives are excluded: the former have no
-system-observable counterpart; the latter require linter
+system-observable effect; the latter require linter
 rather than OS-level IFC.
 We evaluate 38 randomly-selected rules, sampling 2--3 from each of
 15 repositories to cover both per-event and cross-event rules, project-
@@ -87,12 +87,13 @@ final manifest contains 20 per-event and 18 cross-event rules,
 proportional to the split in the full corpus.
 
 \paragraph{Traces.}
-Each trace simulates real-world coding-agent task steps, including user prompts and
-concrete tool calls that read and write files, execute shell commands,
-and invoke build or test processes on real repository. A
-\emph{Codex CLI under GPT-5.5} reads the rule and repo to
-produce five traces.
-For each rule we construct two compliant traces and three violation
+A \emph{Codex CLI under GPT-5.5} reads the rule and repo to
+produce five traces, the policy DSL and all enforcement systems,
+including \sys{} is invisible to it to avoid information leakages.
+Each trace simulates real-world coding-agent tasks, including user prompts and
+ tool calls that read and write files, execute shell commands,
+and invoke build or test on real repository.
+For each rule agent produce two compliant traces and three violation
 traces. Allowed-effect traces exercise explicitly permitted
 system-level behavior close to the prohibited action;
 lookalike traces perform operations look like the
@@ -106,37 +107,33 @@ subprocess~\cite{maloyan2026sok}; hidden traces embed the side effect
 in an auxiliary artifact whose entrypoint appears
 benign~\cite{wu2026skillject}, so the real action is observable only at
 the OS level. This yields 190 traces.
-In the primary model setting, we replay them on codex-sdk with
-Qwen3.6-27B as the LLM: and the tested agent continues for up to five real tool steps. We repeat the full RQ2 pipeline with
-DeepSeek-Pro V4. Ground truth and
-policy artifacts are not shown to the tested agent.
+We replay them on codex-sdk to trigger enforcement systems 
+and the tested agent
+continues for up to five real tool steps to 
+measure the next action agents take when receiving 
+semantics feedback.
 
 \paragraph{Compared systems.}
-RQ2 compares four runtime policy enforcement systems on the same agent
+RQ2 compares four policy enforcement systems on the same agent
 traces (Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
 tool-input regex policy, \sys{} without semantic feedback
 (\textsc{\sys{}-opaque}), and full \sys{}. The prompt and regex
 baselines instantiate two common runtime enforcement layers:
 LLM/prompt-based rails over proposed
 actions~\cite{rebedea2023nemo,xiang2025guardagent} and deterministic
-tool-call policies over tool names and arguments, as deployed in
+tool-call policies as deployed in
 Claude Code hooks~\cite{anthropic2026hooks}, Codex
 approval policies~\cite{openai2025codex}, and
 AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
 value of semantic feedback on top of OS-level observation.
-A translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5)
-reads the sampled directive text, the project's \texttt{CLAUDE.md}, and
+Another translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5)
+reads the rule text and
 the cloned repository, then produces the DSL rule for \sys{} or the
-regex for the tool-regex baseline; it does not have access to the
-ground-truth traces.
-For \sys{}, the agent iteratively invokes the compiler and retries until
-compilation succeeds.
+regex policy for the tool-regex baseline; it does not have access to the
+ground-truth traces to avoid data leakages 
 The prompt-filter baseline directly
 decides whether to allow or block each proposed tool call based on the
-directive text and the tool input.
-When a violation is detected, the harness returns semantic feedback to
-the agent, which can adjust its behavior and
-comply with the directive in subsequent steps.
+rule text and the tool input.
 Figure~\ref{fig:policy-example} shows representative \sys{} rules.
 
 \paragraph{Metric.}
@@ -168,11 +165,7 @@ translation, runtime enforcement, feedback delivery, and agent recovery.
 two end-to-end model settings. In each setting, the tested agent,
 prompt-filter classifier, and trajectory judge use the indicated model.}
 \Description{Grouped bar chart comparing overall directive compliance
-rates under two model settings. With Qwen3.6-27B, prompt-filter is
-48.4 percent, tool-regex is 45.3 percent, AgPlane-opaque is 53.7
-percent, and AgPlane is 75.8 percent. With DeepSeek-Pro V4,
-prompt-filter is 52.5 percent, tool-regex is 43.7 percent,
-AgPlane-opaque is 61.7 percent, and AgPlane is 77.4 percent.}
+rates under two model settings: Qwen3.6-27B, DeepSeek-Pro V4}
 \label{fig:rq1-dcr}
 \end{figure}
 
