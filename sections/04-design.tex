@@ -13,77 +13,67 @@ invisible to tool-call guardrails;
 errors or prompt injection, and agent-authored
 policy cannot weaken safety constraints;
 and \emph{low overhead}, so enforcement
-does not slow the agent's normal workload.
+does not slow the agent's normal workload. To achieve them, two challenges exists:
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-Agents must translate natural-language rules into enforceable
-rules. Generating policy directly at the intent level is too
-ambiguous to enforce deterministically; generating at the
-syscall level requires kernel expertise agents lack, produces
-verbose rules that consume tokens, and exposes internals that
-operators cannot audit.
-Moreover, cross-event policies spanning multiple
-operations are hard for permission checks to capture. The DSL must be
-\emph{high-level} enough for agents to generate from natural language
-in a single pass with minimal tokens, yet
-\emph{concrete} enough to compile to fixed-size kernel predicates for
-cross-event constraints.
+Generating policy at the intent level is too
+ambiguous to enforce; generating at the
+syscall level requires kernel expertise agents
+may lack, produces
+verbose rules that consume tokens and error prune.
+The DSL must be
+\emph{high-level} enough for agents to easily
+express complex cross-event policy
+with minimal tokens, yet
+\emph{concrete} enough to compile to kernel constraints
+and enforced with low overhead.
 
-\textbf{C2: Efficient enforcement} (\S\ref{sec:ifc}).
-Cross-event policies require tracking execution history across tools,
-subprocesses, files, and network endpoints, yet enforcement must avoid
-reconstructing complete traces on every syscall. The enforcement layer
-must maintain sufficient policy-relevant state for deterministic checks
-without prohibitive per-syscall overhead.
-
-\textbf{C3: Authority-safe agent programmability}
-(\S\ref{sec:authority}).
-Self-restriction systems like Landlock~\cite{landlock} let processes
-tighten their own sandbox, but with static, pre-coded rules.
-Agents must adapt richer IFC policies at runtime (a sub-agent may need
+\textbf{C2: Authority-safe agent programmability}
+(\S\ref{sec:authority}). Agents needs adapt richer IFC policies 
+at runtime (a sub-agent may need
 a narrower scope, or the current task may require a new constraint),
-but programmability must not become a privilege-weakening path.
+but must not weakening constraints.
 
 \subsection{Threat Model}
 
-Extending the self-restriction model of
+Follow the principal of the self-restriction model of
 Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{}
-assumes the agent may be compromised at any point, including before or
-during policy generation, e.g.\ through prompt
-injection~\cite{perez2022prompt}, planning errors, or opaque tool side
-effects, and provides defense-in-depth at the OS layer.
-The adversary's influence is bounded by the agent's normal capabilities;
+assumes the agent being enforced may be unsafe or compromised.
+The adversary's influence is bounded by the enforced agent's normal capabilities;
 the kernel enforcement engine and higher-authority policy blobs are
 loaded by a privileged process before the agent starts and are not
 writable by the agent. 
 
 \sys{} provides two levels of assurance, by policy authority.
-Higher-authority rules carry a security guarantee under the full threat
-model: they cannot be weakened regardless of when the agent is
-compromised. Agent-authored rules carry a compliance guarantee under a
-cooperative-but-fallible agent: enforcement is deterministic, but an
-adversary controlling the agent at policy-generation time can author weak
-rules; the worst case degrades to having no self-imposed rules, never to
-weakened inherited ones.
-
-Given loaded rules, \sys{} enforces
-(1)~\emph{monotonic authority}: agent-authored rules can only tighten,
-never weaken, inherited constraints; and
-(2)~\emph{mediation completeness}: every event delivered to a configured
-hook is checked (hooks: exec, open, read, write, unlink, connect, fork).
-Whether a violation is caught depends on \emph{policy coverage}; gaps in
-agent-authored rules affect only the agent's own constraints.
-Block effects are synchronous (no TOCTOU gap); kill effects are
-post-operation (the process is terminated before any subsequent monitored
+Higher-authority rules can carry a safety and security guarantee 
+under our threat model. 
+Agent-authored rules is only a compliance guidance under a
+cooperative-but-fallible mode: enforcement is deterministic, an
+adversary controlling the agent at policy-generation time only weak
+self rules; the worst case degrades to having no self-imposed rules,
+cannot change inherited ones. Given loaded rules, \sys{} enforces
+(1): agent-authored rules 
+never weaken inherited constraints; and
+(2)~\emph{mediation completeness}: every event
+delivered to a configured
+hook is checked (hooks: exec, open, read,
+write, unlink, connect, fork).
+Whether a violation is caught
+depends on \emph{policy coverage}.
+Block effects are synchronous
+(no TOCTOU gap); kill effects are
+post-operation (the process is terminated 
+before any subsequent monitored
 action); notify is observation-only.
 
 The TCB is the eBPF engine and higher-authority blobs; the compiler and
 runner are outside it (bugs weaken only the agent's own constraints).
-\sys{} covers indirect execution paths (subprocesses, shell wrappers,
-compiled binaries) that produce hooked OS events; semantic equivalents
-that bypass command-level matching are a coverage limitation (e.g., a
-custom Git client avoids \texttt{exec "git"} rules, but its
+\sys{} covers indirect execution paths (subprocesses, shell wrappers
+) that produce exact hooked OS events; 
+semantic equivalents bypass and file contents are not covered, 
+and hook types are limited by implementation.
+(e.g., a custom Git client avoids \texttt{exec "git"} rules, but its
 connect/write syscalls remain visible).
 The monitored domain is the agent's entire process tree.
 Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and
@@ -93,13 +83,12 @@ content-level checks are out of scope.
 
 \sys{} addresses these challenges with three abstractions
 (Figure~\ref{fig:architecture}): a policy DSL
-(\S\ref{sec:dsl}, C1); a labeled information-flow model
-(\S\ref{sec:ifc}, C1--C2); and a layered authority model
-(\S\ref{sec:authority}, C3).
-Because enforcement operates at the syscall layer, \sys{} is
-runtime-agnostic: it applies uniformly regardless of the agent harness.
-When a rule fires, \sys{} returns semantic feedback: the rule name,
-the author's reason, and a remediation path.
+(\S\ref{sec:dsl}, C1) with a labeled information-flow model
+(\S\ref{sec:ifc}); and a layered authority model
+(\S\ref{sec:authority}, C2).
+Because enforcement operates at the OS kernel layer, \sys{} is
+runtime-agnostic. When a rule fires, \sys{} returns semantic feedback: the rule name,
+reason, and a remediation path.
 
 \begin{figure}[t]
 \centering
@@ -126,8 +115,7 @@ Sources bind labels to system objects: an \texttt{exec} source labels
 processes that execute a matching binary; a \texttt{file} source labels
 matching paths; a network source labels matching endpoints. Rules bind an
 effect (\texttt{notify}, \texttt{block}, or \texttt{kill}) to an
-operation (\texttt{exec}, \texttt{open}, \texttt{read}, \texttt{write},
-\texttt{unlink}, or \texttt{connect}). Conditions express common agent
+operation (e.g. \texttt{exec}, \texttt{open}). Conditions express common agent
 workflow constraints: a target allow-list, a lineage gate, or a temporal
 \texttt{after~...~since~...} ordering gate.
 
@@ -152,7 +140,7 @@ rule tests-before-commit:
 rule no-force-push:
   block exec "git" "push" "--force"
     if AGENT unless after write
-      ".agent/force-push-necessary"
+      "docs/tmp/force-push-necessary"
   because "Write a justification before force-pushing."
 \end{verbatim}
 \caption{Three \sys{} rules drawn from real projects: a per-event rule,
@@ -168,18 +156,12 @@ compliant only if the required test command ran after the most recent
 source write. The third uses the same temporal gate as a
 compliance-friction mechanism:
 force-pushing is blocked unless the agent first writes a declaration
-file; this is not a security boundary, and rules that must withstand a
-compromised agent belong in higher-authority policy without an
-agent-satisfiable gate.
+file.
 
-The DSL is intentionally narrower than a general mandatory access-control
-language. It targets the policy shapes that recur in agent instruction
+The DSL mainly targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
-a sensitive read, require a validation step before a release action, and
-route sensitive data through an approved tool. In our evaluation, an LLM
-translation agent translates all 607~OS-enforceable
-directives from the corpus into compilable DSL rules
-(\S\ref{sec:evaluation}). The compiler lowers these
+a sensitive read, and
+route sensitive data through an approved tool. The compiler lowers these
 patterns into fixed-size kernel tables; policy authors need not reason
 about BPF maps, verifier constraints, or binary layout.
 
@@ -192,7 +174,7 @@ cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
 not reach a network endpoint''). A source declaration adds labels when an
 object matches the source pattern. Let $L(x)$ denote
 the label mask of object $x$. Labels propagate through observed
-system-level edges:
+system-level edges: 
 
 \begin{itemize}
 \item \textbf{fork}$(p \to c)$: $L(c) := L(c) \cup L(p)$.
@@ -210,30 +192,30 @@ reached that object through observed execution edges. Rules check whether
 an event's subject or target carries required labels, carries forbidden
 labels, or satisfies a temporal gate.
 
-The model operates at object granularity rather than byte granularity,
-trading precision for low-overhead whole-session coverage. This is a
-deliberate fit for AI agent harnesses: repository instructions refer to
-commands, files, directories, endpoints, and workflow steps, not
-individual bytes. Object-level labels capture cross-event compliance
-patterns that tool-call filters miss, without incurring the complexity of
-byte-level taint tracking~\cite{kemerlis2012libdft}.
-
-For efficiency, labels summarize history rather than recording traces.
-Each object stores a fixed-size mask, and each rule checks masks and
+\sys{} trading precision for 
+low-overhead whole-session coverage, since content 
+can be tracked by combining other tools when necessary 
+(e.g. linter or static analyzer)
+Object-level labels capture indirect, cross-event 
+patterns that tool-call filters or per event sandbox miss, 
+without incurring the complexity of
+byte-level taint tracking~\cite{kemerlis2012libdft}. 
+For efficiency, labels further summarize history:
+each rule checks masks and
 bounded predicates at the current event. This keeps cross-event
-enforcement on the syscall path without log reconstruction or unbounded
-history queries.
+enforcement without log reconstruction or
+history trace queries.
 
 Labels are monotonic: propagation adds labels but never removes them.
 Once an object carries a label, every subsequent consumer inherits it.
 This ensures that cross-event constraints remain checkable for the
 entire session without requiring explicit label cleanup.
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
-on objects are irrevocable. Declassification follows Flume's
-capability model: the author of a label holds the declassification
-privilege and may exempt its own domain's rules from checking that
-label; the labels themselves remain on all objects.
-Inherited labels and the rules that check them cannot be declassified.
+on objects are irrevocable. Declassification follows our authority 
+model: the author of the rule holds the declassification
+privilege and can disable the rules 
+and clean the labels related to the rules.
+Inherited safety labels and rules cannot be declassified.
 The recommended mitigation for inherited labels is process-level
 isolation.
 
@@ -241,12 +223,12 @@ isolation.
 \label{sec:authority}
 
 \sys{} must let agents adapt policy at runtime without
-weakening inherited constraints.
-As in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum},
-policy changes are monotonically tightening; unlike these systems, which enforce per-process access rights without
-cross-object information-flow tracking, \sys{} extends monotonic
-tightening to a \emph{domain hierarchy} over labeled IFC state that spans process trees.
-
+weakening inherited safety constraints.
+Following the principle,
+\sys{} extends monotonic
+tightening  in Landlock~\cite{landlock} and
+Capsicum~\cite{watson2010capsicum} to a
+\emph{domain hierarchy} over labeled IFC state that spans process trees.
 A domain is the runtime policy boundary for a process tree:
 
 \begin{small}
@@ -262,14 +244,10 @@ and may add local rules, labels, or gates, but cannot remove, disable,
 or weaken any inherited rule. The root domains correspond to
 platform/operator and project-maintainer policy; the agent creates
 session and sub-agent domains below them.
-Higher-authority rules that admit exceptions use the same temporal gate
-as cross-event workflow rules
-(Figure~\ref{fig:policy-example}, \texttt{no-force-push}): the agent
-satisfies the gate by creating a declaration file, which the IFC engine
-tracks like any other label-propagating event.
 
 Runtime policy additions are submitted as precompiled deltas through a eBPF
-userspace ring buffer. The kernel derives the submitting domain from the
+userspace ring buffer， all submission permission checks 
+remain in kernel. The eBPF checker derives the submitting domain from the
 caller's pid-to-domain mapping and admits updates only to the
 submitting domain or its descendants. A delta is accepted only if it
 introduces fresh labels, binds new rules, or narrows scope, without
@@ -282,9 +260,10 @@ configuration or resolving project context.
 \section{Implementation}
 \label{sec:implementation}
 
-\sys{} consists of a Rust userspace compiler/runner (~3.2\,K\,LoC) and an eBPF
+\sys{} consists of a Rust userspace compiler/runner (~3.2\,K\,LoC) 
+and an eBPF
 enforcement engine (~1.8\,K\,LoC of BPF C). The compiler parses the DSL,
-allocates label bits, lowers Boolean label expressions and path/network
+lowers Boolean label expressions and path/network
 patterns, and emits a fixed-size \texttt{\#[repr(C)]} configuration blob
 consumed directly by the eBPF loader. Human-readable rule names and
 reasons stay in userspace metadata; the kernel receives only compact rule
@@ -295,7 +274,7 @@ BPF-LSM for pre-operation enforcement (block effects) and tracepoints
 for observation and post-operation termination (kill effects),
 maintaining label state in per-object BPF maps. Userspace does not 
 re-detect violations; it only formats
-kernel-reported matches into semantic feedback.
+kernel-reported matches into semantic feedback. 
 
 The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy
 before the target starts, seeds the agent label, and records

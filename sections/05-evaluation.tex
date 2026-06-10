@@ -432,7 +432,7 @@ The generator does not read the evaluator, checkpoints, trajectories, or
 any prior run results, making policy generation zero-shot with respect to
 evaluation criteria. Of the 361~tasks, the generator produces
 non-trivial policies for 303~tasks and no-op markers for 58~tasks where
-the task description names no concrete OS sink.
+the task description names no concrete OS sink. The generator runs before the agent starts and never ingests untrusted content, so the resulting policy is outside the reach of unsafe execution.
 
 \begin{figure}[tb]
 \centering

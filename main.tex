@@ -21,22 +21,22 @@
   \country{}}
 
 \begin{abstract}
-AI agents increasingly run autonomously in production for coding, DevOps, and enterprise workflows,operate through harnesses that maintain
-tools and memory, and apply behavioral constraints for safe, effective operation. In practice,
-projects specify them in natural language and policy configuration: our empirical study finds that 64\% of
+AI agents increasingly run in production for coding, DevOps and enterprise workflows, operate through harnesses that maintain loop,
+tools and memory, and apply constraints for safety and effectiveness. Projects often specify them in natural language or configuration: our empirical study finds that 64\% of
 instruction-file statements are directives, e.g. do not leak secrets, run tests before committing. 
 A major part of such a harness is a runtime policy engine that
 enforces these constraints deterministically over the agent's actions. Yet existing policy engines fail to connect agent intent to system-level actions, leaving a \emph{semantic gap}:
 tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all process, file, and
 network actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
 
-Our key observation is that, while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task.
-We introduce \sys{}, a runtime-agnostic, system-level policy engine that allows agents to dynamically declare, adapt, observe and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback, under
+Our key observation is while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task.
+We introduce \sys{}, a runtime-agnostic, system-level policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback, under
 a layered authority model that ensures higher-authority rules cannot be
 weakened.
 We implement \sys{} with eBPF and evaluate it across empirically studied
-policies, coding tasks and safety benchmarks, showing improved policy compliance that covers indirect execution paths
-traditional tool-call interception cannot, with 2\% end-to-end overhead
+policies, coding tasks and safety benchmarks, showing 
+improved policy compliance that covers indirect execution paths
+traditional tool-call interception cannot, with 2\%-8\% overhead
 on agent workloads.
 \end{abstract}
 
