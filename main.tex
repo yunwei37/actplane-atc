@@ -28,9 +28,9 @@ instruction-file statements are directives, e.g. do not leak secrets, run tests 
 A major part of such a harness is a runtime policy engine that
 enforces these constraints deterministically over the agent's actions.
 Yet existing policy engines fail to connect agent intent to system-level actions, leaving a \emph{semantic gap}:
-tool-call guardrails can miss indirect system-level 
-actions among the 83\% of directives and cross-event state 
-occurs in 81\% of projects; OS-level mechanisms see all process,
+83\% of directives include system-level events, where tool-call guardrails can miss indirect system 
+actions, and cross-event state 
+occurs in 81\% of projects; OS-level mechanisms see process,
  file, and
 network actions but expect static policy, making it
 hard to instantiate the 74\% of rules that 
