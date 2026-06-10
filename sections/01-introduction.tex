@@ -104,16 +104,17 @@ termination), all with semantic
 feedback about why and what to do next. A layered authority model ensures 
 that higher-authority
 rules cannot be weakened by lower-authority agents.
-On our decision-compliance benchmark,
+On decision-compliance benchmark,
 \sys{} detects 2.4$\times$ more violations 
 than prompt-filter or
 tool-regex hooks by covering indirect execution paths that tool-call
 interception cannot, while
 adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on
-kernel builds. On a third-party safety benchmark of 361
-workplace and personal-assistant tasks, \sys{} prevents 74\% of
+kernel builds. On safety benchmark of 361 personal-assistant tasks, 
+\sys{} prevents
 baseline-unsafe behaviors additionally 
-using separate agent-generated policies before unsafe execution.
+using separate agent-generated 
+policies before unsafe execution as in higher authority path.
 
 To summarize, we make three contributions:
 \begin{enumerate}
