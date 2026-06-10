@@ -201,7 +201,7 @@ committing''), cross-file consistency (``update docs when behavior
 changes''), multi-step workflows (release checklists with verification
 steps), and conditional triggers (``if you change specs, also update
 SDK''). These map to IFC primitives: lineage gates, label
-propagation, and staleness-aware re-arming. Nearly all of the operations 
+propagation, and staleness-aware re-arming. Most of the operations
 are around files, processes, and network connections.
 
 \noindent\textbf{At the repository level, 81\% of repositories contain
@@ -257,7 +257,7 @@ compared to 58\% for content directives.}
 Of cross-event directives, 76.7\% require project context and 18.6\%
 task context (95.3\% total); content directives are only 57.5\%
 context-dependent. This compounds the enforcement challenge: directives
-that require cross-event IFC almost never specify the concrete commands
+that require cross-event IFC rarely specify the concrete commands
 and paths needed to write the rule. Generic static rules can cover
 only the self-contained fraction; the majority require the agent itself
 to read the repository, interpret the current task, and produce a
