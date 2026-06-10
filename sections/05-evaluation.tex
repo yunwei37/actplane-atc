@@ -32,7 +32,7 @@ CPU (24~hardware cores), 125\,GiB RAM, and Linux~6.15.11.
 The empirical study
  identifies 607~OS-enforceable rules. 
 RQ1 uses the full subset. A
-Codex with GPT 5.5 agent reads each rule,
+Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5} agent reads each rule,
 the repository context, and the DSL reference, then writes
 \sys{} policies. The runner invokes the \sys{} compiler for
 retry to ensure successful compilation. The translator produced
@@ -92,7 +92,7 @@ final manifest contains 20 per-event and 18 cross-event rules,
 proportional to the split in the full corpus.
 
 \paragraph{Traces.}
-A \emph{Codex CLI under GPT-5.5} reads the rule and repo to
+A \emph{Codex CLI~\cite{openai2025codex} under GPT-5.5~\cite{openai2026gpt5}} reads the rule and repo to
 produce five traces, the policy DSL and all enforcement systems,
 including \sys{} are invisible to it to avoid information leakages.
 Each trace simulates real-world coding-agent tasks, including user prompts and
@@ -131,7 +131,7 @@ Claude Code hooks~\cite{anthropic2026hooks}, Codex
 approval policies~\cite{openai2025codex}, and
 AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
 value of semantic feedback on top of OS-level observation.
-Another translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5)
+Another translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5})
 reads the rule text and
 the cloned repository, then produces the DSL rule for \sys{} or the
 regex policy for the tool-regex baseline; it does not have access to the
@@ -179,7 +179,7 @@ rates under two model settings: Qwen3.6-27B, DeepSeek-Pro V4}
 \begin{table}[tb]\small
 \centering
 \caption{RQ2 confusion matrix by runtime policy enforcement system
-under the primary Qwen3.6-27B model setting.}
+under the primary Qwen3.6-27B~\cite{qwen2025qwen3} model setting.}
 \label{tab:rq1-confusion}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -253,7 +253,7 @@ engine catches the revised attempt when it still violates the rule.
 
 \paragraph{Cross-model stability.}
 \sys{}'s advantage replicates under an independent model.
-The DeepSeek-Pro~V4 end-to-end replication preserves the system ranking
+The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking
 (Figure~\ref{fig:rq1-dcr}): \sys{} remains highest at 77.4\% DCR.
 Per-cell agreement between the two model settings yields Cohen's
 $\kappa=0.789$, with the highest stability for
@@ -368,7 +368,7 @@ checklist items and fall outside \sys{}'s enforcement scope.
 Each task runs under three conditions: baseline (no enforcement),
 Claude Code hooks~\cite{anthropic2026hooks}
 (the official sandbox approval policy), and \sys{} (OS-level hooks
-plus semantic feedback). An AI agent (Codex with GPT-5.5) 
+plus semantic feedback). An AI agent (Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5})
 reads the task description and produces the policy 
 without any human involvement.
 
@@ -427,7 +427,7 @@ In deployment, the agent harness processes the user's request before
 execution begins; guard agents and safety
 classifiers~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails}
 similarly analyze the incoming prompt to set runtime constraints.
-Our policy generator mirrors this: a Codex agent (GPT-5.5) reads
+Our policy generator mirrors this: a Codex agent (GPT-5.5~\cite{openai2026gpt5}) reads
 only the task description and extracts explicit file paths, system
 commands, and high-confidence sink categories (credentials, cron jobs,
 SSH keys, account mutations, network egress), producing a per-task
