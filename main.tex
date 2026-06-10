@@ -22,29 +22,43 @@
   \country{}}
 
 \begin{abstract}
-AI agents increasingly run in production for coding, DevOps and enterprise workflows, operate through harnesses that maintain the agent loop,
-tools and memory, and apply constraints for safety and effectiveness. Projects often specify them in natural language or configuration: our empirical study finds that 64\% of
-instruction-file statements are directives, e.g. do not leak secrets, run tests before committing. 
-A major part of such a harness is a runtime policy engine that
+AI agents increasingly run in production for coding, DevOps and enterprise workflows, 
+operate through harnesses that maintain the agent loop,
+tools and memory, and apply constraints for safety and effectiveness. 
+Projects often specify them in natural language or configuration: 
+our empirical study finds that 64\% of
+instruction-file statements are directives, e.g. do not leak secrets, 
+run tests before committing. 
+A major part of such a harness is a policy engine that
 enforces these constraints deterministically over the agent's actions.
-Yet existing policy engines fail to connect agent intent to system-level actions, leaving a \emph{semantic gap}:
-83\% of directives include system-level events, where tool-call guardrails can miss indirect system
+Yet existing policy engines fail to connect 
+agent intent to system-level actions, 
+leaving a \emph{semantic gap}:
+83\% of directives include system-level 
+events, where tool-call guardrails can
+miss indirect system
 actions, and cross-event state
 occurs in 81\% of projects; OS-level mechanisms observe process,
- file, and
+file, and
 network actions but expect static policy, making it
-hard to instantiate the 74\% of rules that
+hard to evaluate the 74\% of rules that
 need intent-level project or task context, 
-and return opaque errors without semantic feedback.
+returning errors without context, further confusing the agent.
 
-We observe that while safety constraints are inherited, the required context for compliance is mainly within agents closest to the project and task.
-We introduce \sys{}, a runtime-agnostic, system-level policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback, under
-a layered authority model that ensures higher-authority rules cannot be weakened.
+Our key observation is that while safety constraints are inherited, 
+the required context for compliance is mainly within 
+agents closest to the project and task. To bridge the semantic gap,
+we introduce \sys{}, a runtime-agnostic
+policy engine that allows agents to declare and enforce
+information-flow control (IFC) policies in the OS kernel
+with semantic feedback, under
+a layered authority model that ensures
+higher-authority rules cannot be weakened.
 We implement \sys{} with eBPF and evaluate it across empirically studied
 policies, coding tasks and safety benchmarks, showing 
 improved policy compliance that covers indirect execution paths
 traditional tool-call interception cannot, with 1.9\% overhead on
-agent-trace replay and up to 8.4\% on an I/O-intensive kernel build.
+agent-trace replay and up to 8.4\% on kernel build.
 \end{abstract}
 
 \begin{CCSXML}
