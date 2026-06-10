@@ -17,17 +17,18 @@
 \node[box, fill=gray!15, minimum width=2.8cm] (nl) {Natural-Language\\Rule};
 
 % Artifacts (middle column)
-\node[box, fill=blue!10, right=2.2cm of nl, yshift=0.6cm] (regex) {Regex};
-\node[box, fill=blue!10, right=2.2cm of nl, yshift=-0.6cm] (dsl) {DSL Policy};
+\node[box, fill=blue!10, right=2.2cm of nl, yshift=1.15cm] (regex) {Regex};
+\node[box, fill=blue!10, right=2.2cm of nl] (fidespol) {FIDES\\Policy};
+\node[box, fill=blue!10, right=2.2cm of nl, yshift=-1.15cm] (dsl) {DSL Policy};
 
 % Enforcement (right column) — system names as labels
-\node[box, fill=orange!15, right=1.6cm of regex, yshift=1.4cm, font=\normalsize\bfseries] (e1) {prompt-filter};
-\node[box, fill=orange!15, right=1.6cm of regex, yshift=0.45cm, font=\normalsize\bfseries] (e2) {tool-regex};
-\node[box, fill=orange!15, right=1.6cm of dsl, yshift=0.45cm, font=\normalsize\bfseries] (e3) {FIDES};
-\node[box, fill=orange!15, below=0.28cm of e3, font=\normalsize\bfseries] (e4) {\sys{}};
+\node[box, fill=orange!15, right=1.6cm of regex, yshift=1.15cm, font=\normalsize\bfseries] (e1) {prompt-filter};
+\node[box, fill=orange!15, right=1.6cm of regex, font=\normalsize\bfseries] (e2) {tool-regex};
+\node[box, fill=orange!15, right=1.6cm of fidespol, font=\normalsize\bfseries] (e3) {FIDES};
+\node[box, fill=orange!15, right=1.6cm of dsl, font=\normalsize\bfseries] (e4) {\sys{}};
 
 % Agent + Judge
-\node[box, fill=green!12, minimum width=2.4cm, right=1.8cm of e2] (agent) {Agent\\(decisions)};
+\node[box, fill=green!12, minimum width=2.4cm, right=1.8cm of e3] (agent) {Agent\\(decisions)};
 \node[box, fill=red!8, below=0.6cm of agent] (judge) {Judge};
 
 % NL → prompt-filter (direct, no artifact)
@@ -35,11 +36,12 @@
 
 % NL → artifacts (via translate)
 \draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\small, pos=0.75] {translate} (regex.west);
+\draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\small, pos=0.75] {translate} (fidespol.west);
 \draw[arr] (nl.east) -- ++(0.4,0) |- node[below, font=\small, pos=0.75] {translate} (dsl.west);
 
 % artifacts → enforcement
 \draw[arr] (regex) -- (e2);
-\draw[arr] (dsl) -- (e3);
+\draw[arr] (fidespol) -- (e3);
 \draw[arr] (dsl) -- (e4);
 
 % enforcement → agent
