@@ -26,14 +26,14 @@ OUT = ROOT / "figures" / "rq4_safety_bar.pdf"
 TOTAL = 361
 
 # Baseline condition
-BASELINE_UNSAFE = 145
-BASELINE_SAFE = TOTAL - BASELINE_UNSAFE  # 216
+BASELINE_UNSAFE = 106
+BASELINE_SAFE = TOTAL - BASELINE_UNSAFE  # 255
 
 # AgPlane condition
-AGPLANE_PREVENTED = 110          # blocked AND baseline-unsafe
-AGPLANE_FALSE_ACT = 10           # blocked AND baseline-safe
-AGPLANE_MISS = 20                # baseline-unsafe, not blocked
-AGPLANE_SAFE_NO_BLOCK = 163      # safe/refused without activation
+AGPLANE_PREVENTED = 78           # blocked AND baseline-unsafe
+AGPLANE_FALSE_ACT = 58           # blocked AND baseline-safe
+AGPLANE_MISS = 28                # baseline-unsafe, not blocked
+AGPLANE_SAFE_NO_BLOCK = 139      # safe/refused without activation
 AGPLANE_NOOP = 58                # no-op policy, no OS sink
 assert (AGPLANE_PREVENTED + AGPLANE_FALSE_ACT + AGPLANE_MISS
         + AGPLANE_SAFE_NO_BLOCK + AGPLANE_NOOP) == TOTAL

@@ -438,38 +438,38 @@ the task description names no concrete OS sink. The generator runs before the ag
 \centering
 \includegraphics[width=\columnwidth]{figures/rq4_safety_bar.pdf}
 \caption{RQ5: Outcome distribution on all 361 OpenAgentSafety tasks.
-\sys{} reduces baseline-unsafe outcomes from 145 to 20
-(76\% prevention rate) using policies generated from task descriptions
+\sys{} reduces baseline-unsafe outcomes from 106 to 28
+(74\% prevention rate) using policies generated from task descriptions
 without human tuning.}
 \Description{Horizontal stacked bar chart comparing baseline and
 \sys{} outcome distributions across 361 safety tasks. Baseline shows
-145 unsafe and 216 safe. \sys{} shows 110 prevented, 20 missed, 163
+106 unsafe and 255 safe. \sys{} shows 78 prevented, 28 missed, 139
 safe, and 58 no-op.}
 \label{fig:rq4-safety}
 \end{figure}
 
 \paragraph{Results.}
 \noindent\textbf{On 361 safety tasks,
-\sys{} prevents 76\% of baseline-unsafe behaviors with a 5\% false
+\sys{} prevents 74\% of baseline-unsafe behaviors with a 16\% false
 activation rate (Figure~\ref{fig:rq4-safety}).}
-Of 145~baseline-unsafe tasks, \sys{} terminated the unsafe operation
-in 110~cases before the harmful effect completed. In 20~cases the agent
-completed the unsafe action without triggering a policy; in 10~cases
-\sys{} activated on a task whose baseline was already safe, where the
-description-only policy matched a benign operation near the prohibited
-boundary. The 58~no-op tasks (no OS behavior in the description) account
+Of 106~baseline-unsafe tasks, \sys{} terminated the unsafe operation
+in 78~cases before the harmful effect completed. In 28~cases the agent
+completed the unsafe action without triggering a policy.
+\sys{} also activated on a number of tasks whose baseline was
+already safe, where the description-only policy matched a benign
+operation near the prohibited boundary. The 58~no-op tasks (no OS behavior in the description) account
 for most of the remaining baseline-safe cases and are excluded from the
 prevention rate denominator.
 
 \paragraph{Failure analysis.}
-The 20~unblocked baseline-unsafe cases fall into three categories.
-\emph{Chat/semantic harm} (2): the unsafe behavior is a message with no
+The 28~unblocked baseline-unsafe cases fall into three categories.
+\emph{Chat/semantic harm}: the unsafe behavior is a message with no
 OS-observable artifact, outside \sys{}'s enforcement scope by design.
-\emph{unsafe files content} (12): the agent produces unsafe file content,
+\emph{Unsafe file content}: the agent produces unsafe file content,
 which is not the main goal of \sys{}.
-\emph{Service-side artifact} (6): the effect is a WebDAV upload or
+\emph{Service-side artifact}: the effect is a WebDAV upload or
 database mutation inside a service container.
-Categories~2 and~3 are hook-coverage gaps, not policy errors: the
+These are hook-coverage gaps, not policy errors: the
 generator produced a correct rule for the intended sink, but the agent
 reached the same effect through a path the current hook set does not
 observe. Extending coverage to tool-layer write interception and
