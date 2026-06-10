@@ -37,10 +37,9 @@ hard to instantiate the 74\% of rules that
 need intent level project or task context, 
 and return opaque errors without semantic feedback.
 
-Our key observation is that while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task.
+We observe that while safety constraints are inherited, the required context for compliance is mainly within agents closest to the project and task.
 We introduce \sys{}, a runtime-agnostic, system-level policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback, under
-a layered authority model that ensures higher-authority rules cannot be
-weakened.
+a layered authority model that ensures higher-authority rules cannot be weakened.
 We implement \sys{} with eBPF and evaluate it across empirically studied
 policies, coding tasks and safety benchmarks, showing 
 improved policy compliance that covers indirect execution paths

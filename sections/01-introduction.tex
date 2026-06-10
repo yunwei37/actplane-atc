@@ -46,8 +46,7 @@ lose track of indirect system actions when
 agents shell out or spawn subprocesses: e.g. 
 the same \texttt{git~push} can
 be in a \texttt{bash} wrapper created in a previous session; and at the repository
-level, 81\% projects contain cross-event directives that single
-tool-level interception cannot enforce (e.g., ``run tests before
+level, 81\% projects contain cross-event system directives that single stateless interception in tool call hard to enforce (e.g., ``run tests before
 commit'').
 
 OS-level enforcement with static policy is also insufficient. 
@@ -90,7 +89,7 @@ programmability must not become an authority bypass: agents
 cannot weaken inherited
 constraints set by separate
 trusted administrators, safety rules should
-be defined by separately trusted agents.
+be installed separately.
 
 % ¶6: System — \sys{}
 \sys{} is a runtime-agnostic, programmable
@@ -119,7 +118,7 @@ using separate agent-generated policies before unsafe execution.
 To summarize, we make three contributions:
 \begin{enumerate}
 \item An \textbf{empirical study} of 64~projects that characterizes these
-gaps (\S\ref{sec:empirical}).
+gaps (\S\ref{sec:empirical}) and motivate \sys{}.
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system
 that addresses them
 (\S\ref{sec:design}--\ref{sec:implementation}).
