@@ -105,14 +105,15 @@ feedback about why and what to do next. A layered authority model ensures
 that higher-authority
 rules cannot be weakened by lower-authority agents.
 On decision-compliance benchmark,
-\sys{} detects 2.4$\times$ more violations 
-than prompt-filter or
-tool-regex hooks by covering indirect execution paths that tool-call
+\sys{} detects 2.0--2.3$\times$ more violations 
+than prompt-filter, tool-regex, or FIDES~\cite{costa2025fides}
+(tool-level IFC) by covering
+indirect execution paths that tool-call
 interception cannot, while
 adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on
 kernel builds. On safety benchmark of 361 personal-assistant tasks, 
-\sys{} prevents
-baseline-unsafe behaviors additionally 
+\sys{} prevents 74\% of
+baseline-unsafe behaviors 
 using separate agent-generated 
 policies before unsafe execution as in higher authority path.
 

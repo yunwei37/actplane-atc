@@ -58,10 +58,10 @@ with smaller shares for unlink, connect, and open.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1-pipeline.pdf}
-\caption{RQ2 evaluation pipeline: three enforcement paths from
+\caption{RQ2 evaluation pipeline: four enforcement paths from
 natural-language rule to agent-level decision.}
-\Description{Flow diagram showing prompt-filter, tool-regex, and
-\sys{} paths through translation, enforcement, and judging.}
+\Description{Flow diagram showing prompt-filter, tool-regex, FIDES, and
+\sys{} paths through policy translation, enforcement, and judging.}
 \label{fig:rq1-pipeline}
 \end{figure}
 
@@ -120,23 +120,25 @@ measure the next action agents take when receiving
 semantic feedback.
 
 \paragraph{Compared systems.}
-RQ2 compares four policy enforcement systems on the same agent
+RQ2 compares five policy enforcement systems on the same agent
 traces (Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
-tool-input regex policy, \sys{} without semantic feedback
-(\textsc{\sys{}-opaque}), and full \sys{}. The prompt and regex
-baselines instantiate two common runtime enforcement layers:
+tool-input regex policy, FIDES~\cite{costa2025fides} (tool-level IFC), \sys{} without
+semantic feedback (\textsc{\sys{}-opaque}), and full \sys{}. The prompt,
+regex, and FIDES baselines instantiate common runtime enforcement layers:
 LLM/prompt-based rails over proposed
-actions~\cite{rebedea2023nemo,xiang2025guardagent} and deterministic
+actions~\cite{rebedea2023nemo,xiang2025guardagent}, deterministic
 tool-call policies as deployed in
 Claude Code hooks~\cite{anthropic2026hooks}, Codex
 approval policies~\cite{openai2025codex}, and
-AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
-value of semantic feedback on top of OS-level observation.
+AgentSpec~\cite{wang2025agentspec}, and FIDES tool-level IFC
+policies. The opaque ablation isolates the value
+of semantic feedback on top of OS-level observation.
 Another translation agent (Claude Code~\cite{anthropic2025claudecode} with Claude Opus~4.6)
 reads the rule text and
-the cloned repository, then produces the DSL rule for \sys{} or the
-regex policy for the tool-regex baseline; it does not have access to the
-ground-truth traces to avoid data leakages.
+the cloned repository, then produces the corresponding policy artifact
+for each non-prompt system: regex for tool-regex, FIDES policy, and DSL
+rule for \sys{}; it does not have access to the ground-truth traces to
+avoid data leakages.
 The prompt-filter baseline directly
 decides whether to allow or block each proposed tool call based on the
 rule text and the tool input.
@@ -163,8 +165,8 @@ policy-correct:
 +\mathrm{FP}+\mathrm{FN})\). DCR is end-to-end from natural language
 directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
-We manually corrected 90/1520 samples flagged as requiring double-checking,
-and additionally random-sampled 50 judgments, all of which matched expectations. 
+We manually corrected samples flagged as requiring double-checking, and
+additionally random-sampled 50 judgments, all of which matched expectations.
 
 \paragraph{Results.}
 \begin{figure}[tb]
@@ -189,18 +191,19 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \midrule
 \textsc{Prompt-filter} & 48.4\% & 44 & 48 & 28 & 70 & 190 \\
 \textsc{Tool-regex} & 45.3\% & 38 & 48 & 28 & 76 & 190 \\
+\textsc{FIDES} & 48.9\% & 41 & 52 & 24 & 73 & 190 \\
 \textsc{\sys{}-opaque} & 53.7\% & 27 & \textbf{75} & \textbf{1} & 87 & 190 \\
 \sys{} & \textbf{75.8\%} & \textbf{86} & 58 & 18 & \textbf{28} & 190 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent\textbf{\sys{} achieves 75.8\% DCR, 27--30 percentage points
+\noindent\textbf{\sys{} achieves 75.8\% DCR, 22--31 percentage points
 above all baselines.}
 Table~\ref{tab:rq1-confusion} shows the full confusion matrix: \sys{}
 has the highest TP~(86) and lowest FN~(28).
-\sys{} detects 71.9\% of violations, compared with 30.7\% for
-prompt-filter and 29.8\% for tool-regex.
+\sys{} detects 77.2\% of violations, compared with 39.5\% for
+prompt-filter, 35.1\% for tool-regex, and 34.2\% for FIDES.
 
 \begin{figure}[tb]
 \centering
@@ -217,15 +220,15 @@ system.}
 On compliant families and direct violations, all systems
 perform comparably.
 The gap opens on the script and
-hidden trace families, where prompt-filter and tool-regex drop to
-near-zero detection because the prohibited effect occurs inside a
+hidden trace families, where prompt-filter, tool-regex, and FIDES drop
+sharply, with all three at or near zero on hidden traces, because the prohibited effect occurs inside a
 subprocess or behind a neutral entrypoint. \sys{} retains detection through kernel-level label
 propagation, which follows the monitored effect even when the agent
 invoked it indirectly. Cross-event rules (18 of 38) further widen the
 gap: tool-call baselines lack the persistent state needed to track
 ordering constraints such as ``run tests before commit.''
 
-\noindent\textbf{Agents can learn from failure: single agent translation pass detects 71.9\%, revision raises it to 94.7\%.}
+\noindent\textbf{Agents can learn from failure: single agent translation pass detects 77.2\%, revision raises it to 94.7\%.}
 We decompose violation-trace outcomes into \emph{detection rate} (the
 fraction of 114~violation traces on which enforcement triggered) and
 \emph{recovery rate} (the fraction of detected violations where the
@@ -241,13 +244,13 @@ to the translation agent and let it revise the DSL rule once;
 rerunning the 28~FN traces with revised rules recovers 26 (92.9\%).
 
 \noindent\textbf{Semantic feedback converts kernel detections into
-agent compliance at 97.6\%.}
+agent compliance at 97.7\%.}
 Full \sys{} produces $3\times$ more correct violation-trace outcomes
-than the same engine without feedback (80 vs.\ 27).
+than the same engine without feedback (86 vs.\ 27).
 The \textsc{\sys{}-opaque} ablation, which removes semantic feedback,
 reduces correct responses
 from 144 to 102 (FN rises from 28 to 87; FP drops from 18 to 1):
-it detects 58.8\% of violations, but only 40.3\% of those detections
+it detects 75.4\% of violations, but only 31.4\% of those detections
 lead to compliance.
 Feedback also improves detection indirectly: an agent that receives a
 corrective payload after a first denial revises its approach, and the
@@ -258,9 +261,10 @@ engine catches the revised attempt when it still violates the rule.
 The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking
 (Figure~\ref{fig:rq1-dcr}): \sys{} remains highest at 77.4\% DCR.
 Per-cell agreement between the two model settings yields Cohen's
-$\kappa=0.789$, with the highest stability for
-deterministic enforcement (tool-regex $\kappa=0.905$, \sys{}
-$\kappa=0.845$) and lowest for prompt-filter ($\kappa=0.581$), consistent
+$\kappa=0.822$, with the highest stability for
+deterministic enforcement (tool-regex $\kappa=0.920$, FIDES
+$\kappa=0.919$, \sys{} $\kappa=0.852$) and lowest for prompt-filter
+($\kappa=0.592$), consistent
 with the expected gradient from objective to subjective evaluation.
 %% ----------------------------------------------------------------
 \subsection{RQ3: Overhead}
@@ -547,8 +551,9 @@ and which need project or task context to instantiate.
 \label{sec:conclusion}
 
 We introduce \sys{}, which enforces agent behavioral policies at the OS level via eBPF
-and returns semantic feedback for agent compliance. It detects 2.4$\times$ more
-violations than tool-call baselines, prevents 74\% of baseline-unsafe
+and returns semantic feedback for agent compliance. It detects
+2.0--2.3$\times$ more violations than prompt-filter, tool-regex, and
+FIDES~\cite{costa2025fides}, prevents 74\% of baseline-unsafe
 behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end
 overhead. The current prototype targets OS-observable directives (45\%
 of the corpus); extending coverage to content-inspection and
