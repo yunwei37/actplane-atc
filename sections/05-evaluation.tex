@@ -131,7 +131,7 @@ Claude Code hooks~\cite{anthropic2026hooks}, Codex
 approval policies~\cite{openai2025codex}, and
 AgentSpec~\cite{wang2025agentspec}. The opaque ablation isolates the
 value of semantic feedback on top of OS-level observation.
-Another translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5})
+Another translation agent (Claude Code~\cite{anthropic2025claudecode} with Claude Opus~4.6)
 reads the rule text and
 the cloned repository, then produces the DSL rule for \sys{} or the
 regex policy for the tool-regex baseline; it does not have access to the
@@ -483,8 +483,7 @@ protocol-level sinks is a natural next step; broadening process-kill
 rules would introduce false positives without addressing the root cause.
 
 \paragraph{Runtime independence.}
-RQ1--RQ4 use Codex CLI (Node.js, local); RQ5 uses OpenHands (Python,
-Docker). The same eBPF engine enforces both without adaptation, and
+RQ1--RQ4 use Codex/Claude Code; RQ5 uses OpenHands. The same eBPF engine enforces both without adaptation, and
 the only misses are actions that never cross an OS boundary (editor
 APIs, service-internal state), not actions specific to either runtime.
 
