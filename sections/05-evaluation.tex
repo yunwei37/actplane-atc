@@ -59,7 +59,7 @@ natural-language rule to agent-level decision.}
 \end{figure}
 
 \paragraph{Benchmark Motivation.}
-In order to measure the effectiveness of \sys{} compare 
+In order to measure the effectiveness of \sys{} compared
 to other tool level checkers and guardrails under the same agent trajectory,
 we build a new benchmark using similar methodology
 to existing ones, but designed to challenge runtime enforcement
@@ -67,13 +67,13 @@ systems with indirect execution paths and cross event system actions.
 Existing enforcement benchmarks such as
 ShieldAgent-Bench~\cite{li2025shieldagent} and
 ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall
-at the tool-call or trajectories level. Runtime enforcement evaluations in
+at the tool-call or trajectory level. Runtime enforcement evaluations in
 AgentSpec, Progent, FIDES, and
 CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}
 measure attack-success-rate reduction on AgentDojo
 scenarios~\cite{debenedetti2024agentdojo}. However, all operate at the
 tool-call boundary: they do not test whether enforcement holds when an
-agent cause system effect through indirect or cross event path.
+agent causes system effect through indirect or cross event path.
 
 \paragraph{Rule set and scope.}
 RQ2 samples the subset of 607~OS-enforceable rules.
@@ -96,8 +96,8 @@ and invoke build or test on real repository.
 For each rule agent produce two compliant traces and three violation
 traces. Allowed-effect traces exercise explicitly permitted
 system-level behavior close to the prohibited action;
-lookalike traces perform operations look like the
-prohibited action but technically compliant. The three violation
+lookalike traces perform operations that look like the
+prohibited action but are technically compliant. The three violation
 families reflect execution-path categories observed in deployed coding
 agents~\cite{anthropic2026containment,maloyan2026sok}: direct
 violation traces trigger the prohibited operation via a tool
@@ -130,7 +130,7 @@ Another translation agent (Codex CLI~\cite{openai2025codex} with GPT-5.5)
 reads the rule text and
 the cloned repository, then produces the DSL rule for \sys{} or the
 regex policy for the tool-regex baseline; it does not have access to the
-ground-truth traces to avoid data leakages 
+ground-truth traces to avoid data leakages.
 The prompt-filter baseline directly
 decides whether to allow or block each proposed tool call based on the
 rule text and the tool input.

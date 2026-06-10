@@ -29,7 +29,7 @@ enforces these constraints deterministically over the agent's actions. Yet exist
 tool-call guardrails can miss indirect system-level actions (83\% of directives) and cross-event state (81\% of projects); OS-level mechanisms see all process, file, and
 network actions but expect static policy, unable to resolve the 74\% of rules that need intent level project or task context, and return opaque errors without semantic feedback.
 
-Our key observation is while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task.
+Our key observation is that while safety constraints are from higher authority, the required context is mainly within agents closest to the project and task.
 We introduce \sys{}, a runtime-agnostic, system-level policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback, under
 a layered authority model that ensures higher-authority rules cannot be
 weakened.

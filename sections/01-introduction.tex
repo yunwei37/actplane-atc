@@ -64,8 +64,8 @@ pre-defined static policy and return only system events without semantic
 context, leaving the agent unable to follow its behavioral directives.
 
 % ¶5: Insight — programmable policy engine below the tool layer
-To bridge the gap We argue that an agent-harness policy engine
-should be programmable by Agents and take effect at OS level.
+To bridge the gap, we argue that an agent-harness policy engine
+should be programmable by agents and take effect at OS level.
 It should let agents
 use live project and task context to define policy and 
 enforce actions. While safety constraints come from
@@ -87,8 +87,8 @@ enforcement must track
 policy across system without imposing prohibitive
 overhead. Third, since many rules are about safety, 
 programmability must not become an authority bypass: agents
-cannot weakening inherited
-constraints set by sepeparate
+cannot weaken inherited
+constraints set by separate
 trusted administrators, safety rules should 
 be defined by separate trust agents.
 
@@ -99,7 +99,7 @@ AI agent harnesses. Agents express policies in a DSL;
 \sys{} compiles them into labeled information-flow rules and
 loads them into an eBPF engine with processes, 
 files, and network kernel hooks.
-Each rule have one of three effects:
+Each rule has one of three effects:
 notify (observe), block (pre-operation denial on hooks), or kill (process 
 termination), all with semantic
 feedback about why and what to do next. A layered authority model ensures 
@@ -115,7 +115,7 @@ kernel builds. On a third-party safety benchmark of 361
 workplace and personal-assistant tasks, \sys{} prevents 74\% of
 baseline-unsafe behaviors additionally using agent generated policies before unsafe execution.
 
-To summarize, We make three contributions:
+To summarize, we make three contributions:
 \begin{enumerate}
 \item An \textbf{empirical study} of 64~projects that characterizes these
 gaps (\S\ref{sec:empirical}).

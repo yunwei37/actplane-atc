@@ -13,7 +13,7 @@ invisible to tool-call guardrails;
 errors or prompt injection, and agent-authored
 policy cannot weaken safety constraints;
 and \emph{low overhead}, so enforcement
-does not slow the agent's normal workload. To achieve them, two challenges exists:
+does not slow the agent's normal workload. To achieve them, two challenges exist:
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
@@ -21,7 +21,7 @@ Generating policy at the intent level is too
 ambiguous to enforce; generating at the
 syscall level requires kernel expertise agents
 may lack, produces
-verbose rules that consume tokens and error prune.
+verbose rules that consume tokens and error-prone.
 The DSL must be
 \emph{high-level} enough for agents to easily
 express complex cross-event policy
@@ -30,14 +30,14 @@ with minimal tokens, yet
 and enforced with low overhead.
 
 \textbf{C2: Authority-safe agent programmability}
-(\S\ref{sec:authority}). Agents needs adapt richer IFC policies 
+(\S\ref{sec:authority}). Agents need to adapt richer IFC policies 
 at runtime (a sub-agent may need
 a narrower scope, or the current task may require a new constraint),
-but must not weakening constraints.
+but must not weaken constraints.
 
 \subsection{Threat Model}
 
-Follow the principal of the self-restriction model of
+Following the principle of the self-restriction model of
 Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{}
 assumes the agent being enforced may be unsafe or compromised.
 The adversary's influence is bounded by the enforced agent's normal capabilities;
@@ -48,9 +48,9 @@ writable by the agent.
 \sys{} provides two levels of assurance, by policy authority.
 Higher-authority rules can carry a safety and security guarantee 
 under our threat model. 
-Agent-authored rules is only a compliance guidance under a
+Agent-authored rules are only a compliance guarantee under a
 cooperative-but-fallible mode: enforcement is deterministic, an
-adversary controlling the agent at policy-generation time only weak
+adversary controlling the agent at policy-generation time only weaken
 self rules; the worst case degrades to having no self-imposed rules,
 cannot change inherited ones. Given loaded rules, \sys{} enforces
 (1): agent-authored rules 
@@ -245,8 +245,8 @@ or weaken any inherited rule. The root domains correspond to
 platform/operator and project-maintainer policy; the agent creates
 session and sub-agent domains below them.
 
-Runtime policy additions are submitted as precompiled deltas through a eBPF
-userspace ring buffer， all submission permission checks 
+Runtime policy additions are submitted as precompiled deltas through an eBPF
+userspace ring buffer, all submission permission checks 
 remain in kernel. The eBPF checker derives the submitting domain from the
 caller's pid-to-domain mapping and admits updates only to the
 submitting domain or its descendants. A delta is accepted only if it
