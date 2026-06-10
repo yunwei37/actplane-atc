@@ -21,7 +21,7 @@ Generating policy at the intent level is too
 ambiguous to enforce; generating at the
 syscall level requires kernel expertise agents
 may lack, produces
-verbose rules that consume tokens and error-prone.
+verbose rules that consume tokens and are error-prone.
 The DSL must be
 \emph{high-level} enough for agents to easily
 express complex cross-event policy
@@ -52,7 +52,7 @@ Agent-authored rules are only a compliance assistance under a
 cooperative-but-fallible model: enforcement is deterministic, an
 adversary controlling the agent at policy-generation time can only weaken
 self rules; the worst case degrades to having no self-imposed rules,
-cannot change inherited ones. Given loaded rules, \sys{} enforces
+and cannot change inherited ones. Given loaded rules, \sys{} enforces
 (1): agent-authored rules 
 never weaken inherited constraints; and
 (2): every event
@@ -196,9 +196,9 @@ labels, or satisfies a temporal gate.
 \sys{} trades precision for 
 low-overhead whole-session coverage, since content 
 can be tracked by combining other tools when necessary 
-(e.g. linter or static analyzer)
+(e.g. linter or static analyzer).
 Object-level labels capture indirect, cross-event 
-patterns that tool-call filters or per event sandbox miss, 
+patterns that tool-call filters or per-event sandbox miss, 
 without incurring the complexity of
 byte-level taint tracking~\cite{kemerlis2012libdft}. 
 For efficiency, labels further summarize history:
@@ -227,7 +227,7 @@ isolation.
 weakening inherited safety constraints.
 Following the principle,
 \sys{} extends monotonic
-tightening  in Landlock~\cite{landlock} and
+tightening in Landlock~\cite{landlock} and
 Capsicum~\cite{watson2010capsicum} to a
 \emph{domain hierarchy} over labeled IFC state that spans process trees.
 A domain is the runtime policy boundary for a process tree:

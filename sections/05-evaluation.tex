@@ -65,10 +65,10 @@ natural-language rule to agent-level decision.}
 
 \paragraph{Benchmark Motivation.}
 In order to measure the effectiveness of \sys{} compared
-to other tool level checkers and guardrails under the same agent trajectory,
+to other tool-level checkers and guardrails under the same agent trajectory,
 we build a new benchmark using similar methodology
 to existing ones, but designed to challenge runtime enforcement
-systems with indirect execution paths and cross event system actions.
+systems with indirect execution paths and cross-event system actions.
 Existing enforcement benchmarks such as
 ShieldAgent-Bench~\cite{li2025shieldagent} and
 ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall
@@ -219,7 +219,7 @@ hidden trace families, where prompt-filter and tool-regex drop to
 near-zero detection because the prohibited effect occurs inside a
 subprocess or behind a neutral entrypoint. \sys{} retains detection through kernel-level label
 propagation, which follows the effect regardless of how the agent
-invoked it. Cross-event directives (18 of 38 rules) further widen the
+invoked it. Cross-event rules (18 of 38) further widen the
 gap: tool-call baselines lack the persistent state needed to track
 ordering constraints such as ``run tests before commit.''
 
