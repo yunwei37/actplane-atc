@@ -43,6 +43,11 @@ compilation failures. The generation experiment used
 and 177k output tokens in total, equal to \$0.0276 per rule. 
 At US SWE rates, a 10-rule/hour write costs about \$10.89 per rule.
 Full translation takes ~34min with 7 subagents in 4 parallel.
+The 607~policies expand to 1283~rule lines.
+By effect, 66\% are notify, 29\% block, and 5\% kill;
+by hook, 60\% target exec and 37\% write,
+with smaller shares for unlink, connect, and open.
+28\% of policies use an \texttt{after/since} temporal gate.
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
