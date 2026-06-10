@@ -122,8 +122,8 @@ semantic feedback.
 \paragraph{Compared systems.}
 RQ2 compares five policy enforcement systems on the same agent
 traces (Figure~\ref{fig:rq1-pipeline}): a prompt-based action filter, a
-tool-input regex policy, FIDES~\cite{costa2025fides} (tool-level IFC), \sys{} without
-semantic feedback (\textsc{\sys{}-opaque}), and full \sys{}. The prompt,
+tool-input regex policy, FIDES~\cite{costa2025fides} (tool-level IFC),
+feedback-free kernel IFC (\textsc{\sys{}-opaque}), and full \sys{}. The prompt,
 regex, and FIDES baselines instantiate common runtime enforcement layers:
 LLM/prompt-based rails over proposed
 actions~\cite{rebedea2023nemo,xiang2025guardagent}, deterministic
@@ -131,8 +131,10 @@ tool-call policies as deployed in
 Claude Code hooks~\cite{anthropic2026hooks}, Codex
 approval policies~\cite{openai2025codex}, and
 AgentSpec~\cite{wang2025agentspec}, and FIDES tool-level IFC
-policies. The opaque ablation isolates the value
-of semantic feedback on top of OS-level observation.
+policies. To compare with sandbox-style kernel IFC
+engines~\cite{pasquier2018camquery,flume,zeldovich2006histar} and ablation
+studies, we use
+\sys{}'s engine without feedback as the feedback-free kernel IFC baseline.
 Another translation agent (Claude Code~\cite{anthropic2025claudecode} with Claude Opus~4.6)
 reads the rule text and
 the cloned repository, then produces the corresponding policy artifact
@@ -202,6 +204,7 @@ System & DCR & TP & TN & FP & FN & Judged \\
 above all baselines.}
 Table~\ref{tab:rq1-confusion} shows the full confusion matrix: \sys{}
 has the highest TP~(86) and lowest FN~(28).
+On violation traces, \sys{} correctly resolves 86/114 (75.4\%).
 \sys{} detects 77.2\% of violations, compared with 39.5\% for
 prompt-filter, 35.1\% for tool-regex, and 34.2\% for FIDES.
 
@@ -551,9 +554,10 @@ and which need project or task context to instantiate.
 \label{sec:conclusion}
 
 We introduce \sys{}, which enforces agent behavioral policies at the OS level via eBPF
-and returns semantic feedback for agent compliance. It detects
-2.0--2.3$\times$ more violations than prompt-filter, tool-regex, and
-FIDES~\cite{costa2025fides}, prevents 74\% of baseline-unsafe
+and returns semantic feedback for agent compliance. It improves
+correct violation-trace outcomes by 2.0--3.2$\times$ over prompt-filter, tool-regex, FIDES~\cite{costa2025fides},
+and feedback-free kernel IFC,
+prevents 74\% of baseline-unsafe
 behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end
 overhead. The current prototype targets OS-observable directives (45\%
 of the corpus); extending coverage to content-inspection and
