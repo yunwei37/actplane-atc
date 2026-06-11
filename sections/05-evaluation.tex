@@ -59,22 +59,24 @@ The 607~policies expand to 1283~rule lines.
 \noindent\textbf{Most policies are structurally simple.}
 217 (36\%) have a single enforcement clause,
 231 (38\%) have two, and 101 (17\%) have three.
-Per-policy DSL token are averages 71 tokens long
+Policies average 71 tokens
 (per-event: 62, cross-event: 86; p95: 122 overall,
 94 per-event, 152 cross-event) under the OpenAI
-o200k_base tokenizer.
+\texttt{o200k\_base} tokenizer.
 
 \noindent\textbf{Most DSL features are exercised.}
-28\% of policies use an \texttt{after/since} temporal gate.
-Of the remaining constructs, 214 use \texttt{unless},
-13 use \texttt{lineage-includes}, and 6 use \texttt{target}.
-By effect, 66\% are notify, 29\% block, and 5\% kill;
+By effect, 66\% of clauses are notify, 29\% block, and 5\% kill;
 by hook, 60\% target exec and 37\% write,
-with smaller shares for unlink, connect, and open.
-606 of 607 policies use the AGENT label;
- 96 define additional labels for
-information-flow tracking 
-beyond agent provenance.
+with unlink (0.9\%), connect (0.8\%),
+and open (0.5\%).
+28\% of policies use an \texttt{after/since} temporal gate;
+214 use \texttt{unless}; 82 use \texttt{or}
+in label expressions; 13 use \texttt{lineage-includes};
+and 9 use \texttt{target}.
+95 policies (15.7\%) define file sources for
+information-flow tracking beyond agent provenance.
+\texttt{declassify}/\texttt{endorse} transforms,
+are unused.
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
