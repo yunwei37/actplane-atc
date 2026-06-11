@@ -22,8 +22,7 @@ and generating at the syscall level
 is costly and error-prone.
 The DSL needs to be
 \emph{high-level} enough for agents to easily
-express
-with minimal cost, yet
+express policy with minimal cost, yet
 \emph{concrete} enough to compile to kernel constraints
 and be enforced with low overhead.
 
@@ -35,15 +34,16 @@ but must not weaken constraints.
 
 
 \sys{} addresses these challenges with three abstractions
-(Figure~\ref{fig:architecture}): a policy DSL
+(Figure~\ref{fig:architecture}). A policy DSL
 (\S\ref{sec:dsl}) that lets agents express policy intent
 in a representative form close
-to natural language (C1), The compiler 
-lowers the DSL into fixed-size kernel config. 
-a labeled information-flow state machine model
+to natural language. A compiler
+lowers the DSL into fixed-size kernel config.
+A labeled information-flow state machine model
 (\S\ref{sec:ifc}) that tracks cross-event 
-state at OS level (C1),
-and a layered authority model (\S\ref{sec:authority}) that lets agents
+state at OS level (C1). A layered 
+authority model (\S\ref{sec:authority}) 
+that lets agents
 adapt policy at runtime without weakening 
 inherited rules (C2).
 When a rule fires, \sys{} returns semantic feedback: the rule name,
@@ -73,17 +73,20 @@ the kernel enforcement engine and
 higher-authority policy are
 loaded by a privileged process before
 the agent starts and are not
-writable by the agent. A pre-defined
-loaded rule is trusted
-whether a human or another
-agent authored it.
+writable by the agent.
+The trust boundary is temporal:
+any pre-defined rule loaded into the
+kernel before the enforced agent starts
+is higher-authority,
+regardless of whether a human or a separate
+policy-generation agent authored it.
 
-\sys{} provides two levels of 
+\sys{} provides two levels of
 assurance, by policy authority.
 Higher-authority rules can 
 carry a safety and security assurance
 under our threat model. 
-Agent-authored rules after loaded are only a 
+Agent-authored runtime rules are only a 
 compliance assistance under a
 cooperative-but-fallible model: 
 enforcement is deterministic, an
@@ -131,7 +134,7 @@ content-level checks are out of scope.
 
 The DSL lets agents express policy intent 
 as enforceable system actions.
-The DSL mainly targets the policy shapes 
+It mainly targets the policy shapes 
 that recur in agent instruction
 files: prohibit a command, restrict
 writes to a scope, block a sink after
@@ -236,7 +239,8 @@ without re-running the code generator.
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
 
-\sys{} represents policy state as labels on OS objects. Processes, files,
+\sys{} represents policy state as labels 
+on OS objects. Processes, files,
 and network endpoints each carry a label mask, enabling
 cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
 not reach a network endpoint''). A source declaration adds labels when an
@@ -247,18 +251,26 @@ and its parent at fork; written files and connected endpoints
 acquire the process's labels. Unlink triggers a rule check
 without propagation.
 
-This maintains a key invariant: if an object carries
-label $\ell$, then information from a source tagged with $\ell$ may have
-reached that object through observed edges. Rules check whether
-an event's subject or target carries required labels, carries forbidden
+This maintains a key invariant: 
+if an object carries
+label $\ell$, then information from 
+a source tagged with $\ell$ may have
+reached that object through observed 
+edges. Rules check whether
+an event's subject or target carries 
+required labels, carries forbidden
 labels, or satisfies a temporal gate.
 
 \sys{} trades precision for 
-low-overhead whole-session coverage, since content 
-can be tracked by combining other tools when necessary 
+low-overhead whole-session coverage, 
+since content 
+can be tracked by combining other tools 
+when necessary 
 (e.g. linter or static analyzer).
-Object-level labels capture indirect, cross-event 
-patterns that tool-call filters or per-event sandbox miss, 
+Object-level labels capture indirect, 
+cross-event 
+patterns that tool-call filters or
+ per-event sandbox miss, 
 without incurring the complexity of
 byte-level taint tracking~\cite{kemerlis2012libdft}. 
 For efficiency, labels further summarize history:
@@ -267,12 +279,17 @@ bounded predicates at the current event. This keeps cross-event
 enforcement without log reconstruction or
 history trace queries.
 
-Labels are monotonic: propagation adds labels but never removes them.
-Once an object carries a label, subsequent consumers inherit it.
-This ensures that cross-event constraints remain checkable for the
-entire session without requiring explicit label cleanup.
+Labels are monotonic: propagation 
+adds labels but never removes them.
+Once an object carries a label, subsequent
+ consumers inherit it.
+This ensures that cross-event constraints 
+remain checkable for the
+entire session without requiring 
+explicit label cleanup.
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
-on objects are irrevocable by default. Declassification follows our authority 
+on objects are irrevocable by default. 
+Declassification follows our authority 
 model: the author of the rule holds the declassification
 privilege and can disable the rules 
 and clean the labels related to the rules.
@@ -283,7 +300,8 @@ isolation.
 \subsection{Layered Policy Authority}
 \label{sec:authority}
 
-\sys{} needs to let agents adapt policy at runtime without
+\sys{} needs to let agents adapt policy at 
+runtime without
 weakening inherited safety constraints.
 Following the self-restriction principle,
 \sys{} extends monotonic
@@ -305,14 +323,21 @@ and may add local rules, labels, or gates, but cannot remove, disable,
 or weaken any inherited rule. The root domains correspond to
 platform/operator and project-maintainer policy; the agent creates
 session and sub-agent domains below them.
+Rules added by an agent take effect only 
+within its domain and descendants, so
+multiple agents on the same system 
+can enforce different policies.
 
 Runtime policy additions are submitted as precompiled deltas through a
 userspace ring buffer, all submission permission checks 
 remain in kernel. A delta is accepted only if it
-introduces fresh labels, binds new rules, or narrows scope, without
+introduces fresh labels, binds new rules, 
+or narrows scope, without
 modifying inherited rules, labels, or effects; a delta cannot create
-labels that satisfy an inherited exception gate unless higher-authority
-policy explicitly defines that path. Accepted deltas are merged into
+labels that satisfy an inherited exception 
+gate unless higher-authority
+policy explicitly defines that path. 
+Accepted deltas are merged into
 the domain's effective policy.
 
 \section{Implementation}

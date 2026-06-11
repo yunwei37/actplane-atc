@@ -457,6 +457,11 @@ any prior run results, making policy generation zero-shot with respect to
 evaluation criteria. Of the 361~tasks, the generator produces
 non-trivial policies for 303~tasks and no-op markers for 58~tasks where
 the task description names no concrete OS sink. The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is independent of unsafe execution.
+Because the generator
+completes before the tested agent starts,
+the resulting policies are loaded at
+higher-authority level (\S\ref{sec:design})
+and cannot be weakened at runtime.
 
 \begin{figure}[tb]
 \centering
