@@ -37,31 +37,55 @@ goal, e.g. implement a feature
 or book a flight, the harness
 must enforce constraints over 
 \emph{system actions}: concrete effects
-happens on the system.
+that happen on the system.
 
 \textbf{AI agent policy enforcement.}
-We use \emph{runtime policy enforcement system} for the part of an AI
-agent harness that enforces safety, security, and compliance constraints
-while the agent executes. Existing enforcement operates at one of three levels.
-Prompt instructions rely on the model's own compliance,
-which is inherently
-probabilistic~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
-and vulnerable to indirect prompt
+We use \emph{runtime policy enforcement
+system} for the part of an AI
+agent harness that enforces safety, 
+security, and compliance constraints
+while the agent executes. Existing 
+enforcement operates at three levels.
+Prompt instructions rely on the 
+model's own compliance capabilities~\cite{liu2024lost,
+jiang2024followbench,qi2025agentif}
+and vulnerable to prompt
 injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
-Programmable rails and guard agents check prompts, responses, or
+, seperate agents or LLM guards can
+check prompts, responses, or
 action trajectories at
-runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}.
+runtime~\cite{rebedea2023nemo,
+xiang2025guardagent,chennabasappa2025llamafirewall}
+but are inherently
+probabilistic.
 Tool-call guardrails and application-level IFC
 systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}
 intercept at the harness boundary deterministically.
-These three levels observe only harness-mediated requests, not the
-system-level effects that follow once a tool starts executing: a subprocess,
-a shell-out, or a compiled binary can bypass the tool boundary entirely.
-What remains missing is the connection between AI agent intent and
-project or task context on one side, and deterministic OS-level
-observation and enforcement on the other. The empirical study below
-characterizes how strongly real project instructions demand this
+These three levels observe only 
+harness-mediated requests, not the
+system-level effects once a
+tool starts executing: a indirect subprocess,
+a shell-out, or a compiled binary 
+can bypass the tool boundary.
+What remains missing is the connection 
+between AI agent intent and
+project or task context on one side, 
+and deterministic OS-level
+observation and enforcement on the other. 
+The empirical study below
+characterizes how strongly real project 
+instructions demand this
 connection.
+
+\textbf{OS-level enforcement mechanisms.}
+OS-level mechanisms
+(seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
+Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
+BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
+KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
+observe or restrict system effects below the tool layer, but require
+statically pre-written policies and return opaque errors with no
+connection to the agent's intent.
 
 \textbf{Information-flow control.}
 Information-flow control (IFC) tracks how data or authority moves from
@@ -77,14 +101,7 @@ enforce flow policies across processes and files in the kernel, while whole-syst
 PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
 LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and CamQuery~\cite{pasquier2018camquery} record and query cross-event label
 histories. IFC thus captures constraints whose correctness depends on execution history, which is the same pattern that agent behavioral
-directives (``run tests before committing'') exhibit. More general OS-level mechanisms
-(seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
-Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
-BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
-KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
-also observe or restrict system effects below the tool layer, but these require
-statically pre-written policies and return opaque errors with no
-connection to the agent's intent.
+directives (``run tests before committing'') exhibit.
 
 \section{Empirical Study}
 \label{sec:empirical}
