@@ -183,23 +183,15 @@ for layered authority composition.
 and network endpoints each carry a 64-bit label mask, enabling
 cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
 not reach a network endpoint''). A source declaration adds labels when an
-object matches the source pattern. Let $L(x)$ denote
-the label mask of object $x$. Labels propagate through observed
-system-level edges: 
-
-\begin{itemize}
-\item \textbf{fork}$(p \to c)$: $L(c) := L(c) \cup L(p)$.
-\item \textbf{exec}$(p, f)$: $L(p) := L(p) \cup L(f) \cup S(f)$, where
-$S(f)$ is the set of source labels matching $f$.
-\item \textbf{open/read}$(p, f)$: $L(p) := L(p) \cup L(f)$.
-\item \textbf{write}$(p, f)$: $L(f) := L(f) \cup L(p)$.
-\item \textbf{unlink}$(p, f)$: no propagation; rule check only.
-\item \textbf{connect}$(p, e)$: $L(e) := L(e) \cup L(p)$.
-\end{itemize}
-
-These transfer functions maintain a key invariant: if an object carries
+object matches the source pattern.
+Labels propagate via union along observed edges:
+a process acquires labels from executed binaries, read files,
+and its parent at fork; written files and connected endpoints
+acquire the process's labels. Unlink triggers a rule check
+without propagation.
+This maintains a key invariant: if an object carries
 label $\ell$, then information from a source tagged with $\ell$ may have
-reached that object through observed execution edges. Rules check whether
+reached that object through observed edges. Rules check whether
 an event's subject or target carries required labels, carries forbidden
 labels, or satisfies a temporal gate.
 
