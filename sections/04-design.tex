@@ -55,8 +55,7 @@ and cannot change inherited ones. Given loaded rules, \sys{} enforces
 never weaken inherited constraints; and
 (2): every event
 delivered to a configured
-hook is checked (hooks: exec, open, read,
-write, unlink, connect, fork, exit).
+hook is checked.
 Whether a violation is caught
 depends on \emph{policy coverage}.
 Block effects are synchronous
@@ -65,7 +64,7 @@ post-operation (the process is terminated
 before subsequent monitored
 action); notify is observation-only.
 
-The TCB is the eBPF engine and higher-authority blobs; the compiler and
+The TCB is the kernel enforcement engine and higher-authority blobs; the compiler and
 runner are outside it (bugs weaken only the agent's own rules).
 \sys{} covers indirect execution paths (subprocesses, shell wrappers
 ) that produce exact hooked OS events; 
@@ -174,10 +173,6 @@ route sensitive data through an approved tool. The compiler lowers these
 patterns into fixed-size kernel tables.
 Extending \texttt{op\_pattern} and temporal gates is a natural next step.
 
-The engine supports up to 128 concurrent rules, sized to cover the
-largest observed repository (66 OS-enforceable directives) with margin
-for layered authority composition.
-
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
 
@@ -252,15 +247,12 @@ session and sub-agent domains below them.
 
 Runtime policy additions are submitted as precompiled deltas through a
 userspace ring buffer, all submission permission checks 
-remain in kernel. The eBPF checker derives the submitting domain from the
-caller's pid-to-domain mapping and admits updates only to the
-submitting domain or its descendants. A delta is accepted only if it
+remain in kernel. A delta is accepted only if it
 introduces fresh labels, binds new rules, or narrows scope, without
 modifying inherited rules, labels, or effects; a delta cannot create
 labels that satisfy an inherited exception gate unless higher-authority
 policy explicitly defines that path. Accepted deltas are merged into
-the domain's effective policy on the event path without parsing
-configuration or resolving project context.
+the domain's effective policy.
 
 \section{Implementation}
 \label{sec:implementation}
@@ -283,6 +275,11 @@ the task exit code to arm exit-qualified gates only on
 normal termination with the specified status. Userspace does not 
 re-detect violations; it only formats
 kernel-reported matches into semantic feedback. 
+The engine supports up to 128 concurrent rules, sized to cover the
+largest observed repository (66 OS-enforceable directives) with margin
+for layered authority composition. The eBPF checker derives the submitting domain from the
+caller's pid-to-domain mapping and admits updates only to the
+submitting domain or its descendants.
 
 The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy
 before the target starts, seeds the agent label, and records

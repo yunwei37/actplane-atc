@@ -169,7 +169,7 @@ policy-correct:
 directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
 We manually corrected samples flagged as requiring double-checking, and
-additionally random-sampled 50 judgments, all of which matched expectations.
+additionally random-sampled 50 judgments all matched expectations.
 
 \paragraph{Results.}
 \begin{figure}[tb]
@@ -495,9 +495,8 @@ database mutation inside a service container.
 These are hook-coverage gaps, not policy errors: the
 generator produced a matching rule for the intended sink, but the agent
 reached the same effect through a path the current hook set does not
-observe. Extending coverage to tool-layer write interception and
-protocol-level sinks is a natural next step; broadening process-kill
-rules would introduce false positives without addressing the root cause.
+observe. Chat and content harms are outside \sys{}'s scope by design;
+service-side artifacts require protocol-level hook extensions.
 
 \paragraph{Runtime independence.}
 RQ1--RQ4 use Codex/Claude Code; RQ5 uses OpenHands. The same eBPF engine enforces both without adaptation, and
@@ -551,6 +550,6 @@ correct violation-trace outcomes by 2.0--3.2$\times$ over prompt-filter, tool-re
 and feedback-free kernel IFC,
 prevents 74\% of baseline-unsafe
 behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end
-overhead. The current prototype targets OS-observable directives (45\%
-of the corpus); extending coverage to content-inspection and
-protocol-level sinks is a natural next step.
+overhead. \sys{} targets per-event and cross-event directives
+(45\% of the corpus) by design; content directives are
+better served by linters and static analyzers.
