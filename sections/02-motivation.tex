@@ -49,9 +49,9 @@ enforcement operates at three levels.
 Prompt instructions rely on the 
 model's own compliance capabilities~\cite{liu2024lost,
 jiang2024followbench,qi2025agentif}
-and vulnerable to prompt
+and are vulnerable to prompt
 injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
-, seperate agents or LLM guards can
+Separate agents or LLM guards can
 check prompts, responses, or
 action trajectories at
 runtime~\cite{rebedea2023nemo,
@@ -64,7 +64,7 @@ intercept at the harness boundary deterministically.
 These three levels observe only 
 harness-mediated requests, not the
 system-level effects once a
-tool starts executing: a indirect subprocess,
+tool starts executing: an indirect subprocess,
 a shell-out, or a compiled binary 
 can bypass the tool boundary.
 What remains missing is the connection 
@@ -83,25 +83,38 @@ OS-level mechanisms
 Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
 BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
 KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
-observe or restrict system effects below the tool layer, but require
+restrict process, file, and network access below the tool layer
+and are increasingly adopted as agent sandboxes, but they expect
 statically pre-written policies and return opaque errors with no
-connection to the agent's intent.
+connection to agent intent.
 
 \textbf{Information-flow control.}
-Information-flow control (IFC) tracks how data or authority moves from
-sources to sinks over time. Static IFC systems embed flow constraints in
-type systems or language annotations~\cite{myers1999jflow}. Dynamic IFC
-and provenance systems attach labels to OS objects and propagate them at
-runtime: when a process reads a labeled file, the process acquires that label; when it forks, the child inherits
+Information-flow control (IFC) tracks how data 
+moves from
+sources to sinks over time. Static IFC 
+systems embed flow constraints in
+type systems or language annotations
+~\cite{myers1999jflow}. Dynamic IFC
+and provenance systems attach labels to 
+OS objects and propagate them at
+runtime: when a process reads a labeled 
+file, the process acquires that label;
+when it forks, the child inherits
 it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow,
 schwartz2010taint}. Later
-operations are checked against the accumulated label state. OS-level IFC
-systems such as Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}
-enforce flow policies across processes and files in the kernel, while whole-system provenance frameworks such as
-PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
+operations are checked against the 
+accumulated label state. OS-level IFC
+systems such as Flume~\cite{flume} and 
+HiStar~\cite{zeldovich2006histar}
+enforce flow policies across processes 
+and files in the kernel, while whole-system provenance frameworks such as
+PASS~\cite{muniswamy2006pass}, 
+Hi-Fi~\cite{pohly2012hifi},
 LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and CamQuery~\cite{pasquier2018camquery} record and query cross-event label
-histories. IFC thus captures constraints whose correctness depends on execution history, which is the same pattern that agent behavioral
-directives (``run tests before committing'') exhibit.
+histories. IFC thus captures constraints 
+whose correctness depends on execution history, which is the same pattern that agent behavioral
+directives (``run tests before committing'')
+ exhibit.
 
 \section{Empirical Study}
 \label{sec:empirical}
