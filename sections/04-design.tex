@@ -5,13 +5,15 @@
 system that provides the four requirements identified above.
 To achieve them, two challenges exist:
 
-\textbf{C1: High-level yet kernel-enforceable policy specification}
+\textbf{C1: High-level yet kernel-enforceable
+ policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
 Generating policy at the intent level is too
 ambiguous to enforce; generating at the
 syscall level requires kernel expertise agents
 may lack, produces
-verbose rules that consume tokens and are error-prone.
+verbose rules that consume tokens and 
+are error-prone.
 The DSL needs to be
 \emph{high-level} enough for agents to easily
 express complex cross-event policy
@@ -24,6 +26,27 @@ and be enforced with low overhead.
 at runtime (a sub-agent may need
 a narrower scope, or the current task may require a new constraint),
 but must not weaken constraints.
+
+
+\sys{} addresses these challenges with three abstractions
+(Figure~\ref{fig:architecture}): a policy DSL
+(\S\ref{sec:dsl}) that lets agents express policy intent
+compilable to kernel policies (C1), a labeled information-flow model
+(\S\ref{sec:ifc}) that tracks cross-event state at OS level (C1),
+and a layered authority model (\S\ref{sec:authority}) that lets agents
+adapt policy at runtime without weakening inherited rules (C2).
+When a rule fires, \sys{} returns semantic feedback: the rule name,
+reason, and a remediation path.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/architecture.pdf}
+\caption{\sys{} architecture: policy generation, compilation, kernel
+enforcement, and feedback loop.}
+\Description{Three-layer diagram: agent (directives, LLM), userspace
+(compiler, feedback), kernel (hooks, IFC engine, authority checker).}
+\label{fig:architecture}
+\end{figure}
 
 \subsection{Threat Model}
 \sys{} assumes the agent may be unsafe or compromised, following the principle of self-restriction in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
@@ -65,24 +88,6 @@ The monitored domain is the agent's entire process tree.
 Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and
 content-level checks are out of scope.
 
-\sys{} addresses these challenges with three abstractions
-(Figure~\ref{fig:architecture}): a policy DSL
-(\S\ref{sec:dsl}, C1), a labeled information-flow model
-(\S\ref{sec:ifc}), and a layered authority model
-(\S\ref{sec:authority}, C2).
-When a rule fires, \sys{} returns semantic feedback: the rule name,
-reason, and a remediation path.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/architecture.pdf}
-\caption{\sys{} architecture: policy generation, compilation, kernel
-enforcement, and feedback loop.}
-\Description{Three-layer diagram: agent (directives, LLM), userspace
-(compiler, feedback), kernel (hooks, IFC engine, authority checker).}
-\label{fig:architecture}
-\end{figure}
-
 \subsection{Policy DSL}
 \label{sec:dsl}
 
@@ -108,6 +113,9 @@ wrong directory, while \texttt{kill write}
 suits a compromised agent writing outside its sandbox that should not continue.
 \texttt{block} and \texttt{kill} enforce constraints (``do not X'')
 while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
+Labels track provenance but are monotonic; gates complement them
+by tracking freshness, such as whether a test ran after the most
+recent edit.
 Conditions express common agent
 workflow constraints: a target allow-list, a lineage gate, or a temporal
 \texttt{after~...~since~...} ordering gate. An \texttt{exits~$N$} qualifier
