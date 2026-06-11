@@ -37,10 +37,7 @@ a narrower scope, or the current task may require a new constraint),
 but must not weaken constraints.
 
 \subsection{Threat Model}
-
-Following the principle of the self-restriction model of
-Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}, \sys{}
-assumes the agent being enforced may be unsafe or compromised.
+\sys{} assumes the agent may be unsafe or compromised, following the principle of self-restriction in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
 The adversary's influence is bounded by the enforced agent's normal capabilities;
 the kernel enforcement engine and higher-authority policy blobs are
 loaded by a privileged process before the agent starts and are not
@@ -84,8 +81,8 @@ content-level checks are out of scope.
 
 \sys{} addresses these challenges with three abstractions
 (Figure~\ref{fig:architecture}): a policy DSL
-(\S\ref{sec:dsl}, C1) with a labeled information-flow model
-(\S\ref{sec:ifc}); and a layered authority model
+(\S\ref{sec:dsl}, C1), a labeled information-flow model
+(\S\ref{sec:ifc}), and a layered authority model
 (\S\ref{sec:authority}, C2).
 Because enforcement operates at the OS kernel layer, \sys{} is
 runtime-agnostic. When a rule fires, \sys{} returns semantic feedback: the rule name,
@@ -110,7 +107,7 @@ A policy contains \emph{sources} that introduce labels,
 \emph{gates} that express cross-event ordering constraints. The
 DSL restricts expressiveness to source/sink/gate patterns that compile
 to fixed-size rodata, avoiding direct exposure of BPF hooks, maps, label
-bits, or verifier constraints.
+bits, or verifier constraints.  \arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
 
 Sources bind labels to system objects: an \texttt{exec} source labels
 processes that execute a matching binary; a \texttt{file} source labels
@@ -120,7 +117,7 @@ operation (e.g. \texttt{exec}, \texttt{open}). Conditions express common agent
 workflow constraints: a target allow-list, a lineage gate, or a temporal
 \texttt{after~...~since~...} ordering gate. An \texttt{exits~$N$} qualifier
 on the gate command requires the gating process to terminate with exit
-code~$N$, distinguishing a successful run from a crashed or failing one.
+code~$N$, distinguishing a successful run from a crashed or failing one. \arq{This is extremely challenging to understand.  THe examples don't really help since }
 
 \begin{figure}[t]
 \begin{verbatim}
