@@ -508,21 +508,17 @@ APIs, service-internal state), not actions specific to either runtime.
 \label{sec:related}
 
 \textbf{In-kernel provenance and information flow.}
-Whole-system provenance systems such as PASS~\cite{muniswamy2006pass},
-Hi-Fi~\cite{pohly2012hifi}, LPM~\cite{bates2015lpm}, and
-CamFlow~\cite{pasquier2017camflow} record audit-grade provenance
-graphs via LSM hooks but do not compile agent-oriented policy or return
-semantic feedback. CamQuery~\cite{pasquier2018camquery} is the closest
-prior system: it evaluates provenance queries inline in the kernel,
-propagates labels across OS objects, and can deny matching operations.
-\sys{} shares this label-propagation model but targets cooperative AI
-agents rather than adversarial intrusions, compiles an agent-facing
-source/sink DSL rather than general provenance queries, and returns
-semantic feedback to the matching actor. Dynamic taint-tracking
+Provenance systems (PASS, Hi-Fi, LPM,
+CamFlow)~\cite{muniswamy2006pass,pohly2012hifi,bates2015lpm,pasquier2017camflow}
+record audit-grade graphs but do not compile agent-oriented policy or
+return semantic feedback. CamQuery~\cite{pasquier2018camquery} is the
+closest prior system: it propagates labels and can deny matching
+operations, but targets adversarial intrusions with general provenance
+queries rather than an agent-facing DSL with semantic feedback. Dynamic
+taint-tracking
 systems~\cite{enck2010taintdroid,clause2007dytan,kemerlis2012libdft,yin2007panorama}
-operate at byte or instruction granularity for vulnerability detection;
-\sys{} operates at object granularity, trading precision for low-overhead
-whole-session coverage.
+operate at byte or instruction granularity; \sys{} operates at object
+granularity, trading precision for low-overhead whole-session coverage.
 Contemporary eBPF tools such as Tetragon,
 Tracee, and eBPF-PATROL~\cite{ciliumtetragon,aquasecuritytracee,ghimire2025ebpfpatrol} provide
 per-event predicates or single-channel lineage flags; \sys{} propagates
@@ -542,23 +538,9 @@ CaMeL~\cite{costa2025fides,debenedetti2025camel} apply typed IFC within
 the agent loop, which catches data-flow violations at the API boundary
 but cannot observe effects that escape through shell-outs, subprocesses,
 or compiled binaries.
-Flume~\cite{flume} provides decentralized labels with explicit
-capabilities but requires per-application integration.
 \sys{} applies information-flow reasoning at the OS boundary, where
 cross-event label state persists across context windows and enforcement
 is not bypassed by subprocess indirection.
-
-\textbf{Agent instruction file empirical study.}
-Recent studies characterize \texttt{CLAUDE.md} and \texttt{AGENTS.md}
-files at file or section-heading
-granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,
-santos2025claudeconfig,lulla2026agentsmd}.
-Zhang et al.~\cite{zhang2026guardrails} show that rule polarity
-(negative constraint vs.\ positive directive) separates beneficial
-from harmful rules, motivating \sys{}'s three-effect design.
-Our empirical study (\S\ref{sec:empirical}) classifies at statement
-level along four axes, specifically asking which instructions require
-cross-event enforcement and which need project or task context.
 
 \section{Conclusion}
 \label{sec:conclusion}
