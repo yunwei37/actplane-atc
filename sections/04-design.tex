@@ -26,11 +26,12 @@ express policy with minimal cost, yet
 \emph{concrete} enough to compile to kernel constraints
 and be enforced with low overhead.
 
-\textbf{C2: Authority-safe agent programmability}
-(\S\ref{sec:authority}). Agents need to adapt richer IFC policies 
+\textbf{C2: Policy-isolated agent programmability}
+(\S\ref{sec:authority}). Agents need to adapt IFC policies
 at runtime (a sub-agent may need
 a narrower scope, or the current task may require a new constraint),
-but must not weaken constraints.
+but each agent's rules must be scoped to its own subtree
+and must not weaken inherited constraints.
 
 
 \sys{} addresses these challenges with three abstractions
@@ -300,9 +301,11 @@ isolation.
 \subsection{Layered Policy Isolation}
 \label{sec:authority}
 
-\sys{} needs to let agents adapt policy at 
-runtime without
-weakening inherited safety constraints.
+\sys{} needs to let agents adapt policy at
+runtime while isolating each domain's rules
+to its subtree and preventing weakening of
+inherited constraints (policy isolation governs
+rule scope and mutability, not resource access).
 Following the self-restriction principle,
 \sys{} extends monotonic
 tightening in Landlock~\cite{landlock} and
