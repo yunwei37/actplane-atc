@@ -158,6 +158,8 @@ compliant only if the required test command ran and exited successfully
 (\texttt{exits~0}) after the most recent source write. The third is also cross-event but uses a notify effect:
 the agent is reminded, not blocked, when committing after a schema change
 without re-running the code generator.  \arq{Its unclear what the real semantic differences are between notify and block.  If an agent is blocked, can it not try again? If it is notified, is its execution not prevented?  These seem like the same operator in this case. It isn't clear to me what kill vs. block do either. I assume that kill destroys the agent, but I don't know what semantics that conveys?}
+\yusheng{kill does not always destroy the agent, just destroy the command running in the tools. It can terminate the agent.
+}
 
 Instruction-file directives naturally split into negative constraints
 (``do not X'') and positive goals (``do X''), which affect agent
