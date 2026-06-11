@@ -41,10 +41,10 @@ to natural language. A compiler
 lowers the DSL into fixed-size kernel config.
 A labeled information-flow state machine model
 (\S\ref{sec:ifc}) that tracks cross-event 
-state at OS level (C1). A layered 
-authority model (\S\ref{sec:authority}) 
+state at OS level (C1). Layered
+policy isolation (\S\ref{sec:authority})
 that lets agents
-adapt policy at runtime without weakening 
+adapt policy at runtime without weakening
 inherited rules (C2).
 When a rule fires, \sys{} returns semantic feedback: the rule name,
 reason, and a remediation path.
@@ -297,7 +297,7 @@ Inherited safety labels and rules cannot be declassified.
 The recommended mitigation for inherited labels is process-level
 isolation.
 
-\subsection{Layered Policy Authority}
+\subsection{Layered Policy Isolation}
 \label{sec:authority}
 
 \sys{} needs to let agents adapt policy at 
