@@ -117,7 +117,8 @@ operation (e.g. \texttt{exec}, \texttt{open}). Conditions express common agent
 workflow constraints: a target allow-list, a lineage gate, or a temporal
 \texttt{after~...~since~...} ordering gate. An \texttt{exits~$N$} qualifier
 on the gate command requires the gating process to terminate with exit
-code~$N$, distinguishing a successful run from a crashed or failing one. \arq{This is extremely challenging to understand.  THe examples don't really help since }
+code~$N$, distinguishing a successful run from a crashed or failing one. \arq{This is extremely challenging to understand.  The examples don't really help since they're complex and it is not clear what abstraction relates to each of the lines.}
+\arq{in the second example, why isn't the `exec ``go''` a source?  (which I think is intended to mean that you ran tests, although I cannot help but ntoice that it actually matches any execution of `go`, not just tests)}
 
 \begin{figure}[t]
 \begin{verbatim}
