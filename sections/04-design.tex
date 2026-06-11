@@ -5,19 +5,23 @@
 system that provides the four requirements identified above.
 To achieve them, two challenges exist:
 
-\textbf{C1: High-level yet kernel-enforceable
- policy specification}
+\textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-Generating policy at the intent level is too
-ambiguous to enforce; generating at the
-syscall level requires kernel expertise agents
-may lack, produces
-verbose rules that consume tokens and 
-are error-prone.
+The DSL should hide kernel complexity 
+so agents can
+write and modify deterministic policies
+easily with minimal 
+expertise about kernel, DSL and token cost;
+most real policies are structurally 
+simple (\S\ref{sec:eval:rq1}).
+Yet generating at the intent level is 
+too ambiguous to enforce,
+and generating at the syscall level 
+is costly and error-prone.
 The DSL needs to be
 \emph{high-level} enough for agents to easily
-express complex cross-event policy
-with minimal tokens, yet
+express
+with minimal cost, yet
 \emph{concrete} enough to compile to kernel constraints
 and be enforced with low overhead.
 
@@ -31,6 +35,8 @@ but must not weaken constraints.
 \sys{} addresses these challenges with three abstractions
 (Figure~\ref{fig:architecture}): a policy DSL
 (\S\ref{sec:dsl}) that lets agents express policy intent
+in a representative form close
+to natural language,
 compilable to kernel policies (C1), a labeled information-flow model
 (\S\ref{sec:ifc}) that tracks cross-event state at OS level (C1),
 and a layered authority model (\S\ref{sec:authority}) that lets agents
@@ -49,20 +55,39 @@ enforcement, and feedback loop.}
 \end{figure}
 
 \subsection{Threat Model}
-\sys{} assumes the agent may be unsafe or compromised, following the principle of self-restriction in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
-The adversary's influence is bounded by the enforced agent's normal capabilities;
-the kernel enforcement engine and higher-authority policy blobs are
-loaded by a privileged process before the agent starts and are not
-writable by the agent. 
+\sys{} assumes the agent, which starts after
+higher-authority policy is loaded and
+may author additional rules at runtime,
+may be unsafe or compromised,
+following the principle of
+self-restriction in Landlock~\cite{landlock}
+and Capsicum~\cite{watson2010capsicum}.
+The adversary's influence is bounded by
+the enforced agent's normal capabilities;
+the kernel enforcement engine and
+higher-authority policy are
+loaded by a privileged process before
+the agent starts and are not
+writable by the agent. A pre-defined
+loaded rule is trusted
+whether a human or another
+agent authored it.
 
-\sys{} provides two levels of assurance, by policy authority.
-Higher-authority rules can carry a safety and security assurance
+\sys{} provides two levels of 
+assurance, by policy authority.
+Higher-authority rules can 
+carry a safety and security assurance
 under our threat model. 
-Agent-authored rules are only a compliance assistance under a
-cooperative-but-fallible model: enforcement is deterministic, an
-adversary controlling the agent at policy-generation time can only weaken
-self rules; the worst case degrades to having no self-imposed rules,
-and cannot change inherited ones. Given loaded rules, \sys{} enforces
+Agent-authored rules after loaded are only a 
+compliance assistance under a
+cooperative-but-fallible model: 
+enforcement is deterministic, an
+adversary controlling the agent at
+policy-generation time can only weaken
+self rules; the worst case degrades to
+having no self-imposed rules,
+and cannot change inherited ones. 
+Given loaded rules, \sys{} enforces
 (1): agent-authored rules 
 never weaken inherited constraints; and
 (2): every event
@@ -76,35 +101,54 @@ post-operation (the process is terminated
 before subsequent monitored
 action); notify is observation-only.
 
-The TCB is the kernel enforcement engine and higher-authority blobs; the compiler and
-runner are outside it (bugs weaken only the agent's own rules).
-\sys{} covers indirect execution paths (subprocesses, shell wrappers
+The TCB is the kernel enforcement 
+engine and higher-authority blobs; 
+the compiler and
+runner are outside it (bugs weaken 
+only the agent's own rules).
+\sys{} covers indirect execution 
+paths (subprocesses, shell wrappers
 ) that produce exact hooked OS events; 
-semantic equivalents bypass and file contents are not covered, 
+semantic equivalents bypass and file
+contents are not covered, 
 and hook types are limited by implementation.
-(e.g., a custom Git client avoids \texttt{exec "git"} rules, but its
+(e.g., a custom Git client avoids 
+\texttt{exec "git"} rules, but its
 connect/write syscalls remain visible).
-The monitored domain is the agent's entire process tree.
-Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and
+The monitored domain is the agent's 
+entire process tree.
+Kernel compromise, \texttt{CAP\_BPF} 
+compromise, side channels, and
 content-level checks are out of scope.
 
 \subsection{Policy DSL}
 \label{sec:dsl}
 
-The DSL lets agents express policy intent as enforceable system actions.
-A policy contains \emph{sources} that introduce labels,
-\emph{rules} that match labeled events at sinks, and optional
-\emph{gates} that express cross-event ordering constraints. The
-DSL restricts expressiveness to source/sink/gate patterns that compile
-to fixed-size data. Appendix~\ref{sec:appendix:dsl-grammar}
-gives the concrete grammar.  %\arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
+The DSL lets agents express policy intent 
+as enforceable system actions.
+A policy contains \emph{sources} 
+that introduce labels,
+\emph{rules} that match labeled events
+ at sinks, and optional
+\emph{gates} that express cross-event 
+ordering constraints. The
+DSL restricts expressiveness 
+to source/sink/gate patterns that compile
+to fixed-size data. Appendix
+~\ref{sec:appendix:dsl-grammar}
+gives the concrete grammar.
 
-Sources bind labels to system objects: an \texttt{exec} source labels
-processes that execute a matching binary; a \texttt{file} source labels
-matching paths; a network source labels matching endpoints. Rules bind an
+Sources bind labels to system objects: 
+an \texttt{exec} source labels
+processes that execute a matching binary; 
+a \texttt{file} source labels
+matching paths; a network source labels 
+matching endpoints.
+
+Rules bind an
 effect to an operation (e.g. \texttt{exec}, \texttt{open}):
-\texttt{block} denies the syscall pre-operation
-(the agent continues and can retry a different action),
+\texttt{block} synchronously denies the syscall pre-operation
+(no TOCTOU gap; the agent continues and can retry a different action),
 \texttt{kill} terminates the offending process post-operation
 (preventing it from trying alternative channels),
 and \texttt{notify} only reports without preventing execution.
@@ -113,16 +157,22 @@ wrong directory, while \texttt{kill write}
 suits a compromised agent writing outside its sandbox that should not continue.
 \texttt{block} and \texttt{kill} enforce constraints (``do not X'')
 while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
-Labels track provenance but are monotonic; gates complement them
-by tracking freshness, such as whether a test ran after the most
+A rule may also specify a target allow-list
+to restrict which paths or endpoints it applies to.
+
+Labels track provenance but are monotonic; 
+gates complement them
+by tracking freshness, such as whether a 
+test ran after the most
 recent edit.
-Conditions express common agent
-workflow constraints: a target allow-list, a lineage gate, or a temporal
-\texttt{after~...~since~...} ordering gate. An \texttt{exits~$N$} qualifier
-on the gate command requires the gating process to terminate with exit
-code~$N$, distinguishing a successful run from a crashed or failing one.
-%\arq{This is extremely challenging to understand.  The examples don't really help since they're complex and it is not clear what abstraction relates to each of the lines.}
-%\arq{in the second example, why isn't the `exec ``go''` a source? I would have thought that the `exec ``go''` would introduce a new label called ``tested'', and that `write **/*.go` would introduce a new label called ``written'', and we would have something about how you can only execute `git commit' if the AGENT is in state tested.  Another issue: `exec ``go''' doesn't actualy ensure that tests ran,  it just means that `go' ran. Isn't that insufficient for the second rule?}
+Gate conditions include a lineage gate 
+or a temporal
+\texttt{after~...~since~...} ordering gate. 
+An \texttt{exits~$N$} qualifier
+on the gate command requires the gating process 
+to terminate with exit
+code~$N$, distinguishing a successful run from
+a crashed or failing one.
 
 \begin{figure}[t]
 \begin{verbatim}
@@ -183,6 +233,7 @@ a process acquires labels from executed binaries, read files,
 and its parent at fork; written files and connected endpoints
 acquire the process's labels. Unlink triggers a rule check
 without propagation.
+
 This maintains a key invariant: if an object carries
 label $\ell$, then information from a source tagged with $\ell$ may have
 reached that object through observed edges. Rules check whether
