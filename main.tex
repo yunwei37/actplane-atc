@@ -22,26 +22,26 @@
   \country{}}
 
 \begin{abstract}
-AI agents increasingly run in production for coding, DevOps and enterprise workflows, 
-operate through harnesses that maintain the agent loop,
-tools and memory, and apply constraints for safety and effectiveness. 
-Projects often specify them in natural language or configuration: 
+AI agents increasingly run in production for coding, DevOps and work assistance. 
+They operate through harnesses, including agent loop,
+tools and memory, and constraints for safety and effectiveness. 
+Constrains are often in natural language or configuration: 
 our empirical study finds that 64\% of
 instruction-file statements are directives, e.g. do not leak secrets, 
 run tests before committing. 
-A major part of such a harness is a policy engine that
+A major part of the agent harness is a policy engine that
 enforces these constraints deterministically over the agent's actions.
 Yet existing policy engines fail to connect 
 agent intent to system-level actions, 
-leaving a \emph{semantic gap}:
+leaving a \emph{semantic gap}.
 83\% of directives include system-level 
 events, where tool-call guardrails can
 miss indirect system
 actions, and cross-event state
-occurs in 81\% of projects; OS-level 
+occurs in 81\% of projects. OS-level 
 sandbox-style mechanisms 
 contain process, file, and network 
-actions but expect static policy, making it
+actions but expect static policy, making them
 hard to evaluate the 74\% of rules that
 need intent-level project or task context, 
 returning errors without context, further confusing the agent.

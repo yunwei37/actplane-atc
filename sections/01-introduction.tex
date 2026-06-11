@@ -3,33 +3,31 @@
 % ¶1: Context — agents are powerful and widely deployed through harnesses
 AI agents are widely used for coding,
 DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands, 
-debenedetti2024agentdojo,zhan2024injecagent,agentsight}, increasingly
+debenedetti2024agentdojo,zhan2024injecagent,agentsight},
 run on real infrastructure and handle sensitive data. Besides the LLM,
 agents require AI agent harnesses: software around
 the model that improves agent performance while enforcing behavioral
 constraints for safety and behavioral compliance~\cite{fowler-harness}.
 
 % ¶2: Policy engines; instruction files are behavioral policy
-A major component of such a harness is a policy engine~\cite{langchain-harness}: the
+A major component of the harness is a policy engine~\cite{langchain-harness}: the
 part that observes and enforces constraints over the agent's concrete
-actions. In practice, projects encode many such constraints as
+actions. Projects encode many such constraints as
 behavioral policies in instruction files
-(\texttt{CLAUDE.md},
+(e.g. \texttt{CLAUDE.md},
 \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,
 chatlatanagulchai2025agentreadmes,santos2025claudeconfig,
 lulla2026agentsmd}, so
-harnesses can provide these instructions to the model directly.
+harnesses can provide them to the model directly.
 Because LLMs comply with instructions
 probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif}
 and may violate them through planning errors,
 prompt-injection drift, and opaque tool or script
 behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo},
-harnesses also require deterministic policy engines to enforce compliance
-at runtime~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
+harnesses also require deterministic policy engines to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
-Many of these policies constrain system-level actions, yet existing policy
- engines leave a \emph{semantic gap}:
+However, existing policy engines leave a \emph{semantic gap}:
 \emph{AI agent intent and directives} are expressed in natural language,
  but enforcement must decide over
 \emph{system actions}.
@@ -37,8 +35,8 @@ Our empirical study of instruction-files in 64~popular projects (\S\ref{sec:empi
 finds that 64\% of statements are behavioral directives, and 83\% of those
  involve system-level behavior: commands executed, files accessed,
 and network connections made.
-Existing approaches do not close this gap.
-Tool-call-based policy systems~\cite{xiang2025guardagent,wang2025agentspec,
+Existing 
+tool-call-based policy systems~\cite{xiang2025guardagent,wang2025agentspec,
 shi2025progent,costa2025fides,debenedetti2025camel} in agent
 runtimes such as Claude Code~\cite{anthropic2025claudecode} and Codex~\cite{openai2025codex}, whether LLM
 guardrails or regex-like checkers,
@@ -91,7 +89,7 @@ constraints set by separate
 trusted administrators, safety rules should
 be installed separately.
 
-% ¶6: System — \sys{}
+% ¶6: System\textit{} — \sys{}
 \sys{} is a runtime-agnostic, programmable
 OS-level policy enforcement system for
 AI agent harnesses. Agents express policies in a DSL; 
