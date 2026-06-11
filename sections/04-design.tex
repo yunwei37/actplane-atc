@@ -113,10 +113,13 @@ processes that execute a matching binary; a \texttt{file} source labels
 matching paths; a network source labels matching endpoints. Rules bind an
 effect to an operation (e.g. \texttt{exec}, \texttt{open}):
 \texttt{block} denies the syscall pre-operation
-(the process continues and can retry a different action),
+(the agent continues and can retry a different action),
 \texttt{kill} terminates the offending process post-operation
 (preventing it from trying alternative channels),
 and \texttt{notify} only reports without preventing execution.
+For example, \texttt{block write} suits an agent writing to a
+wrong directory, while \texttt{kill write} 
+suits a compromised agent writing outside its sandbox that should not continue.
 \texttt{block} and \texttt{kill} enforce constraints (``do not X'')
 while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
 Conditions express common agent
@@ -172,7 +175,6 @@ files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, and
 route sensitive data through an approved tool. The compiler lowers these
 patterns into fixed-size kernel tables.
-Extending \texttt{op\_pattern} and temporal gates remains future work.
 
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
@@ -295,3 +297,4 @@ Runtime deltas arrive through a ring buffer; the checker resolves
 the submitting domain via \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} 
 and rejects any delta that clears an inherited-mask bit or modifies
  an inherited effect.
+Extending \texttt{op\_pattern} and temporal gates remains future work.
