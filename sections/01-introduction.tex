@@ -29,7 +29,7 @@ harnesses also require deterministic policy engines to enforce compliance~\cite{
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
 However, existing policy engines leave a \emph{semantic gap}:
 \emph{AI agent intent and directives} are expressed in natural language,
- but enforcement must decide over
+ but enforcement needs to decide over
 \emph{system actions}.
 Our empirical study of instruction-files in 64~popular projects (\S\ref{sec:empirical}) 
 finds that 64\% of statements are behavioral directives, and 83\% of those
@@ -49,7 +49,7 @@ commit'').
 
 OS-level enforcement with static policy is also insufficient. 
 Most rules reference project or task context that requires resolving, (e.g., ``never modify upstream source,'' 
-where \emph{upstream source} must be resolved from the repository; 
+where \emph{upstream source} needs to be resolved from the repository; 
 ``do not update dependencies unless requested''; 
 ``the reviewer sub-agent only writes to its project directory''), making it hard for human administrators to pre-define policy for them without context.
 We find that 74\% of system-level directives
@@ -75,12 +75,12 @@ the natural producer of concrete compliance policy,
 also reflecting the fact that instruction files are 
 increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 
-To realize this, first, policy specification must be
+To realize this, first, policy specification needs to be
 high-level enough for agents to easily generate
-from natural language with minimal token consumption, 
+from natural language with minimal token consumption,
 yet concrete enough to compile to
-deterministic kernel checks. Second, 
-enforcement must track
+deterministic kernel checks. Second,
+enforcement needs to track
 policy across the system without imposing prohibitive
 overhead. Third, since many rules are about safety,
 programmability must not become an authority bypass: agents

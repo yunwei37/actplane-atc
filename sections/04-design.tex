@@ -5,7 +5,7 @@ The empirical study establishes four requirements for
 a policy engine in AI agent harnesses:
 \emph{agent-defined policy with semantic feedback}, 
 since many rules need project or task context within the agent, 
-and the agent must understand violations to recover;
+and the agent needs to understand violations to recover;
 \emph{OS-level cross-event enforcement}, since many
 rules involve system-level behavior spanning multiple operations,
 invisible to tool-call guardrails;
@@ -23,7 +23,7 @@ ambiguous to enforce; generating at the
 syscall level requires kernel expertise agents
 may lack, produces
 verbose rules that consume tokens and are error-prone.
-The DSL must be
+The DSL needs to be
 \emph{high-level} enough for agents to easily
 express complex cross-event policy
 with minimal tokens, yet
@@ -227,7 +227,7 @@ isolation.
 \subsection{Layered Policy Authority}
 \label{sec:authority}
 
-\sys{} must let agents adapt policy at runtime without
+\sys{} needs to let agents adapt policy at runtime without
 weakening inherited safety constraints.
 Following the self-restriction principle,
 \sys{} extends monotonic
