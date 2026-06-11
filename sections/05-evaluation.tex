@@ -13,7 +13,8 @@ for all 607 OS-enforceable directives?
 \item[RQ3 (Overhead)] What is the per-event and end-to-end overhead of
   \sys{}'s label propagation and rule checking?
 \item[RQ4 (Real-world coding tasks)] On coding-agent tasks in
-  real repositories, does \sys{} improve policy compliance and task success rate?
+  real repositories, does \sys{} improve policy 
+  compliance and task success rate?
 \item[RQ5 (Safety beyond coding)] On a safety benchmark
   covering data handling, system administration, and workplace tasks,
   does \sys{}'s agent-generated policies in higher authority
@@ -379,8 +380,12 @@ Each task runs under three conditions: baseline (no enforcement),
 Claude Code hooks~\cite{anthropic2026hooks}
 (the official sandbox approval policy), and \sys{} (OS-level hooks
 plus semantic feedback). An AI agent (Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt5})
-reads the task description and produces the policy 
+reads the task description and generates initial policy
 without human involvement.
+During execution, the same Codex agent adjusts policies at runtime
+by submitting deltas through the runtime interface
+(\S\ref{sec:authority}), refining rules for itself or
+the task-executing sub-agent based on enforcement feedback.
 
 \paragraph{Metrics.}
 The primary metric is official OctoBench reward.
@@ -410,6 +415,8 @@ compliance reward shows a smaller 2.8-point gain.
 These results suggest that OS-level enforcement with semantic feedback
 improves reward metrics on real coding-agent tasks, with gains
 extending beyond compliance-typed checks.
+Across the 21 tasks, the policy agent submitted 110 runtime
+deltas to refine rules for the task-executing sub-agent.
 
 %% ----------------------------------------------------------------
 \subsection{RQ5: Safety Enforcement Beyond Coding Tasks}
