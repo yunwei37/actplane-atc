@@ -161,6 +161,14 @@ compliant only if the required test command ran and exited successfully
 the agent is reminded, not blocked, when committing after a schema change
 without re-running the code generator.
 
+Instruction-file directives naturally split into negative constraints
+(``do not X'') and positive goals (``do X''); an independent empirical
+study shows the two types affect agent behavior
+differently~\cite{zhang2026guardrails}. The three 
+effects capture this distinction: block and kill normally enforce
+constraints, while notify can further remind the agent of positive goals without
+overriding its planning.
+
 The DSL mainly targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, and
