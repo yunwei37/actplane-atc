@@ -25,29 +25,6 @@ or book a flight, the harness
 must enforce constraints over \emph{system actions}: concrete commands,
 file operations, network connections, and subprocess effects.
 
-\textbf{Information-flow control.}
-Information-flow control (IFC) tracks how data or authority moves from
-sources to sinks over time. Static IFC systems embed flow constraints in
-type systems or language annotations~\cite{myers1999jflow}. Dynamic IFC
-and provenance systems attach labels to OS objects and propagate them at
-runtime: when a process reads a labeled file, the process acquires that label; when it forks, the child inherits
-it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow,
-schwartz2010taint}. Later
-operations are checked against the accumulated label state. OS-level IFC
-systems such as Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}
-enforce flow policies across processes and files in the kernel, while whole-system provenance frameworks such as
-PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
-LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and CamQuery~\cite{pasquier2018camquery} record and query cross-event label
-histories. IFC thus captures constraints whose correctness depends on execution history, which is the same pattern that agent behavioral
-directives (``run tests before committing'') exhibit. More general OS-level mechanisms
-(seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
-Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
-BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
-KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
-also observe or restrict system effects below the tool layer, but these require
-statically pre-written policies and return opaque errors with no
-connection to the agent's intent.
-
 \textbf{AI agent policy enforcement.}
 We use \emph{runtime policy enforcement system} for the part of an AI
 agent harness that enforces safety, security, and compliance constraints
@@ -71,6 +48,29 @@ project or task context on one side, and deterministic OS-level
 observation and enforcement on the other. The empirical study below
 characterizes how strongly real project instructions demand this
 connection.
+
+\textbf{Information-flow control.}
+Information-flow control (IFC) tracks how data or authority moves from
+sources to sinks over time. Static IFC systems embed flow constraints in
+type systems or language annotations~\cite{myers1999jflow}. Dynamic IFC
+and provenance systems attach labels to OS objects and propagate them at
+runtime: when a process reads a labeled file, the process acquires that label; when it forks, the child inherits
+it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow,
+schwartz2010taint}. Later
+operations are checked against the accumulated label state. OS-level IFC
+systems such as Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}
+enforce flow policies across processes and files in the kernel, while whole-system provenance frameworks such as
+PASS~\cite{muniswamy2006pass}, Hi-Fi~\cite{pohly2012hifi},
+LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and CamQuery~\cite{pasquier2018camquery} record and query cross-event label
+histories. IFC thus captures constraints whose correctness depends on execution history, which is the same pattern that agent behavioral
+directives (``run tests before committing'') exhibit. More general OS-level mechanisms
+(seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
+Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
+BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
+KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
+also observe or restrict system effects below the tool layer, but these require
+statically pre-written policies and return opaque errors with no
+connection to the agent's intent.
 
 \section{Empirical Study}
 \label{sec:empirical}
