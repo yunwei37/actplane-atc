@@ -129,7 +129,8 @@ source AGENT = exec "claude"
 # Per-event: from cloudflare/moltworker
 rule no-delete-data:
   block unlink "/data/moltbot/**" if AGENT
-  because "Never delete R2 data; the mount IS the bucket."
+  because "Never delete R2 data;
+    the mount IS the bucket."
 
 # Cross-event: from chenhg5/cc-connect
 rule tests-before-commit:
@@ -279,8 +280,8 @@ The eBPF engine attaches to process, file, and network hooks via
 BPF-LSM for pre-operation enforcement (block effects) and tracepoints
 for observation and post-operation termination (kill effects),
 maintaining label state in per-object BPF maps.
-A \texttt{sched\_process\_exit} tracepoint reads
-\texttt{task\_struct.exit\_code} to arm exit-qualified gates only on
+A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads
+the task exit code to arm exit-qualified gates only on
 normal termination with the specified status. Userspace does not 
 re-detect violations; it only formats
 kernel-reported matches into semantic feedback. 
@@ -294,6 +295,6 @@ Each domain is a
 BPF map entry storing a parent pointer, an inherited-rule mask, and an
 inherited-label mask; pid-to-domain mappings are in a separate map.
 Runtime deltas arrive through a ring buffer; the checker resolves 
-the submitting domain via \texttt{bpf\_get\_current\_pid\_tgid()} 
+the submitting domain via \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} 
 and rejects any delta that clears an inherited-mask bit or modifies
  an inherited effect.
