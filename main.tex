@@ -12,6 +12,12 @@
 \acmISBN{}
 \acmDOI{}
 
+\newif\ifcomments
+\commentstrue
+\definecolor{AQColor}{HTML}{000099}
+\newcommand{\arq}[1]{\ifcomments\textcolor{AQColor}{[[AQ: #1]]}\fi}
+
+
 % \title[\sys{}]{\sys{}: Letting Agents Harness Their Own System-Level Behavior with eBPF}
 \title[\sys{}]{\sys{}: Programmable OS-Level IFC Policy Enforcement for AI Agent Harnesses}
 
