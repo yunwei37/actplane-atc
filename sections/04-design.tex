@@ -180,7 +180,7 @@ patterns into fixed-size kernel tables.
 \label{sec:ifc}
 
 \sys{} represents policy state as labels on OS objects. Processes, files,
-and network endpoints each carry a 64-bit label mask, enabling
+and network endpoints each carry a label mask, enabling
 cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
 not reach a network endpoint''). A source declaration adds labels when an
 object matches the source pattern.
@@ -273,7 +273,7 @@ The eBPF engine attaches to process, file, and network hooks
 (exec, open, read, write, unlink, connect, fork, exit) via
 BPF-LSM for pre-operation enforcement (block effects) and tracepoints
 for observation and post-operation termination (kill effects),
-maintaining label state in per-object BPF maps.
+maintaining 64-bit label state in per-object BPF maps.
 A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads
 the task exit code to arm exit-qualified gates only on
 normal termination with the specified status. Userspace does not 
