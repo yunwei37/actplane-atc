@@ -1,5 +1,70 @@
 \appendix
 
+\section{Policy Language Grammar}
+\label{sec:appendix:dsl-grammar}
+
+This appendix gives the concrete surface syntax used by the
+policy-generation agent in RQ1. Keywords are lowercase. \texttt{IDENT}
+names a label or rule, and \texttt{PATTERN}, \texttt{ARG}, and
+\texttt{STRING} are quoted strings.
+
+\begin{small}
+\begin{verbatim}
+policy      ::= decl*
+decl        ::= source_decl | rule_decl | xform_decl
+
+source_decl ::= "source" IDENT "=" node_kind PATTERN
+node_kind   ::= "exec" | "file" | "endpoint"
+
+xform_decl  ::= ("declassify" | "endorse") IDENT
+                "by" "exec" PATTERN
+
+rule_decl   ::= "rule" IDENT ":" clause+
+                ["because" STRING]
+clause      ::= EFFECT op_pattern ["if" expr]
+                ["unless" cond]
+EFFECT      ::= "notify" | "block" | "kill"
+
+op_pattern  ::= "exec" PATTERN [ARG]
+              | ("read" | "write" | "unlink" | "open")
+                "file" PATTERN
+              | ("connect" | "recv") "endpoint" PATTERN
+
+expr        ::= term (("and" | "or") term)*
+term        ::= ["not"] IDENT | "true"
+
+cond        ::= "target" ["not"] PATTERN
+              | "lineage-includes" "exec" PATTERN
+              | "after" gate_event
+                ["exits" EXIT_CODE]
+                ["since" since_event
+                  ("or" since_event)*]
+
+gate_event  ::= ("exec" | "read" | "write" |
+                 "open" | "unlink") PATTERN
+since_event ::= "exec" PATTERN [ARG]
+              | ("read" | "write" | "open" |
+                 "unlink") PATTERN
+\end{verbatim}
+\end{small}
+
+A source declaration introduces labels; it is not a conditional state
+transition rule. Each process, file, and endpoint carries a set of labels,
+implemented as a bit mask, so a process may carry multiple labels. A clause
+matches when its operation target matches, its \texttt{if} expression holds
+over the subject labels, and its optional \texttt{unless} condition is
+false. Thus \texttt{unless C} has the rule-level meaning \texttt{and not C}.
+
+The \texttt{after} condition is the temporal gate used for cross-event
+freshness properties. Plain \texttt{after exec "pytest"} is latching:
+once the gate has happened in the process lineage, it remains satisfied.
+Adding \texttt{since write "src/**"} makes the gate stale after a later
+matching write. The \texttt{exits N} qualifier is valid only on
+\texttt{after exec} gates and opens the gate after a matching process exits
+with status \texttt{N}. The optional \texttt{ARG} in \texttt{exec}
+patterns is a single argv-token predicate, for example
+\texttt{exec "git" "commit"}.
+
 \section{LLM-as-Judge Prompt}
 \label{sec:appendix:judge}
 

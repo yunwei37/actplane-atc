@@ -107,7 +107,8 @@ A policy contains \emph{sources} that introduce labels,
 \emph{gates} that express cross-event ordering constraints. The
 DSL restricts expressiveness to source/sink/gate patterns that compile
 to fixed-size rodata, avoiding direct exposure of BPF hooks, maps, label
-bits, or verifier constraints.  \arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
+bits, or verifier constraints. Appendix~\ref{sec:appendix:dsl-grammar}
+gives the concrete grammar.  \arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
 
 Sources bind labels to system objects: an \texttt{exec} source labels
 processes that execute a matching binary; a \texttt{file} source labels
