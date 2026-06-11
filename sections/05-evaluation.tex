@@ -534,11 +534,6 @@ reached the same effect through a path the current hook set does not
 observe. Chat and content harms are outside \sys{}'s scope by design;
 service-side artifacts require protocol-level hook extensions.
 
-\paragraph{Runtime independence.}
-RQ1--RQ4 use Codex/Claude Code; RQ5 uses OpenHands. The same eBPF engine enforces both without adaptation, and
-misses are actions that lack a distinguishable monitored OS event (editor
-APIs, service-internal state), not actions specific to either runtime.
-
 \section{Related Work}
 \label{sec:related}
 
