@@ -106,8 +106,7 @@ A policy contains \emph{sources} that introduce labels,
 \emph{rules} that match labeled events at sinks, and optional
 \emph{gates} that express cross-event ordering constraints. The
 DSL restricts expressiveness to source/sink/gate patterns that compile
-to fixed-size rodata, avoiding direct exposure of BPF hooks, maps, label
-bits, or verifier constraints. Appendix~\ref{sec:appendix:dsl-grammar}
+to fixed-size data. Appendix~\ref{sec:appendix:dsl-grammar}
 gives the concrete grammar.  \arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
 
 Sources bind labels to system objects: an \texttt{exec} source labels
@@ -172,8 +171,7 @@ The DSL mainly targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, and
 route sensitive data through an approved tool. The compiler lowers these
-patterns into fixed-size kernel tables; policy authors need not reason
-about BPF maps, verifier constraints, or binary layout.
+patterns into fixed-size kernel tables.
 Extending \texttt{op\_pattern} and temporal gates is a natural next step.
 
 The engine supports up to 128 concurrent rules, sized to cover the
@@ -252,7 +250,7 @@ or weaken any inherited rule. The root domains correspond to
 platform/operator and project-maintainer policy; the agent creates
 session and sub-agent domains below them.
 
-Runtime policy additions are submitted as precompiled deltas through an eBPF
+Runtime policy additions are submitted as precompiled deltas through a
 userspace ring buffer, all submission permission checks 
 remain in kernel. The eBPF checker derives the submitting domain from the
 caller's pid-to-domain mapping and admits updates only to the
