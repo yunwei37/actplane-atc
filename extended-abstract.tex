@@ -14,7 +14,7 @@
 % \title[\sys{}]{\sys{}: Letting Agents Harness Their Own System-Level Behavior with eBPF}
 \title[\sys{}]{\sys{}: Programmable OS-Level IFC Policy Enforcement for AI Agent Harnesses}
 
-\author{Paper \#XXX}
+\author{Paper \#479}
 \affiliation{%
   \institution{Anonymous Submission}
   \city{}
@@ -155,7 +155,11 @@ kernel IFC by covering
 indirect execution paths that tool-call
 interception cannot, while
 adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on
-kernel builds. On safety benchmark of 361 personal-assistant tasks,
+kernel builds. On 21 real coding tasks (Figure~\ref{fig:rq3}),
+a policy agent submitted 110 runtime deltas to refine
+rules for the task-executing sub-agent, improving
+task reward over baseline and tool-call hooks.
+On safety benchmark of 361 personal-assistant tasks,
 \sys{} prevents 74\% of
 baseline-unsafe behaviors
 using separate agent-generated
