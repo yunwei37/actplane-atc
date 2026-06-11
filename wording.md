@@ -108,6 +108,25 @@ Hyphenate compound adjectives before nouns:
 - cross-event, per-event, tool-level, tool-call, intent-level, system-level, OS-level
 - Exception: after a verb ("enforcement operates at the OS level") — no hyphen.
 
+## Policy isolation
+
+| Term | Meaning |
+|------|---------|
+| **policy isolation** | The property that each domain's rules govern only its subtree and cannot be weakened by descendants or affected by siblings. |
+
+Policy isolation is achieved through three mechanisms:
+
+1. **Domain hierarchy** (structure): a tree of domains; each process belongs to exactly one domain.
+2. **Layered authority** (upward immutability): a child domain inherits all parent rules and cannot remove, disable, or weaken any inherited rule.
+3. **Scoped enforcement** (downward scoping + lateral non-interference): rules added by a domain take effect only within that domain and its descendants; sibling domains' local rules do not affect each other.
+
+### Usage in paper
+
+- Use **"policy isolation"** as the top-level property name. Section §4.4 title: "Policy Isolation via Domain Hierarchy."
+- Use **"layered authority"** when discussing the specific mechanism that prevents weakening of inherited rules.
+- First occurrence (§4.4 opening): define all three components in one sentence. Subsequent uses can say "policy isolation" alone.
+- Do NOT use "resource isolation" or unqualified "isolation" interchangeably; policy isolation governs rule scope and mutability, not memory/fd/namespace boundaries.
+
 ## Words to avoid in paper text
 
 - **Em-dashes (`---`)**: use commas, semicolons, or parentheses instead. Table cells using `---` for "not applicable" are OK.
