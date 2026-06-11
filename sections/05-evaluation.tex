@@ -368,7 +368,8 @@ with 217 tasks spanning system prompts, tool schemas, project
 files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries.
 We use the official evaluator unchanged. Because \sys{}
 cannot observe purely semantic checks (e.g., tone), 
-we select a 21-task subset whose user-query checklist contains at least
+we select a 21-task (61 rules) subset whose user-query 
+checklist contains at least
 one targeted OS-enforceable item
 (command, file operation,  tool-execution).
 The selected subset spans \texttt{CLAUDE.md},
@@ -399,7 +400,7 @@ official LLM-based checklist judge.
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/octobench_rq3.png}
-\caption{OctoBench 21-task subset: reward breakdown by system.}
+\caption{OctoBench 21-task (61 DSL rules) subset: reward breakdown by system.}
 \Description{Grouped bar chart of baseline, Claude Code hooks, and \sys{}
 reward components.}
 \label{fig:octobench-rq3}
