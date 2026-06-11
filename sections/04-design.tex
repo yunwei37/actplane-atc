@@ -1,8 +1,10 @@
 \section{Design}
 \label{sec:design}
 
-\sys{} is a runtime-agnostic, programmable OS-level policy enforcement
-system that provides the four requirements identified above.
+\sys{} is a runtime-agnostic, 
+programmable OS-level policy enforcement
+system that provides the four requirements
+identified above.
 To achieve them, two challenges exist:
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
@@ -36,11 +38,14 @@ but must not weaken constraints.
 (Figure~\ref{fig:architecture}): a policy DSL
 (\S\ref{sec:dsl}) that lets agents express policy intent
 in a representative form close
-to natural language,
-compilable to kernel policies (C1), a labeled information-flow model
-(\S\ref{sec:ifc}) that tracks cross-event state at OS level (C1),
+to natural language (C1), The compiler 
+lowers the DSL into fixed-size kernel config. 
+a labeled information-flow state machine model
+(\S\ref{sec:ifc}) that tracks cross-event 
+state at OS level (C1),
 and a layered authority model (\S\ref{sec:authority}) that lets agents
-adapt policy at runtime without weakening inherited rules (C2).
+adapt policy at runtime without weakening 
+inherited rules (C2).
 When a rule fires, \sys{} returns semantic feedback: the rule name,
 reason, and a remediation path.
 
@@ -126,39 +131,53 @@ content-level checks are out of scope.
 
 The DSL lets agents express policy intent 
 as enforceable system actions.
-A policy contains \emph{sources} 
+The DSL mainly targets the policy shapes 
+that recur in agent instruction
+files: prohibit a command, restrict
+writes to a scope, block a sink after
+a sensitive read, and
+route sensitive data through an approved tool.
+
+A policy in DSL contains \emph{sources} 
 that introduce labels,
 \emph{rules} that match labeled events
  at sinks, and optional
 \emph{gates} that express cross-event 
 ordering constraints. The
 DSL restricts expressiveness 
-to source/sink/gate patterns that compile
-to fixed-size data. Appendix
-~\ref{sec:appendix:dsl-grammar}
-gives the concrete grammar.
-
+to source/sink/gate patterns. 
 Sources bind labels to system objects: 
 an \texttt{exec} source labels
 processes that execute a matching binary; 
 a \texttt{file} source labels
 matching paths; a network source labels 
-matching endpoints.
+matching endpoints. Appendix
+~\ref{sec:appendix:dsl-grammar}
+gives the concrete grammar.
 
 Rules bind an
 effect to an operation (e.g. \texttt{exec}, \texttt{open}):
-\texttt{block} synchronously denies the syscall pre-operation
-(no TOCTOU gap; the agent continues and can retry a different action),
-\texttt{kill} terminates the offending process post-operation
+\texttt{block} synchronously 
+denies the syscall pre-operation
+(no TOCTOU gap; the agent continues 
+and can retry a different action),
+\texttt{kill} terminates the offending 
+process post-operation
 (preventing it from trying alternative channels),
-and \texttt{notify} only reports without preventing execution.
-For example, \texttt{block write} suits an agent writing to a
+and \texttt{notify} only reports without
+ preventing execution.
+For example, \texttt{block write} suits
+ an agent writing to a
 wrong directory, while \texttt{kill write} 
-suits a compromised agent writing outside its sandbox that should not continue.
-\texttt{block} and \texttt{kill} enforce constraints (``do not X'')
-while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
+suits a compromised agent writing 
+outside its sandbox that should not continue.
+\texttt{block} and \texttt{kill} 
+enforce constraints (``do not X'')
+while \texttt{notify} observes 
+instructions (``do X'')~\cite{zhang2026guardrails}.
 A rule may also specify a target allow-list
-to restrict which paths or endpoints it applies to.
+to restrict which paths or endpoints
+it applies to.
 
 Labels track provenance but are monotonic; 
 gates complement them
@@ -213,12 +232,6 @@ compliant only if \texttt{go test} ran and exited successfully
 The third is also cross-event but uses a notify effect:
 the agent is reminded, not blocked, when committing after a schema change
 without re-running the code generator.
-
-The DSL mainly targets the policy shapes that recur in agent instruction
-files: prohibit a command, restrict writes to a scope, block a sink after
-a sensitive read, and
-route sensitive data through an approved tool. The compiler lowers these
-patterns into fixed-size kernel tables.
 
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
