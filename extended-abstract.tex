@@ -147,15 +147,19 @@ notify (observe), block (pre-operation denial), or kill (process
 termination). A layered authority model ensures that higher-authority
 rules (e.g., global ``do not leak secrets'') cannot be weakened by
 agent-authored policy.
-On our decision-compliance benchmark,
+On decision-compliance benchmark,
 \sys{} resolves 2.0--3.2$\times$ more violations
-than prompt-filter, tool-regex, FIDES~\cite{costa2025fides} (tool-level IFC), and feedback-free kernel IFC by covering indirect execution paths that tool-call
+than prompt-filter, tool-regex, FIDES~\cite{costa2025fides}
+(tool-level IFC), and feedback-free
+kernel IFC by covering
+indirect execution paths that tool-call
 interception cannot, while
-adding 1.9\% end-to-end overhead on agent workloads and 8.4\% on
-I/O-intensive kernel builds. On a third-party safety benchmark of 361
-workplace and personal-assistant tasks, \sys{} prevents 74\% of
-baseline-unsafe behaviors additionally
-using separate agent-generated policies before unsafe execution.
+adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on
+kernel builds. On safety benchmark of 361 personal-assistant tasks,
+\sys{} prevents 74\% of
+baseline-unsafe behaviors
+using separate agent-generated
+policies before unsafe execution as in higher authority path.
 
 \begin{figure}[t]
 \centering

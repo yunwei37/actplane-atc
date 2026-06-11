@@ -167,6 +167,10 @@ route sensitive data through an approved tool. The compiler lowers these
 patterns into fixed-size kernel tables; policy authors need not reason
 about BPF maps, verifier constraints, or binary layout.
 
+The engine supports up to 128 concurrent rules, sized to cover the
+largest observed repository (66 OS-enforceable directives) with margin
+for layered authority composition.
+
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
 
