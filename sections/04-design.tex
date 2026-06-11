@@ -106,18 +106,24 @@ A policy contains \emph{sources} that introduce labels,
 \emph{gates} that express cross-event ordering constraints. The
 DSL restricts expressiveness to source/sink/gate patterns that compile
 to fixed-size data. Appendix~\ref{sec:appendix:dsl-grammar}
-gives the concrete grammar.  \arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
+gives the concrete grammar.  %\arq{It is awkward to reference eBPF (a system-level, maybe even impl level thing) when discussing language design}
 
 Sources bind labels to system objects: an \texttt{exec} source labels
 processes that execute a matching binary; a \texttt{file} source labels
 matching paths; a network source labels matching endpoints. Rules bind an
-effect (\texttt{notify}, \texttt{block}, or \texttt{kill}) to an
-operation (e.g. \texttt{exec}, \texttt{open}). Conditions express common agent
+effect to an operation (e.g. \texttt{exec}, \texttt{open}):
+\texttt{block} denies the syscall pre-operation,
+\texttt{kill} terminates the offending process post-operation,
+and \texttt{notify} only reports without preventing execution;
+\texttt{block} and \texttt{kill} enforce constraints (``do not X'')
+while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
+Conditions express common agent
 workflow constraints: a target allow-list, a lineage gate, or a temporal
 \texttt{after~...~since~...} ordering gate. An \texttt{exits~$N$} qualifier
 on the gate command requires the gating process to terminate with exit
-code~$N$, distinguishing a successful run from a crashed or failing one. \arq{This is extremely challenging to understand.  The examples don't really help since they're complex and it is not clear what abstraction relates to each of the lines.}
-\arq{in the second example, why isn't the `exec ``go''` a source? I would have thought that the `exec ``go''` would introduce a new label called ``tested'', and that `write **/*.go` would introduce a new label called ``written'', and we would have something about how you can only execute `git commit' if the AGENT is in state tested.  Another issue: `exec ``go''' doesn't actualy ensure that tests ran,  it just means that `go' ran. Isn't that insufficient for the second rule?}
+code~$N$, distinguishing a successful run from a crashed or failing one.
+%\arq{This is extremely challenging to understand.  The examples don't really help since they're complex and it is not clear what abstraction relates to each of the lines.}
+%\arq{in the second example, why isn't the `exec ``go''` a source? I would have thought that the `exec ``go''` would introduce a new label called ``tested'', and that `write **/*.go` would introduce a new label called ``written'', and we would have something about how you can only execute `git commit' if the AGENT is in state tested.  Another issue: `exec ``go''' doesn't actualy ensure that tests ran,  it just means that `go' ran. Isn't that insufficient for the second rule?}
 
 \begin{figure}[t]
 \begin{verbatim}
@@ -156,22 +162,14 @@ with a kill effect: committing is
 compliant only if the required test command ran and exited successfully
 (\texttt{exits~0}) after the most recent source write. The third is also cross-event but uses a notify effect:
 the agent is reminded, not blocked, when committing after a schema change
-without re-running the code generator.  \arq{Its unclear what the real semantic differences are between notify and block.  If an agent is blocked, can it not try again? If it is notified, is its execution not prevented?  These seem like the same operator in this case. It isn't clear to me what kill vs. block do either. I assume that kill destroys the agent, but I don't know what semantics that conveys?}
-\yusheng{kill does not always destroy the agent, just destroy the command running in the tools. It can terminate the agent.
-}
-
-Instruction-file directives naturally split into negative constraints
-(``do not X'') and positive goals (``do X''), which affect agent
-behavior differently~\cite{zhang2026guardrails}; block and kill enforce
-negative constraints, while notify reminds the agent of positive goals without overriding
-its planning.
+without re-running the code generator.
 
 The DSL mainly targets the policy shapes that recur in agent instruction
 files: prohibit a command, restrict writes to a scope, block a sink after
 a sensitive read, and
 route sensitive data through an approved tool. The compiler lowers these
 patterns into fixed-size kernel tables.
-Extending \texttt{op\_pattern} and temporal gates is a natural next step.
+Extending \texttt{op\_pattern} and temporal gates remains future work.
 
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
@@ -266,7 +264,8 @@ consumed directly by the eBPF loader. Human-readable rule names and
 reasons stay in userspace metadata; the kernel receives only compact rule
 tables and emits rule identifiers when events match.
 
-The eBPF engine attaches to process, file, and network hooks via
+The eBPF engine attaches to process, file, and network hooks
+(exec, open, read, write, unlink, connect, fork, exit) via
 BPF-LSM for pre-operation enforcement (block effects) and tracepoints
 for observation and post-operation termination (kill effects),
 maintaining label state in per-object BPF maps.
