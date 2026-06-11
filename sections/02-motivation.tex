@@ -2,28 +2,42 @@
 \label{sec:background}
 
 \textbf{AI agents and harnesses.}
-AI agents combine model reasoning with external tools, memory and long-running environment, such as Claude
-Code~\cite{anthropic2025claudecode}, Codex
-CLI~\cite{openai2025codex}, Cursor~\cite{cursor2025}, Devin~\cite{devin2025},
-SWE-agent~\cite{yang2024sweagent}, and
-OpenHands~\cite{wang2025openhands}. Agents operate through an
-\emph{AI agent harness}: software around the model that maintains the
-agent loop and session state, routes tool calls, mediates shell, file,
+AI agents combine model reasoning with 
+external tools, memory and long-running 
+environment, such as Claude
+Code~\cite{anthropic2025claudecode}, 
+Codex~\cite{openai2025codex},
+Devin~\cite{devin2025}, and
+OpenHands~\cite{wang2025openhands}. 
+Agents operate through an
+\emph{AI agent harness}: 
+software around the model that maintains the
+agent loop and session 
+state, routes tool calls, mediates shell, file,
 and network access, and returns results or feedback to the model,
 improving agent performance while enforcing behavioral
-constraints~\cite{langchain-harness,fowler-harness}. A single tool
-invocation can run arbitrary scripts, browse untrusted content, call APIs, spawn subprocesses, and touch many
-files and endpoints before control returns to the model~\cite{debenedetti2024agentdojo,zhan2024injecagent,
-chennabasappa2025llamafirewall}, To improve task performance, safety and compliance, projects often encode
-behavioral expectations in natural-language files (\texttt{CLAUDE.md},
-\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,
-chatlatanagulchai2025agentreadmes,santos2025claudeconfig,
-lulla2026agentsmd} or deterministic policy configurations over what the 
-agent should do, avoid, or condition on project and task context. 
-When the agent pursues its high-level goal, e.g. implement a feature 
+constraints~\cite{langchain-harness,fowler-harness}.
+A single tool
+invocation can run arbitrary scripts, 
+browse untrusted content, call APIs,
+and touch many
+files~\cite{debenedetti2024agentdojo,
+zhan2024injecagent,
+chennabasappa2025llamafirewall}. 
+To improve task performance, safety and compliance, 
+projects often encode
+behavioral expectations in natural-language 
+files (\texttt{CLAUDE.md},
+\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,santos2025claudeconfig,
+lulla2026agentsmd} or deterministic 
+policy configurations over what the 
+agent should do or avoid. 
+When the agent pursues its high-level 
+goal, e.g. implement a feature 
 or book a flight, the harness
-must enforce constraints over \emph{system actions}: concrete commands,
-file operations, network connections, and subprocess effects.
+must enforce constraints over 
+\emph{system actions}: concrete effects
+happens on the system.
 
 \textbf{AI agent policy enforcement.}
 We use \emph{runtime policy enforcement system} for the part of an AI
