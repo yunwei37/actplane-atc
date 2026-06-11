@@ -15,8 +15,8 @@ software around the model that maintains the
 agent loop and session 
 state, routes tool calls, mediates shell, file,
 and network access, and returns results or feedback to the model,
-improving agent performance while enforcing behavioral
-constraints~\cite{langchain-harness,fowler-harness}.
+improving agent performance while enforcing instructions
+and constraints~\cite{langchain-harness,fowler-harness}.
 A single tool
 invocation can run arbitrary scripts, 
 browse untrusted content, call APIs,
@@ -35,15 +35,15 @@ agent should do or avoid.
 When the agent pursues its high-level 
 goal, e.g. implement a feature 
 or book a flight, the harness
-needs to enforce constraints over 
+needs to enforce policy over 
 \emph{system actions}: concrete effects
 that happen on the system.
 
 \textbf{AI agent policy enforcement.}
 We use \emph{runtime policy enforcement
 system} for the part of an AI
-agent harness that enforces safety, 
-security, and compliance constraints
+agent harness that enforces safety,
+security, and compliance policies
 while the agent executes. Existing 
 enforcement operates at three levels.
 Prompt instructions rely on the 
