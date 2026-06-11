@@ -89,32 +89,13 @@ statically pre-written policies and return opaque errors with no
 connection to agent intent.
 
 \textbf{Information-flow control.}
-Information-flow control (IFC) tracks how data 
-moves from
-sources to sinks over time. Static IFC 
-systems embed flow constraints in
-type systems or language annotations
-~\cite{myers1999jflow}. Dynamic IFC
-and provenance systems attach labels to 
-OS objects and propagate them at
-runtime: when a process reads a labeled 
-file, the process acquires that label;
-when it forks, the child inherits
-it~\cite{enck2010taintdroid,clause2007dytan,pasquier2017camflow,
-schwartz2010taint}. Later
-operations are checked against the 
-accumulated label state. OS-level IFC
-systems such as Flume~\cite{flume} and 
-HiStar~\cite{zeldovich2006histar}
-enforce flow policies across processes 
-and files in the kernel, while whole-system provenance frameworks such as
-PASS~\cite{muniswamy2006pass}, 
-Hi-Fi~\cite{pohly2012hifi},
-LPM~\cite{bates2015lpm}, CamFlow~\cite{pasquier2017camflow}, and CamQuery~\cite{pasquier2018camquery} record and query cross-event label
-histories. IFC thus captures constraints 
-whose correctness depends on execution history, which is the same pattern that agent behavioral
-directives (``run tests before committing'')
- exhibit.
+Information-flow control (IFC) tracks how data moves from sources to
+sinks by attaching labels to OS objects and propagating them at
+runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
+Later operations are checked against accumulated label state.
+IFC thus captures constraints whose correctness depends on execution
+history, the same pattern that agent behavioral directives
+(``run tests before committing'') exhibit.
 
 \section{Empirical Study}
 \label{sec:empirical}
