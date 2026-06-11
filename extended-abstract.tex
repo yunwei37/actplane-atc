@@ -95,7 +95,7 @@ enforcement, and feedback loop.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_family_breakdown.pdf}
-\caption{Policy compliance rate by execution-path type. Each cell shows the fraction of correctly resolved traces for a system (row) and path type (column). \sys{}'s advantage concentrates on indirect paths (subprocess scripts, opaque fixtures) invisible to tool-call baselines.}
+\caption{Decision Compliance Rate (DCR, \%) by execution-path type and system. DCR is the fraction of traces where the system produces the correct enforcement outcome. Rows are path types: \emph{allowed-effect/lookalike} are compliant traces; \emph{direct} violations use a tool call; \emph{script} violations split the action across a subprocess; \emph{hidden} violations embed the action in an artifact whose entrypoint appears benign. \sys{}'s advantage concentrates on script and hidden paths invisible to tool-call baselines.}
 \Description{Heatmap of directive compliance rate by trace family and system.}
 \label{fig:rq1}
 \end{figure}
