@@ -68,7 +68,7 @@ tool starts executing: an indirect subprocess,
 a shell-out, or a compiled binary 
 can bypass the tool boundary.
 What remains missing is the connection 
-between AI agent intent and
+between natural-language policy intent and
 project or task context on one side, 
 and deterministic OS-level
 observation and enforcement on the other. 
@@ -86,7 +86,7 @@ KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
 restrict process, file, and network access below the tool layer
 and are increasingly adopted as agent sandboxes, but they expect
 statically pre-written policies and return opaque errors with no
-connection to agent intent.
+connection to policy intent.
 
 \textbf{Information-flow control.}
 Information-flow control (IFC) tracks how data moves from sources to
@@ -94,7 +94,7 @@ sinks by attaching labels to OS objects and propagating them at
 runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
 Later operations are checked against accumulated label state.
 IFC thus captures constraints whose correctness depends on execution
-history, the same pattern that agent behavioral directives
+history, the same pattern that agent instructions and constraints
 (``run tests before committing'') exhibit.
 
 \section{Empirical Study}

@@ -38,7 +38,7 @@ run tests before committing.
 A major part of the agent harness is a policy engine that
 enforces these constraints deterministically over the agent's actions.
 Yet existing policy engines fail to connect 
-agent intent to system-level actions, 
+policy intent to system-level actions, 
 leaving a \emph{semantic gap}.
 83\% of directives include system-level 
 events, where tool-call guardrails can
@@ -49,7 +49,7 @@ sandbox-style mechanisms
 contain process, file, and network 
 actions but expect static policy, making them
 hard to evaluate the 74\% of rules that
-need intent-level project or task context, 
+need policy-level project or task context, 
 returning errors without context, further confusing the agent.
 
 Our key observation is that while safety constraints are inherited, 
