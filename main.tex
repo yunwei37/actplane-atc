@@ -28,15 +28,20 @@
   \country{}}
 
 \begin{abstract}
-AI agents increasingly run in production for coding, DevOps and work assistance. 
-They operate through harnesses, including agent loop,
-tools and memory, and constraints for safety and effectiveness. 
-Constraints are often in natural language or configuration: 
+AI agents increasingly run in production for 
+coding, DevOps and work assistance. 
+They operate through harnesses, 
+the software runtime around the LLM.
+A major part of the agent harness 
+is a policy engine that
+enforces policies for 
+safety and effectiveness
+over the agent's actions.
+Policies are often in natural 
+language or configuration:
 our empirical study finds that 64\% of
 instruction-file statements are directives, e.g. do not leak secrets, 
-run tests before committing. 
-A major part of the agent harness is a policy engine that
-enforces these constraints deterministically over the agent's actions.
+run tests before committing.
 Yet existing policy engines fail to connect 
 policy intent to system-level actions, 
 leaving a \emph{semantic gap}.
@@ -48,9 +53,10 @@ occurs in 81\% of projects. OS-level
 sandbox-style mechanisms 
 contain process, file, and network 
 actions but expect static policy, making them
-hard to evaluate the 74\% of rules that
-need policy-level project or task context, 
-returning errors without context, further confusing the agent.
+hard to enforce the 74\% of rules that
+need intent-level project or task context, 
+returning errors without context, 
+further confusing the agent.
 
 Our key observation is that while safety constraints are inherited, 
 the required context for compliance is mainly within 
