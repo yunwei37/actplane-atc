@@ -523,15 +523,17 @@ systems~\cite{enck2010taintdroid,clause2007dytan,kemerlis2012libdft,yin2007panor
 operate at byte or instruction granularity for vulnerability detection;
 \sys{} operates at object granularity, trading precision for low-overhead
 whole-session coverage.
-
-\textbf{eBPF enforcement.}
-Crab~\cite{wu2026crab} uses eBPF to help C/R decision, Agentsight\cite{agentsight} use eBPF for Agent observability, while\sys{} focus on enforcing agents' behaviors. Contemporary eBPF tools such as Tetragon,
+Contemporary eBPF tools such as Tetragon,
 Tracee, and eBPF-PATROL~\cite{ciliumtetragon,aquasecuritytracee,ghimire2025ebpfpatrol} provide
 per-event predicates or single-channel lineage flags; \sys{} propagates
 multi-label information flow across channels and checks cross-event
 conditions.
 
-\textbf{Agent policy systems.} At the agent layer, programmable rails and guard agents
+\textbf{Agent policy systems.}
+Crab~\cite{wu2026crab} uses eBPF to help C/R decision,
+AgentSight~\cite{agentsight} uses eBPF for agent observability,
+while \sys{} focuses on enforcing agents' behaviors.
+At the agent layer, programmable rails and guard agents
 check prompts or action trajectories~\cite{rebedea2023nemo,xiang2025guardagent},
 and AgentSpec~\cite{wang2025agentspec} enforces deterministic guards at
 the tool-call boundary; \sys{} complements them below the tool API, where
