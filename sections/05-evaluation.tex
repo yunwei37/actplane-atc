@@ -75,8 +75,12 @@ in label expressions; 13 use \texttt{lineage-includes};
 and 9 use \texttt{target}.
 95 policies (15.7\%) define file sources for
 information-flow tracking beyond agent provenance.
-\texttt{declassify}/\texttt{endorse} transforms,
-are unused.
+\texttt{declassify}/\texttt{endorse} transforms
+are unused in this corpus; they are designed for
+agents to define approved paths that clear 
+accumulated
+labels, mitigating over-tainting from label
+monotonicity in longer sessions.
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
