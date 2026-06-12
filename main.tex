@@ -31,9 +31,8 @@
 \renewcommand{\authorsaddresses}{}
 
 \begin{abstract}
-AI agents increasingly run in production for 
-coding, DevOps and work assistance. 
-They operate through harnesses, 
+AI agents increasingly run in production 
+and operate through harnesses, 
 the software runtime around the LLM.
 A major part of the agent harness 
 is a policy engine that
@@ -67,9 +66,9 @@ agents closest to the project and task. To bridge the gap,
 we introduce \sys{}, a runtime-agnostic
 policy engine that allows agents to declare and enforce
 information-flow control (IFC) policies in the OS kernel
-with semantic feedback, under
-layered policy isolation that ensures
-higher-authority rules cannot be weakened.
+with semantic feedback. Layered policy domains 
+isolate agent policies and prevent weakening 
+of inherited constraints.
 We implement \sys{} with eBPF and evaluate it across empirically studied
 policies, coding tasks and safety benchmarks, showing 
 improved policy compliance that covers indirect execution paths
