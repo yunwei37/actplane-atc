@@ -160,7 +160,7 @@ a cross-event kill gate, and a cross-event notify gate.}
 \end{figure}
 
 Figure~\ref{fig:policy-example} illustrates 
-the three main rule shapes.
+three rule examples.
 The first is per-event: if the agent process
 deletes any file under the
 data mount, the event is blocked immediately.
@@ -177,7 +177,74 @@ the agent is reminded, not blocked, when
 without re-running the code generator.
  Appendix
 ~\ref{sec:appendix:dsl-grammar}
-gives the concrete grammar pf the DSL.
+gives the concrete grammar of the DSL.
+
+\subsection{Labeled Information-Flow}
+\label{sec:ifc}
+
+The source-to-target constraints in the DSL
+require tracking which objects have been
+reached by which sources, especially across
+events. 
+
+\sys{} implements this with labels
+on OS objects. Processes, files,
+and network endpoints each carry a 
+label mask, enabling
+cross-boundary flow policies (e.g., 
+``data read from \texttt{.env} must
+not reach a network endpoint''). A 
+source declaration adds labels when an
+object matches the source pattern.
+Labels propagate via union along observed edges:
+a process acquires labels from executed
+ binaries, read files,
+and its parent at fork; written files 
+ connected endpoints
+acquire the process's labels. Unlink 
+triggers a rule check
+without propagation.
+
+This maintains a key invariant: 
+if an object carries
+label $\ell$, then information from 
+a source tagged with $\ell$ may have
+reached that object through observed 
+edges. Rules check whether
+an event's subject or target carries 
+required labels, carries forbidden
+labels, or satisfies a temporal gate.
+
+\sys{} trades precision for 
+low-overhead whole-session coverage, 
+since content 
+can be tracked by combining other tools 
+when necessary 
+(e.g. linter or static analyzer).
+Object-level labels capture indirect, 
+cross-event 
+patterns that tool-call filters or
+ per-event sandbox miss, 
+without incurring the complexity of
+byte-level taint tracking~\cite{kemerlis2012libdft}. 
+For efficiency, labels further summarize history:
+each rule checks masks and
+bounded predicates at the current event. This keeps cross-event
+enforcement without log reconstruction or
+history trace queries.
+
+Labels are monotonic: propagation 
+adds labels but never removes them.
+Once an object carries a label, subsequent
+ consumers inherit it.
+This ensures that cross-event constraints 
+remain checkable for the
+entire session without requiring 
+explicit label cleanup.
+As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
+on objects are irrevocable by default;
+declassification is delegated to the
+domain hierarchy (\S\ref{sec:authority}).
 
 \subsection{Threat Model}
 \sys{} assumes the agent, which starts after
@@ -248,62 +315,6 @@ entire process tree.
 Kernel compromise, \texttt{CAP\_BPF}
 compromise, side channels, and
 content-level checks are out of scope.
-
-\subsection{Labeled Information-Flow Model}
-\label{sec:ifc}
-
-\sys{} represents policy state as labels 
-on OS objects. Processes, files,
-and network endpoints each carry a label mask, enabling
-cross-boundary flow policies (e.g., ``data read from \texttt{.env} must
-not reach a network endpoint''). A source declaration adds labels when an
-object matches the source pattern.
-Labels propagate via union along observed edges:
-a process acquires labels from executed binaries, read files,
-and its parent at fork; written files and connected endpoints
-acquire the process's labels. Unlink triggers a rule check
-without propagation.
-
-This maintains a key invariant: 
-if an object carries
-label $\ell$, then information from 
-a source tagged with $\ell$ may have
-reached that object through observed 
-edges. Rules check whether
-an event's subject or target carries 
-required labels, carries forbidden
-labels, or satisfies a temporal gate.
-
-\sys{} trades precision for 
-low-overhead whole-session coverage, 
-since content 
-can be tracked by combining other tools 
-when necessary 
-(e.g. linter or static analyzer).
-Object-level labels capture indirect, 
-cross-event 
-patterns that tool-call filters or
- per-event sandbox miss, 
-without incurring the complexity of
-byte-level taint tracking~\cite{kemerlis2012libdft}. 
-For efficiency, labels further summarize history:
-each rule checks masks and
-bounded predicates at the current event. This keeps cross-event
-enforcement without log reconstruction or
-history trace queries.
-
-Labels are monotonic: propagation 
-adds labels but never removes them.
-Once an object carries a label, subsequent
- consumers inherit it.
-This ensures that cross-event constraints 
-remain checkable for the
-entire session without requiring 
-explicit label cleanup.
-As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
-on objects are irrevocable by default;
-declassification is delegated to the
-domain hierarchy (\S\ref{sec:authority}).
 
 \subsection{Layered Policy Domains}
 \label{sec:authority}
