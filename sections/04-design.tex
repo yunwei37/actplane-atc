@@ -368,8 +368,11 @@ re-detect violations; it only formats
 kernel-reported matches into semantic feedback. 
 The engine supports up to 128 concurrent rules, sized to cover the
 largest observed repository (66 OS-enforceable directives) with margin
-for layered authority composition. The eBPF checker derives the submitting domain from the
-caller's pid-to-domain mapping and admits updates only to the
+for layered domain composition. 
+The eBPF checker derives the submitting 
+domain from the
+caller's pid-to-domain mapping 
+and admits updates only to the
 submitting domain or its descendants.
 
 The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy
