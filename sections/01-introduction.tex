@@ -125,7 +125,7 @@ overhead. Third, since many rules are about safety,
 programmability must not become an authority bypass: agents
 cannot weaken inherited
 constraints set by separate
-trusted administrators, safety rules should
+trusted administrators, and safety rules should
 be installed separately.
 
 % ¶6: System — \sys{}
@@ -135,8 +135,8 @@ AI agent harnesses. Agents express
 policies in a DSL that
 \sys{} compiles into labeled 
 information-flow rules and
-loads them into an eBPF engine with processes, 
-files, and network kernel hooks.
+loads them into an eBPF engine with process,
+file, and network kernel hooks.
 Each rule has one of three effects:
 notify (observe) for instructions, 
 block (pre-operation denial on hooks) 
@@ -147,8 +147,8 @@ Layered policy domains isolate each agent's policy
 to its own subtree and prevent weakening
 of inherited constraints.
 On the decision-compliance benchmark,
-\sys{} resolves 2.0--3.2$\times$ more violations
-than prompt-filter, tool-regex, FIDES~\cite{costa2025fides}
+\sys{} resolves 2.0--3.2$\times$ as many violations
+as prompt-filter, tool-regex, FIDES~\cite{costa2025fides}
 (tool-level IFC), and feedback-free
 kernel IFC by covering
 indirect execution paths that tool-call

@@ -3,34 +3,35 @@
 
 \sys{} is a runtime-agnostic,
 programmable OS-level policy enforcement
-system designed to meet the four requirements
-above. Two key challenges arise:
+system designed to meet the two requirements
+above. Meeting them raises two key challenges:
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-The DSL should hide kernel complexity
-so that agents can write and modify
-deterministic policies with minimal
-expertise and token cost, which is
-feasible because most real policies are
-structurally simple (\S\ref{sec:eval:rq1}).
-Yet generating at the intent level is 
-too ambiguous to enforce,
-and generating at the syscall level 
-is costly and error-prone.
-The DSL needs to be
-\emph{high-level} enough for agents to easily
-express policy with minimal cost, yet
-\emph{concrete} enough to compile to kernel constraints
-and be enforced with low overhead.
+R1 and R2 pull in opposite directions:
+generating policy at the intent level
+is too ambiguous to enforce
+deterministically, while generating at
+the syscall level is costly and
+error-prone for agents.
+The specification needs to be
+\emph{high-level} enough for agents to
+write and modify with minimal expertise
+and token cost (R2), which is feasible
+because most real policies are
+structurally simple (\S\ref{sec:eval:rq1}),
+yet \emph{concrete} enough to compile to
+kernel constraints and enforce with low
+overhead (R1).
 
 \textbf{C2: Policy-isolated agent programmability}
-(\S\ref{sec:authority}). Agents need to adapt IFC policies
-at runtime (a sub-agent may need
-a narrower scope, or the current task
-may require a new constraint),
-but must not affect other agents' policies
-or weaken inherited constraints.
+(\S\ref{sec:authority}).
+R2's authority clause requires agents to
+adapt IFC policies at runtime (a sub-agent
+may need a narrower scope, or the current
+task may require a new constraint)
+without affecting other agents' policies
+or weakening inherited constraints.
 
 
 \sys{} addresses these challenges with three abstractions
@@ -41,13 +42,14 @@ to natural language, which a compiler
 lowers into a fixed-size kernel config;
 a labeled information-flow model
 (\S\ref{sec:ifc}) tracks cross-event
-state at OS level (C1); and layered
+state at OS level (together they
+address C1); and layered
 policy domains (\S\ref{sec:authority})
 let agents adapt policy at runtime
 without weakening inherited constraints (C2).
 When a rule fires, \sys{} returns semantic
 feedback: the rule name, reason, and
-a remediation path.
+a remediation path (the feedback half of R2).
 
 \begin{figure}[t]
 \centering
@@ -357,6 +359,7 @@ disable it and clear its labels within
 the authoring domain and descendants.
 Inherited safety labels and rules cannot be
 declassified, and the practical mitigation
+for the over-tainting they accumulate
 is process-level isolation.
 
 \section{Implementation}
