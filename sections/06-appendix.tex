@@ -48,7 +48,7 @@ since_event ::= "exec" PATTERN [ARG]
 \end{verbatim}
 \end{small}
 
-A source declaration introduces labels; it is not a conditional state
+A source declaration introduces labels but is not a conditional state
 transition rule. Each process, file, and endpoint carries a set of labels,
 implemented as a bit mask, so a process may carry multiple labels. A clause
 matches when its operation target matches, its \texttt{if} expression holds

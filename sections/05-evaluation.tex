@@ -76,7 +76,7 @@ and 9 use \texttt{target}.
 95 policies (15.7\%) define file sources for
 information-flow tracking beyond agent provenance.
 \texttt{declassify}/\texttt{endorse} transforms
-are unused in this corpus; they are designed for
+are unused in this corpus because they are designed for
 agents to define approved paths that clear 
 accumulated
 labels, mitigating over-tainting from label
@@ -367,7 +367,7 @@ the highest absolute added cost (3--69\,\textmu s at AP-100) but remain
 modest relative to their native latency because process-management and
 scheduler cost dominates the baseline.
 File operations (\texttt{open}, \texttt{write}) and \texttt{connect} are
-sub-microsecond natively; \sys{} adds a path-hash lookup and rule scan,
+sub-microsecond natively, but \sys{} adds a path-hash lookup and rule scan,
 raising \texttt{open} to 13.4\,\textmu s at AP-100.
 
 A one-rule hot reload
