@@ -319,9 +319,16 @@ To support this, \sys{} introduces
 A \emph{domain} is the runtime policy boundary
 for a process tree; it governs rule scope
 and mutability.
-\sys{} organizes these policies into a
-\emph{domain hierarchy} over labeled IFC state
-that spans process trees:
+\sys{} organizes domains into a
+\emph{domain hierarchy} over process trees. 
+A child domain inherits all parent rules
+and may add local rules, labels, or gates,
+ but cannot remove, disable,
+or weaken any inherited rule.
+Rules added by an agent take effect only 
+within its domain and descendants, so
+multiple agents on the same system
+can enforce different policies:
 
 \begin{small}
 \begin{verbatim}
@@ -330,16 +337,6 @@ domain -> parent + policy(domain)
 policy(D) = policy(parent(D)) + local(D)
 \end{verbatim}
 \end{small}
-
-\noindent A child domain inherits 
-all parent rules
-and may add local rules, labels, or gates,
- but cannot remove, disable,
-or weaken any inherited rule.
-Rules added by an agent take effect only 
-within its domain and descendants, so
-multiple agents on the same system
-can enforce different policies.
 
 To support runtime policy updates and
 declassification, \sys{}
@@ -373,9 +370,11 @@ labels is process-level isolation.
 \section{Implementation}
 \label{sec:implementation}
 
-\sys{} consists of a Rust userspace compiler/runner (~3.2\,K\,LoC) 
+\sys{} consists of a Rust userspace 
+compiler/runner (~3.2\,K\,LoC) 
 and an eBPF
-enforcement engine (~1.8\,K\,LoC of BPF C). The compiler parses the DSL,
+enforcement engine (~1.8\,K\,LoC of BPF C). 
+The compiler parses the DSL,
 lowers Boolean label expressions and path/network
 patterns, and emits a fixed-size \texttt{\#[repr(C)]} configuration blob
 consumed directly by the eBPF loader. Human-readable rule names and
@@ -406,10 +405,12 @@ The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy
 before the target starts, seeds the agent label, and records
 kernel-reported matches in a feedback file that agent hooks relay into
 the model's next turn.
-The authority checker runs entirely in the kernel eBPF engine. 
+The authority checker runs entirely
+in the kernel eBPF. 
 Each domain is a
 BPF map entry storing a parent pointer, an inherited-rule mask, and an
-inherited-label mask; pid-to-domain mappings are in a separate map.
+inherited-label mask; pid-to-domain 
+mappings are in a separate map.
 Runtime deltas arrive through a ring buffer; the checker resolves 
 the submitting domain via \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} 
 and rejects any delta that clears an inherited-mask bit or modifies
