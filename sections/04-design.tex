@@ -1,20 +1,18 @@
 \section{Design}
 \label{sec:design}
 
-\sys{} is a runtime-agnostic, 
+\sys{} is a runtime-agnostic,
 programmable OS-level policy enforcement
-system that provides the four requirements
-identified above.
-To achieve them, two challenges exist:
+system designed to meet the four requirements
+above. Two key challenges arise:
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-The DSL should hide kernel complexity 
-so agents can
-write and modify deterministic policies
-easily with minimal 
-expertise about kernel, DSL and token cost;
-most real policies are structurally 
+The DSL should hide kernel complexity
+so that agents can write and modify
+deterministic policies with minimal
+expertise and token cost;
+most real policies are structurally
 simple (\S\ref{sec:eval:rq1}).
 Yet generating at the intent level is 
 too ambiguous to enforce,
@@ -189,27 +187,26 @@ gives the concrete grammar of the DSL.
 Enforcing the DSL's source-to-target constraints
 requires tracking which sources have influenced
 which objects across the session.
-\sys{} implements this with a \emph{labeled
-information-flow} model.
-Following classical
+\sys{} does so with a \emph{labeled
+information-flow} model that, following classical
 IFC~\cite{flume,zeldovich2006histar},
-the model is a \emph{state machine}: each
+operates as a \emph{state machine}: each
 tracked object carries state that is updated
-at system events, so rules are checked
+at system events, so rules can be checked
 without reconstructing the history log.
 
-Rules need to check whether the subject
-or target has been influenced by certain sources.
-To support this, each process, file, and
-network endpoint carries a set of \emph{labels}.
+To determine whether a subject or target
+has been influenced by certain sources,
+each process, file, and network endpoint
+carries a set of \emph{labels}.
 Each source declaration in the DSL defines
-a label; when a system object matches
-a source pattern, the label is added.
-At each event, the engine checks whether
-the subject's and target's labels satisfy
-a rule's conditions (required labels present,
+a label that is added when a system object
+matches the source pattern.
+At each event the engine evaluates every
+rule against the subject's and target's
+labels (required labels present,
 forbidden labels absent, gate satisfied)
-and applies the rule's effect.
+and applies matching effects.
 
 Because cross-event rules depend on sources
 from earlier events, labels must
@@ -220,18 +217,19 @@ carries label~$\ell$, then information from
 a source tagged with~$\ell$ may have reached
 it through observed edges.
 
-For example, data read from \texttt{.env}
-acquires its source label; if that process
-later connects to an external endpoint,
-a rule forbidding that label at network
-targets fires and blocks the connection.
+For example, a process that reads
+\texttt{.env} acquires its source label;
+if that process later connects to an
+external endpoint, a rule forbidding
+that label at network targets fires
+and blocks the connection.
 
 To ensure no history is lost and cross-event
 constraints remain checkable for the entire
 session, labels are \emph{monotonic}:
-propagation adds labels but never removes them.
-Once an object carries a label, subsequent
-consumers inherit it.
+propagation adds labels but never removes them,
+so once an object carries a label all
+subsequent consumers inherit it.
 As in Flume~\cite{flume} and
 HiStar~\cite{zeldovich2006histar}, labels
 are irrevocable by default;
@@ -243,8 +241,8 @@ domain hierarchy (\S\ref{sec:authority}).
 which starts after
 \emph{higher-authority} policy is loaded and
 may author additional rules at runtime,
-may be unsafe or compromised. This
-follows the principle of
+may be unsafe or compromised,
+following the principle of
 self-restriction in Landlock~\cite{landlock}
 and Capsicum~\cite{watson2010capsicum}.
 The adversary's influence is bounded by
@@ -261,20 +259,19 @@ is higher-authority,
 regardless of whether a human or a separate
 policy-generation agent authored it.
 
-\sys{} provides two levels of
-assurance, by policy authority.
-Higher-authority rules can
-carry a safety and security assurance
-under our threat model.
-Agent-authored runtime rules are only a
-compliance assistance under a
+\sys{} provides two levels of assurance
+depending on policy authority.
+Higher-authority rules carry safety
+and security guarantees.
+Agent-authored runtime rules provide
+only compliance assistance under a
 cooperative-but-fallible model:
-enforcement is deterministic, an
-adversary controlling the agent at
+because enforcement is deterministic,
+an adversary controlling the agent at
 policy-generation time can only weaken
-self rules; the worst case degrades to
+its own rules; the worst case degrades to
 having no self-imposed rules,
-and cannot change inherited ones.
+but inherited ones remain intact.
 Given loaded rules, \sys{} enforces
 (1): agent-authored rules
 never weaken inherited constraints; and
@@ -282,27 +279,26 @@ never weaken inherited constraints; and
 delivered to a configured
 hook is checked.
 Whether a violation is caught
-depends on \emph{policy coverage}.
-Block is synchronous (no TOCTOU gap);
-kill is post-operation; notify is
+depends on \emph{policy coverage}:
+block effects are synchronous
+(no TOCTOU gap), kill effects are
+post-operation, and notify is
 observation-only.
 
 The TCB is the kernel enforcement
 engine and higher-authority blobs;
-the compiler and
-runner are outside it (bugs weaken
-only the agent's own rules).
-\sys{} covers indirect execution
+the compiler and runner are outside it
+(bugs weaken only the agent's own rules).
+Enforcement covers the agent's entire
+process tree, including indirect execution
 paths (subprocesses, shell wrappers)
-that produce exact hooked OS events;
-semantically equivalent operations
+that produce hooked OS events.
+Semantically equivalent operations
 and file contents are not covered,
 and hook types are limited by implementation
 (e.g., a custom Git client avoids
 \texttt{exec "git"} rules, but its
 connect/write syscalls remain visible).
-The policy enforcement covers the agent's
-entire process tree.
 Kernel compromise, \texttt{CAP\_BPF}
 compromise, side channels, and
 content-level checks are out of scope.
@@ -311,20 +307,20 @@ content-level checks are out of scope.
 \label{sec:authority}
 
 Agents need to adapt policy at runtime
-(a sub-agent may need a narrower scope),
-but must not weaken constraints inherited
-from higher authority.
+(e.g., a sub-agent may need a narrower scope),
+but doing so must not weaken constraints
+inherited from higher authority.
 
-To support this, \sys{} introduces 
-\emph{policy domain}.
-A \emph{domain} is the runtime policy boundary
-for a process tree; it governs rule scope
-and mutability.
-\sys{} organizes domains into a
-\emph{domain hierarchy} over process trees. 
+To support this, \sys{} introduces
+\emph{policy domains}, organized into
+a \emph{domain hierarchy}.
+Each \emph{domain} is the runtime policy
+boundary for a process tree,
+governing which rules apply and how they
+may be extended.
 A child domain inherits all parent rules
 and may add local rules, labels, or gates,
- but cannot remove, disable,
+but cannot remove, disable,
 or weaken any inherited rule.
 Rules added by an agent take effect only 
 within its domain and descendants, so
@@ -339,34 +335,29 @@ policy(D) = policy(parent(D)) + local(D)
 \end{verbatim}
 \end{small}
 
-To support runtime policy updates and
-declassification, \sys{}
-requires an \emph{authority checker} in
-the kernel:
-runtime policy additions are submitted
-as \emph{deltas} through a ring buffer,
-all
-permission checks
-remain in the kernel. A delta is
-accepted only if it
+To support runtime policy updates,
+\sys{} requires an \emph{authority checker}
+in the kernel.
+Agents submit precompiled \emph{deltas}
+through a ring buffer, and the checker
+validates each delta before it takes effect.
+A delta is accepted only if it
 introduces fresh labels, binds new rules,
-or narrows scope, without
-modifying inherited rules, labels,
-or effects;
-a delta cannot create
-labels that satisfy an inherited exception
-gate unless higher-authority
-policy explicitly defines that path.
-Accepted deltas are merged into
-the domain's effective policy.
-Declassification follows the domain hierarchy:
-the author of a rule holds the declassification
-privilege. It can disable rules
-and clear labels within its own domain.
+or narrows scope without modifying
+inherited rules, labels, or effects;
+it cannot create labels that satisfy
+an inherited exception gate unless
+higher-authority policy explicitly
+defines that path.
+Once accepted, a delta is merged into the
+domain's effective policy.
+Declassification follows the domain
+hierarchy: the author of a rule can
+disable it and clear its labels within
+the authoring domain and descendants.
 Inherited labels and rules cannot be
-declassified;
-the recommended mitigation for inherited
-labels is process-level isolation.
+declassified; the practical mitigation
+is process-level isolation.
 
 \section{Implementation}
 \label{sec:implementation}
@@ -385,29 +376,25 @@ tables and emits rule identifiers when events match.
 The eBPF engine attaches to process, file, and network hooks
 (exec, open, read, write, unlink, connect, fork, exit) via
 BPF-LSM for pre-operation enforcement (block effects) and tracepoints
-for observation and post-operation termination (kill effects),
-maintaining label state as 64-bit bitmasks in per-object BPF maps;
+for observation and post-operation termination (kill effects).
+Label state is stored as 64-bit bitmasks in per-object BPF maps;
 propagation is a single bitwise OR.
 A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads
 the task exit code to arm exit-qualified gates only on
-normal termination with the specified status. Userspace does not 
-re-detect violations; it only formats
-kernel-reported matches into semantic feedback. 
+normal termination with the specified status.
+Userspace does not re-detect violations;
+it only formats kernel-reported matches
+into semantic feedback.
 The engine supports up to 128 concurrent rules, sized to cover the
 largest observed repository (66 OS-enforceable directives) with margin
-for layered domain composition. 
-The eBPF checker derives the submitting 
-domain from the
-caller's pid-to-domain mapping 
-and admits updates only to the
-submitting domain or its descendants.
+for layered domain composition.
 
 The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy
 before the target starts, seeds the agent label, and records
 kernel-reported matches in a feedback file that agent hooks relay into
 the model's next turn.
 The authority checker runs entirely
-in the kernel eBPF. 
+in the kernel eBPF engine.
 Each domain is a
 BPF map entry storing a parent pointer, an inherited-rule mask, and an
 inherited-label mask; pid-to-domain 
