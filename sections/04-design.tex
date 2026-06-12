@@ -163,17 +163,17 @@ a cross-event kill gate, and a cross-event notify gate.}
 
 Figure~\ref{fig:policy-example} illustrates 
 three rule examples.
-The first is per-event: if the agent process
+The first is per-event, so if the agent process
 deletes any file under the
 data mount, the event is blocked immediately.
 The second is cross-event
-with a kill effect: committing is
+with a kill effect, where committing is
 compliant only if \texttt{go test} ran 
 and exited successfully
 (\texttt{exits~0}) after the most recent
 source write. 
 The third is also cross-event but uses 
-a notify effect:
+a notify effect, so
 the agent is reminded, not blocked, when
  committing after a schema change
 without re-running the code generator.
@@ -218,8 +218,8 @@ a source tagged with~$\ell$ may have reached
 it through observed edges.
 
 For example, a process that reads
-\texttt{.env} acquires its source label;
-if that process later connects to an
+\texttt{.env} acquires its source label.
+If that process later connects to an
 external endpoint, a rule forbidding
 that label at network targets fires
 and blocks the connection.
@@ -232,7 +232,7 @@ so once an object carries a label all
 subsequent consumers inherit it.
 As in Flume~\cite{flume} and
 HiStar~\cite{zeldovich2006histar}, labels
-are irrevocable by default;
+are irrevocable by default, and
 declassification is delegated to the
 domain hierarchy (\S\ref{sec:authority}).
 
@@ -245,13 +245,12 @@ may be unsafe or compromised,
 following the principle of
 self-restriction in Landlock~\cite{landlock}
 and Capsicum~\cite{watson2010capsicum}.
-The adversary's influence is bounded by
-the enforced agent's normal capabilities;
-the kernel enforcement engine and
-higher-authority policy are
-loaded by a privileged process before
-the agent starts and are not
-writable by the agent.
+Because the kernel enforcement engine and
+higher-authority policy are loaded by a
+privileged process before the agent starts
+and are not writable by the agent,
+the adversary's influence is bounded by
+the enforced agent's normal capabilities.
 The \emph{trust boundary} is temporal:
 any pre-defined rule loaded into the
 kernel before the enforced agent starts
@@ -269,14 +268,13 @@ cooperative-but-fallible model:
 because enforcement is deterministic,
 an adversary controlling the agent at
 policy-generation time can only weaken
-its own rules; the worst case degrades to
+its own rules, and the worst case degrades to
 having no self-imposed rules,
 but inherited ones remain intact.
-Given loaded rules, \sys{} enforces
-(1): agent-authored rules
-never weaken inherited constraints; and
-(2): every event
-delivered to a configured
+Given loaded rules, \sys{} enforces two
+properties: (1)~agent-authored rules
+never weaken inherited constraints, and
+(2)~every event delivered to a configured
 hook is checked.
 Whether a violation is caught
 depends on \emph{policy coverage}:
@@ -285,10 +283,11 @@ block effects are synchronous
 post-operation, and notify is
 observation-only.
 
-The TCB is the kernel enforcement
-engine and higher-authority blobs;
-the compiler and runner are outside it
-(bugs weaken only the agent's own rules).
+The TCB comprises the kernel enforcement
+engine and higher-authority blobs, while
+the compiler and runner sit outside it,
+so their bugs weaken only the agent's
+own rules.
 Enforcement covers the agent's entire
 process tree, including indirect execution
 paths (subprocesses, shell wrappers)
@@ -337,26 +336,28 @@ policy(D) = policy(parent(D)) + local(D)
 
 To support runtime policy updates,
 \sys{} requires an \emph{authority checker}
-in the kernel.
+that runs entirely in the kernel.
 Agents submit precompiled \emph{deltas}
-through a ring buffer, and the checker
-validates each delta before it takes effect.
+through a userspace ring buffer,
+and the checker validates each delta
+before it takes effect.
 A delta is accepted only if it
 introduces fresh labels, binds new rules,
 or narrows scope without modifying
-inherited rules, labels, or effects;
-it cannot create labels that satisfy
-an inherited exception gate unless
-higher-authority policy explicitly
+inherited rules, labels, or effects.
+In particular, a delta cannot create labels
+that satisfy an inherited exception gate
+unless higher-authority policy explicitly
 defines that path.
-Once accepted, a delta is merged into the
+Accepted deltas are merged into the
 domain's effective policy.
 Declassification follows the domain
-hierarchy: the author of a rule can
+hierarchy: the author of a rule holds
+the declassification privilege and can
 disable it and clear its labels within
 the authoring domain and descendants.
-Inherited labels and rules cannot be
-declassified; the practical mitigation
+Inherited safety labels and rules cannot be
+declassified, and the practical mitigation
 is process-level isolation.
 
 \section{Implementation}
@@ -369,21 +370,22 @@ enforcement engine (~1.8\,K\,LoC of BPF C).
 The compiler parses the DSL,
 lowers Boolean label expressions and path/network
 patterns, and emits a fixed-size \texttt{\#[repr(C)]} configuration blob
-consumed directly by the eBPF loader. Human-readable rule names and
-reasons stay in userspace metadata; the kernel receives only compact rule
-tables and emits rule identifiers when events match.
+consumed directly by the eBPF loader. Human-readable rule names and reasons stay
+in userspace metadata, so the kernel receives
+only compact rule tables and emits rule
+identifiers when events match.
 
 The eBPF engine attaches to process, file, and network hooks
 (exec, open, read, write, unlink, connect, fork, exit) via
 BPF-LSM for pre-operation enforcement (block effects) and tracepoints
 for observation and post-operation termination (kill effects).
-Label state is stored as 64-bit bitmasks in per-object BPF maps;
-propagation is a single bitwise OR.
+Label state is stored as 64-bit bitmasks in per-object BPF maps,
+and propagation reduces to a single bitwise OR.
 A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads
 the task exit code to arm exit-qualified gates only on
 normal termination with the specified status.
-Userspace does not re-detect violations;
-it only formats kernel-reported matches
+Userspace does not re-detect violations
+but only formats kernel-reported matches
 into semantic feedback.
 The engine supports up to 128 concurrent rules, sized to cover the
 largest observed repository (66 OS-enforceable directives) with margin
@@ -394,13 +396,16 @@ before the target starts, seeds the agent label, and records
 kernel-reported matches in a feedback file that agent hooks relay into
 the model's next turn.
 The authority checker runs entirely
-in the kernel eBPF engine.
-Each domain is a
-BPF map entry storing a parent pointer, an inherited-rule mask, and an
-inherited-label mask; pid-to-domain 
-mappings are in a separate map.
-Runtime deltas arrive through a ring buffer; the checker resolves 
-the submitting domain via \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} 
-and rejects any delta that clears an inherited-mask bit or modifies
- an inherited effect.
+in the kernel eBPF engine, where each
+domain is a BPF map entry storing a parent
+pointer, an inherited-rule mask, and an
+inherited-label mask, with pid-to-domain
+mappings in a separate map.
+When a runtime delta arrives through the
+ring buffer, the checker resolves the
+submitting domain via
+\texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()}
+and rejects any delta that clears an
+inherited-mask bit or modifies an
+inherited effect.
 Extending \texttt{op\_pattern} and temporal gates remains future work.
