@@ -36,20 +36,20 @@ or weaken inherited constraints.
 
 
 \sys{} addresses these challenges with three abstractions
-(Figure~\ref{fig:architecture}). A policy DSL
-(\S\ref{sec:dsl}) that lets agents express policy intent
-in a representative form close
-to natural language. A compiler
-lowers the DSL into a fixed-size kernel config.
-A labeled information-flow state machine model
-(\S\ref{sec:ifc}) that tracks cross-event 
-state at OS level (C1). Layered
+(Figure~\ref{fig:architecture}):
+a policy DSL (\S\ref{sec:dsl}) lets agents
+express policy intent in a form close
+to natural language, which a compiler
+lowers into a fixed-size kernel config;
+a labeled information-flow model
+(\S\ref{sec:ifc}) tracks cross-event
+state at OS level (C1); and layered
 policy domains (\S\ref{sec:authority})
-that let agents
-adapt policy at runtime without weakening
-inherited constraints (C2).
-When a rule fires, \sys{} returns semantic feedback: the rule name,
-reason, and a remediation path.
+let agents adapt policy at runtime
+without weakening inherited constraints (C2).
+When a rule fires, \sys{} returns semantic
+feedback: the rule name, reason, and
+a remediation path.
 
 \begin{figure}[t]
 \centering
@@ -65,35 +65,36 @@ enforcement, and feedback loop.}
 \label{sec:dsl}
 
 The DSL lets agents express policy intent
-as enforceable system-level constraints. We
-observe that
-OS-enforceable directives from the empirical
-study share a common structure: they constrain
-operations from a source
-(a process, a file read) reaching a target
-(a file write, a network endpoint).
-Per-event directives match one operation;
-cross-event directives add history conditions.
-The DSL thus models both as source-to-target
-constraints. Thus, we map the directive to
-a \emph{rule} in the DSL.
+as enforceable system-level constraints.
+We observe that OS-enforceable directives
+from the empirical study share a common
+structure: each constrains how a
+\emph{source} (a process, a file, or an endpoint)
+may affect a \emph{target} (a file write,
+a network connection, or a command execution).
+Some directives match a single operation;
+others require cross-event history.
+The DSL captures both by mapping each
+directive to a \emph{rule} expressed as a
+source-to-target constraint.
 
-Each \emph{rule} encodes one OS-enforceable directive:
-it specifies a \emph{source} (which process or data),
-a \emph{target} operation, an \emph{effect} to apply
-when the source reaches the target,
+Each \emph{rule} encodes one directive
+with five components: a \emph{source},
+a \emph{target} operation, an \emph{effect},
 an optional temporal \emph{gate},
 and a \emph{reason} for semantic feedback.
 
-\emph{Sources} tag system objects:
-an \texttt{exec} source tags processes
-that execute a matching binary;
-a \texttt{file} source tags matching paths;
-a network source tags matching endpoints.
-A rule checks a source condition at a
-target operation
-(e.g.\ \texttt{exec}, \texttt{open})
-and applies one of three \emph{effects}:
+\emph{Sources} identify which system objects
+a rule applies to:
+an \texttt{exec} source matches processes
+by binary name, a \texttt{file} source
+matches paths, and a network source
+matches endpoints.
+When a source-tagged object performs a
+\emph{target} operation
+(e.g.\ \texttt{exec}, \texttt{open},
+\texttt{connect}),
+the engine applies one of three \emph{effects}:
 \texttt{block} synchronously
 denies the syscall pre-operation
 (no TOCTOU gap; the agent continues
@@ -116,19 +117,20 @@ A rule may also specify a target allow-list
 to restrict which paths or endpoints
 it applies to.
 
-Source labels record that an event occurred
-but not when; cross-event directives like
-``run tests before committing'' need ordering.
-\emph{Gates} fill this gap by tracking
-temporal ordering, such as whether a
-test ran after the most recent edit.
-Gate conditions include a lineage gate 
-or a temporal
-\texttt{after~...~since~...} ordering gate. 
-An \texttt{exits~$N$} qualifier
-on the gate command requires the gating process 
-to terminate with exit
-code~$N$, distinguishing a successful run from
+Some cross-event directives require
+temporal ordering: ``run tests before
+committing'' means tests must have run
+\emph{after} the most recent edit,
+not merely at some earlier point.
+\emph{Gates} capture this.
+A gate can check lineage
+(whether the subject descends from a
+particular source) or temporal sequence
+(\texttt{after~...~since~...}).
+An \texttt{exits~$N$} qualifier further
+requires the gating command to have
+terminated with exit code~$N$,
+distinguishing a successful run from
 a crashed or failing one.
 
 \begin{figure}[t]
@@ -209,11 +211,10 @@ a rule's conditions (required labels present,
 forbidden labels absent, gate satisfied)
 and applies the rule's effect.
 
-Cross-event rules must also reflect sources
-from earlier events, so labels 
-need to \emph{propagate}
-along OS data-flow edges
-(e.g. fork, exec, read, write, connect).
+Because cross-event rules depend on sources
+from earlier events, labels must
+\emph{propagate} along OS data-flow edges
+(fork, exec, read, write, connect).
 This maintains a key \emph{invariant}: if an object
 carries label~$\ell$, then information from
 a source tagged with~$\ell$ may have reached
