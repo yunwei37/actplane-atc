@@ -70,8 +70,8 @@ structure: each constrains how a
 \emph{source} (a process, a file, or an endpoint)
 may affect a \emph{target} (a file write,
 a network connection, or a command execution).
-Some directives match a single operation;
-others require cross-event history.
+Some directives match a single operation,
+while others require cross-event history.
 The DSL captures both by mapping each
 directive to a \emph{rule} expressed as a
 source-to-target constraint.
@@ -95,8 +95,8 @@ When a source-tagged object performs a
 the engine applies one of three \emph{effects}:
 \texttt{block} synchronously
 denies the syscall pre-operation
-(no TOCTOU gap; the agent continues
-and can retry a different action),
+(no TOCTOU gap, and the agent can
+retry a different action),
 \texttt{kill} terminates the offending
 process post-operation
 (preventing it from trying alternative channels),
@@ -162,25 +162,24 @@ a cross-event kill gate, and a cross-event notify gate.}
 \label{fig:policy-example}
 \end{figure}
 
-Figure~\ref{fig:policy-example} illustrates 
-three rule examples.
-The first is per-event, so if the agent process
-deletes any file under the
-data mount, the event is blocked immediately.
-The second is cross-event
-with a kill effect, where committing is
-compliant only if \texttt{go test} ran 
+Figure~\ref{fig:policy-example} illustrates
+three rules drawn from real projects.
+\texttt{no-delete-data} is per-event:
+if the agent deletes any file under the
+data mount, the syscall is blocked immediately.
+\texttt{tests-before-commit} adds a
+cross-event kill gate, so committing is
+allowed only if \texttt{go test} ran
 and exited successfully
 (\texttt{exits~0}) after the most recent
-source write. 
-The third is also cross-event but uses 
-a notify effect, so
-the agent is reminded, not blocked, when
- committing after a schema change
-without re-running the code generator.
- Appendix
-~\ref{sec:appendix:dsl-grammar}
-gives the concrete grammar of the DSL.
+source write.
+\texttt{regen-after-schema} uses a notify
+effect instead, reminding the agent
+(without blocking) when it commits after
+a schema change without re-running the
+code generator.
+Appendix~\ref{sec:appendix:dsl-grammar}
+gives the concrete grammar.
 
 \subsection{Labeled Information-Flow}
 \label{sec:ifc}
