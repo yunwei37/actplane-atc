@@ -193,36 +193,27 @@ Following classical
 IFC~\cite{flume,zeldovich2006histar},
 the model is a \emph{state machine}: each
 tracked object carries state that is updated
-at system events, and rules are checked
-at each event, making it lightweight
-without reconstructing
-the history log.
+at system events, so rules are checked
+without reconstructing the history log.
 
-Rules need to check at each event whether
-the subject or target has been influenced
-by certain sources. To support this,
-each process, file, and network endpoint
-carries a set of \emph{labels}.
+Rules need to check whether the subject
+or target has been influenced by certain sources.
+To support this, each process, file, and
+network endpoint carries a set of \emph{labels}.
 Each source declaration in the DSL defines
-a label. When a system object matches
+a label; when a system object matches
 a source pattern, the label is added.
-At each hooked event, the engine checks whether
+At each event, the engine checks whether
 the subject's and target's labels satisfy
-any rule's conditions (required labels present,
+a rule's conditions (required labels present,
 forbidden labels absent, gate satisfied)
 and applies the rule's effect.
 
-Cross-event rules need to check sources
-that influenced the subject through earlier
-events, so labels must \emph{propagate}
-along the principal OS data-flow edges
-between processes, files, and endpoints.
-At fork, the child inherits
-the parent's labels. At exec, source labels
-are added. A read copies the file's
-labels into the process; a write copies the
-process's labels into the file. A connect
-copies the process's labels to the endpoint.
+Cross-event rules must also reflect sources
+from earlier events, so labels 
+need to \emph{propagate}
+along OS data-flow edges
+(e.g. fork, exec, read, write, connect).
 This maintains a key \emph{invariant}: if an object
 carries label~$\ell$, then information from
 a source tagged with~$\ell$ may have reached
