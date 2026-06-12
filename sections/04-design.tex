@@ -4,11 +4,11 @@
 \sys{} is a runtime-agnostic,
 programmable OS-level policy enforcement
 system designed to meet the two requirements
-above. Meeting them raises two key challenges:
+above, each raising a key challenge:
 
 \textbf{C1: High-level yet kernel-enforceable policy specification}
 (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-R1 and R2 pull in opposite directions:
+R1 pulls in two directions:
 generating policy at the intent level
 is too ambiguous to enforce
 deterministically, while generating at
@@ -17,21 +17,22 @@ error-prone for agents.
 The specification needs to be
 \emph{high-level} enough for agents to
 write and modify with minimal expertise
-and token cost (R2), which is feasible
+and token cost, which is feasible
 because most real policies are
 structurally simple (\S\ref{sec:eval:rq1}),
 yet \emph{concrete} enough to compile to
-kernel constraints and enforce with low
-overhead (R1).
+deterministic kernel checks.
 
-\textbf{C2: Policy-isolated agent programmability}
+\textbf{C2: Safe, isolated, and efficient agent programmability}
 (\S\ref{sec:authority}).
-R2's authority clause requires agents to
+R2 requires agents to
 adapt IFC policies at runtime (a sub-agent
 may need a narrower scope, or the current
 task may require a new constraint)
 without affecting other agents' policies
-or weakening inherited constraints.
+or weakening inherited constraints, while
+the added enforcement must not slow the
+agent's normal workload.
 
 
 \sys{} addresses these challenges with three abstractions
@@ -46,10 +47,13 @@ state at OS level (together they
 address C1); and layered
 policy domains (\S\ref{sec:authority})
 let agents adapt policy at runtime
-without weakening inherited constraints (C2).
+without weakening inherited constraints
+(C2's safety and isolation), with a compact
+kernel representation that keeps enforcement
+within C2's efficiency budget (\S\ref{sec:eval:rq3}).
 When a rule fires, \sys{} returns semantic
 feedback: the rule name, reason, and
-a remediation path (the feedback half of R2).
+a remediation path (closing R1's feedback loop).
 
 \begin{figure}[t]
 \centering

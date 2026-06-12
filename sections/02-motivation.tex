@@ -318,15 +318,16 @@ directives are 95\% context-dependent, while content directives are
 
 \textbf{Summary}. These findings establish two requirements for
 a policy engine in AI agent harnesses.
-\emph{R1: deterministic OS-level cross-event enforcement at low
-overhead.} Many directives constrain system-level behavior that
-spans multiple operations and is invisible to tool-call guardrails
-(E-RQ3), so enforcement must observe OS events, track state across
-them, hold under probabilistic errors or prompt injection, and not
-slow the agent's normal workload.
-\emph{R2: agent-programmable policy with semantic feedback, under
-inherited authority.} Most rules need project or task context that
-resides with the agent (E-RQ4), so the agent must be able to define
-and adapt policy and must understand violations to recover, yet
-agent-authored policy must not weaken safety constraints set by
-higher authority.
+\emph{R1: agent-writable, OS-enforceable policy specification.}
+Most rules need project or task context that resides with the
+agent (E-RQ4), so the agent itself must be able to turn directives
+into concrete rules, and it needs semantic feedback to understand
+violations and recover. Yet many directives constrain system-level
+behavior that spans multiple operations and is invisible to
+tool-call guardrails (E-RQ3), so the rules must be concrete enough
+for deterministic OS-level cross-event enforcement.
+\emph{R2: safe, isolated, and efficient enforcement.}
+Enforcement must hold under probabilistic errors or prompt
+injection, agent-authored policy must not weaken safety constraints
+set by higher authority or affect other agents' policies, and
+enforcement must not slow the agent's normal workload.
