@@ -116,7 +116,7 @@ agent causes a system effect through an indirect or cross-event path.
 \paragraph{Rule set and scope.}
 RQ2 samples the subset of 607~OS-enforceable rules.
 Semantic-only and content directives are excluded: the former have no
-system-observable effect; the latter require linter
+system-observable effect, and the latter require linter
 rather than OS-level IFC.
 We evaluate 38 randomly-selected rules, sampling 2--3 from each of
 15 repositories to cover both per-event and cross-event rules, project-
@@ -125,15 +125,15 @@ final manifest contains 20 per-event and 18 cross-event rules.
 
 \paragraph{Traces.}
 A \emph{Codex CLI~\cite{openai2025codex} under GPT-5.5~\cite{openai2026gpt55}} reads the rule and repository to
-produce five traces; the policy DSL and all enforcement systems,
+produce five traces. The policy DSL and all enforcement systems,
 including \sys{}, are invisible to it to avoid information leakage.
 Each trace simulates real-world coding-agent tasks, including user prompts and
  tool calls that read and write files, execute shell commands,
 and invoke build or test on real repository.
 For each rule the agent produces two compliant traces and three violation
 traces. Allowed-effect traces exercise explicitly permitted
-system-level behavior close to the prohibited action;
-lookalike traces perform operations that look like the
+system-level behavior close to the prohibited action.
+Lookalike traces perform operations that look like the
 prohibited action but are technically compliant. The three violation
 families reflect execution-path categories observed in deployed coding
 agents~\cite{anthropic2026containment,maloyan2026sok}: direct
@@ -170,8 +170,8 @@ Another translation agent (Claude Code~\cite{anthropic2025claudecode} with Claud
 reads the rule text and
 the cloned repository, then produces the corresponding policy artifact
 for each non-prompt system: regex for tool-regex, FIDES policy, and DSL
-rule for \sys{}; it does not have access to the ground-truth traces to
-avoid data leakages.
+rule for \sys{}, without access to the ground-truth traces to
+avoid data leakage.
 The prompt-filter baseline directly
 decides whether to allow or block each proposed tool call based on the
 rule text and the tool input.
@@ -199,7 +199,7 @@ policy-correct:
 directive to agent behavior: it includes policy
 translation, runtime enforcement, feedback delivery, and agent recovery.
 We manually corrected samples flagged as requiring double-checking, and
-additionally random-sampled 50 judgments; all matched expectations.
+additionally random-sampled 50 judgments, all of which matched expectations.
 
 \paragraph{Results.}
 \begin{figure}[tb]
@@ -274,8 +274,8 @@ Under \textsc{\sys{}-opaque}, which enforces identical kernel rules,
 the same 17~traces are judged TN because the agent lacks a feedback
 channel and completes the task through an alternative path.
 We feed each false-negative trace's evidence and corrective feedback      
-to the translation agent and let it revise the DSL rule once;             
-rerunning the 28~FN traces with revised rules recovers 26 (92.9\%).
+to the translation agent and let it revise the DSL rule once.
+Rerunning the 28~FN traces with revised rules recovers 26 (92.9\%).
 
 \noindent\textbf{Semantic feedback converts kernel detections into
 agent compliance at 97.7\%.}
@@ -327,7 +327,7 @@ trace replay and Linux build.}
 agent-trace replay and 6.5\% on the Linux kernel build; at 100 rules,
 overhead remains below 8.4\%.} The agent-trace workload exhibits lower overhead because tool
 actions are interspersed with model inference pauses that dwarf syscall
-cost; the kernel build stresses sustained I/O and process creation,
+cost, whereas the kernel build stresses sustained I/O and process creation,
 exposing more of \sys{}'s per-event cost.
 
 \subsubsection{Microbenchmarks (Per-Syscall Latency)}
@@ -337,7 +337,8 @@ We measure \sys{}'s per-event latency for five syscall types
 \texttt{connect}) under five no-hit configurations: native, and \sys{}
 with 1, 10, 32, and 100 active rules (AP-$N$ denotes \sys{} with $N$
 rules). Each configuration $\times$ syscall type runs 10K--100K
-iterations pinned to a single CPU core; Table~\ref{tab:micro-latency} reports the median across seven trials.
+iterations pinned to a single CPU core.
+Table~\ref{tab:micro-latency} reports the median across seven trials.
 
 \paragraph{Results.}
 
@@ -531,8 +532,8 @@ database mutation inside a service container.
 These are hook-coverage gaps, not policy errors: the
 generator produced a matching rule for the intended sink, but the agent
 reached the same effect through a path the current hook set does not
-observe. Chat and content harms are outside \sys{}'s scope by design;
-service-side artifacts require protocol-level hook extensions.
+observe. Chat and content harms are outside \sys{}'s scope by design,
+and service-side artifacts require protocol-level hook extensions.
 
 \section{Related Work}
 \label{sec:related}
@@ -547,11 +548,12 @@ operations, but targets adversarial intrusions with general provenance
 queries rather than an agent-facing DSL with semantic feedback. Dynamic
 taint-tracking
 systems~\cite{enck2010taintdroid,clause2007dytan,kemerlis2012libdft,yin2007panorama}
-operate at byte or instruction granularity; \sys{} operates at object
-granularity, trading precision for low-overhead whole-session coverage.
+operate at byte or instruction granularity,
+whereas \sys{} operates at object granularity,
+trading precision for low-overhead whole-session coverage.
 Contemporary eBPF tools such as Tetragon,
 Tracee, and eBPF-PATROL~\cite{ciliumtetragon,aquasecuritytracee,ghimire2025ebpfpatrol} provide
-per-event predicates or single-channel lineage flags; \sys{} propagates
+per-event predicates or single-channel lineage flags, whereas \sys{} propagates
 multi-label information flow across channels and checks cross-event
 conditions.
 
@@ -562,7 +564,7 @@ while \sys{} focuses on enforcing agents' behaviors.
 At the agent layer, programmable rails and guard agents
 check prompts or action trajectories~\cite{rebedea2023nemo,xiang2025guardagent},
 and AgentSpec~\cite{wang2025agentspec} enforces deterministic guards at
-the tool-call boundary; \sys{} complements them below the tool API, where
+the tool-call boundary, and \sys{} complements them below the tool API, where
 shell-outs and subprocesses remain visible. FIDES and
 CaMeL~\cite{costa2025fides,debenedetti2025camel} apply typed IFC within
 the agent loop, which catches data-flow violations at the API boundary
