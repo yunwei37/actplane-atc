@@ -238,11 +238,12 @@ declassification is delegated to the
 domain hierarchy (\S\ref{sec:authority}).
 
 \subsection{Threat Model}
-\sys{} assumes the agent, which starts after
+\sys{} assumes the enforced agent, 
+which starts after
 \emph{higher-authority} policy is loaded and
 may author additional rules at runtime,
-may be unsafe or compromised,
-following the principle of
+may be unsafe or compromised. This
+follows the principle of
 self-restriction in Landlock~\cite{landlock}
 and Capsicum~\cite{watson2010capsicum}.
 The adversary's influence is bounded by
@@ -281,11 +282,9 @@ delivered to a configured
 hook is checked.
 Whether a violation is caught
 depends on \emph{policy coverage}.
-Block effects are synchronous
-(no TOCTOU gap); kill effects are
-post-operation (the process is terminated
-before subsequent monitored
-action); notify is observation-only.
+Block is synchronous (no TOCTOU gap);
+kill is post-operation; notify is
+observation-only.
 
 The TCB is the kernel enforcement
 engine and higher-authority blobs;
@@ -293,11 +292,11 @@ the compiler and
 runner are outside it (bugs weaken
 only the agent's own rules).
 \sys{} covers indirect execution
-paths (subprocesses, shell wrappers
-) that produce exact hooked OS events;
-semantic equivalents bypass and file
-contents are not covered,
-and hook types are limited by implementation.
+paths (subprocesses, shell wrappers)
+that produce exact hooked OS events;
+semantically equivalent operations
+and file contents are not covered,
+and hook types are limited by implementation
 (e.g., a custom Git client avoids
 \texttt{exec "git"} rules, but its
 connect/write syscalls remain visible).
