@@ -97,9 +97,6 @@ Information-flow control (IFC) tracks how data moves from sources to
 sinks by attaching labels to OS objects and propagating them at
 runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
 Later operations are checked against accumulated label state.
-IFC thus captures rules whose correctness depends on execution
-history, the same pattern that agent instructions and constraints
-(``run tests before committing'') exhibit.
 
 \section{Empirical Study}
 \label{sec:empirical}

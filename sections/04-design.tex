@@ -64,9 +64,20 @@ enforcement, and feedback loop.}
 \subsection{Policy DSL}
 \label{sec:dsl}
 
-The DSL lets agents express policy as
-source-to-target constraints over
- system actions.
+The DSL lets agents express policy intent
+as enforceable system-level constraints. We
+observe that
+OS-enforceable directives from the empirical
+study share a common structure: they constrain
+operations from a source
+(a process, a file read) reaching a target
+(a file write, a network endpoint).
+Per-event directives match one operation;
+cross-event directives add history conditions.
+The DSL thus models both as source-to-target
+constraints.
+
+The DSL is 
 A policy contains \emph{sources}
 that tag system objects
 (an \texttt{exec} source tags processes
