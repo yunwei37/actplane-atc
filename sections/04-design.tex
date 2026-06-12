@@ -64,29 +64,19 @@ enforcement, and feedback loop.}
 \subsection{Policy DSL}
 \label{sec:dsl}
 
-The DSL lets agents express policy intent 
-as enforceable system actions 
-in a form of data flow: data and operations
-from one source (e.g. a process 
-executing a binary, or a file read) flow
-to a target (e.g. a network endpoint
-or an output file), and the rule checks 
-whether the flow is compliant with the policy.
-
-It mainly targets the policy in agent instruction
-files as discussed in \S\ref{sec:eval:rq1}.
-
-A policy in DSL contains \emph{sources}
-that tag system objects,
-\emph{rules} that match tagged events
- and apply effects, and optional
-\emph{gates} that express cross-event
-ordering constraints. E.g.
-an \texttt{exec} source tags
-processes that execute a matching binary;
-a \texttt{file} source tags
-matching paths; a network source tags
-matching endpoints.
+The DSL lets agents express policy as
+source-to-target constraints over
+ system actions.
+A policy contains \emph{sources}
+that tag system objects
+(an \texttt{exec} source tags processes
+that execute a matching binary;
+a \texttt{file} source tags matching paths;
+a network source tags matching endpoints),
+\emph{rules} that check tagged events
+at targets and apply effects,
+and optional \emph{gates} that express
+cross-event ordering constraints.
 
 Rules bind an
 effect to an operation 
