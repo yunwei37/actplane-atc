@@ -313,6 +313,9 @@ Agents need to adapt policy at runtime
 (a sub-agent may need a narrower scope),
 but must not weaken constraints inherited
 from higher authority.
+
+To support this, \sys{} introduces 
+\emph{policy domain}.
 A \emph{domain} is the runtime policy boundary
 for a process tree; it governs rule scope
 and mutability, not resource access.
@@ -331,34 +334,44 @@ policy(D) = policy(parent(D)) + local(D)
 \end{verbatim}
 \end{small}
 
-\noindent A child domain inherits all parent rules
-and may add local rules, labels, or gates, but cannot remove, disable,
-or weaken any inherited rule. The root domains correspond to
-platform/operator and project-maintainer policy; the agent creates
-session and sub-agent domains below them.
+\noindent A child domain inherits 
+all parent rules
+and may add local rules, labels, or gates,
+ but cannot remove, disable,
+or weaken any inherited rule.
 Rules added by an agent take effect only 
 within its domain and descendants, so
 multiple agents on the same system
 can enforce different policies.
-Declassification follows the domain hierarchy:
-the author of a rule holds the declassification
-privilege and can disable rules
-and clear labels within its own domain.
-Inherited safety labels and rules cannot be declassified;
-the recommended mitigation for inherited labels is process-level
-isolation.
 
-Runtime policy additions are submitted as precompiled \emph{deltas} through a
-userspace ring buffer, all submission permission checks 
-remain in the kernel. A delta is accepted only if it
-introduces fresh labels, binds new rules, 
+To support runtime policy updates and
+declassification, \sys{}
+requires an \emph{authority checker} in
+the kernel:
+runtime policy additions are submitted
+as \emph{deltas} through a ring buffer,
+all
+permission checks
+remain in the kernel. A delta is
+accepted only if it
+introduces fresh labels, binds new rules,
 or narrows scope, without
-modifying inherited rules, labels, or effects; a delta cannot create
-labels that satisfy an inherited exception 
+modifying inherited rules, labels,
+or effects;
+a delta cannot create
+labels that satisfy an inherited exception
 gate unless higher-authority
-policy explicitly defines that path. 
+policy explicitly defines that path.
 Accepted deltas are merged into
 the domain's effective policy.
+Declassification follows the domain hierarchy:
+the author of a rule holds the declassification
+privilege. It can disable rules
+and clear labels within its own domain.
+Inherited labels and rules cannot be
+declassified;
+the recommended mitigation for inherited
+labels is process-level isolation.
 
 \section{Implementation}
 \label{sec:implementation}
