@@ -116,10 +116,12 @@ A rule may also specify a target allow-list
 to restrict which paths or endpoints
 it applies to.
 
-\emph{Gates} track temporal ordering,
-such as whether a
-test ran after the most
-recent edit.
+Source labels record that an event occurred
+but not when; cross-event directives like
+``run tests before committing'' need ordering.
+\emph{Gates} fill this gap by tracking
+temporal ordering, such as whether a
+test ran after the most recent edit.
 Gate conditions include a lineage gate 
 or a temporal
 \texttt{after~...~since~...} ordering gate. 
@@ -192,31 +194,39 @@ IFC~\cite{flume,zeldovich2006histar},
 the model is a \emph{state machine}: each
 tracked object carries state that is updated
 at system events, and rules are checked
-at each event.
+at each event, making it lightweight
+without reconstructing
+the history log.
 
-Each process, file, and network endpoint
+Rules need to check at each event whether
+the subject or target has been influenced
+by certain sources. To support this,
+each process, file, and network endpoint
 carries a set of \emph{labels}.
 Each source declaration in the DSL defines
 a label. When a system object matches
 a source pattern, the label is added.
-\emph{Labels} propagate along system edges.
+At each hooked event, the engine checks whether
+the subject's and target's labels satisfy
+any rule's conditions (required labels present,
+forbidden labels absent, gate satisfied)
+and applies the rule's effect.
+
+Cross-event rules need to check sources
+that influenced the subject through earlier
+events, so labels must \emph{propagate}
+along the principal OS data-flow edges
+between processes, files, and endpoints.
 At fork, the child inherits
 the parent's labels. At exec, source labels
 are added. A read copies the file's
 labels into the process; a write copies the
 process's labels into the file. A connect
 copies the process's labels to the endpoint.
-
 This maintains a key \emph{invariant}: if an object
 carries label~$\ell$, then information from
 a source tagged with~$\ell$ may have reached
 it through observed edges.
-
-At each hooked event, the engine checks whether
-the subject's and target's labels satisfy
-any rule's conditions (required labels present,
-forbidden labels absent, gate satisfied)
-and applies the rule's effect.
 
 For example, data read from \texttt{.env}
 acquires its source label; if that process
@@ -224,22 +234,12 @@ later connects to an external endpoint,
 a rule forbidding that label at network
 targets fires and blocks the connection.
 
-\sys{} tracks labels at object granularity,
-not byte level, trading precision for
-low-overhead whole-session
-coverage~\cite{kemerlis2012libdft}.
-Object-level labels capture indirect,
-cross-event patterns that tool-call filters
-and per-event sandboxes miss.
-Labels further summarize history: each rule
-checks labels and bounded predicates at the
-current event, avoiding log reconstruction.
-
-Labels are \emph{monotonic}: propagation adds labels
-but never removes them. Once an object carries
-a label, subsequent consumers inherit it,
-ensuring cross-event constraints remain
-checkable for the entire session.
+To ensure no history is lost and cross-event
+constraints remain checkable for the entire
+session, labels are \emph{monotonic}:
+propagation adds labels but never removes them.
+Once an object carries a label, subsequent
+consumers inherit it.
 As in Flume~\cite{flume} and
 HiStar~\cite{zeldovich2006histar}, labels
 are irrevocable by default;
@@ -319,17 +319,19 @@ content-level checks are out of scope.
 \subsection{Layered Policy Domains}
 \label{sec:authority}
 
-\sys{} needs to let agents adapt policy at
-runtime while isolating each domain's rules
-to its subtree and preventing weakening of
-inherited constraints (domains govern
-rule scope and mutability, not resource access).
+Agents need to adapt policy at runtime
+(a sub-agent may need a narrower scope),
+but must not weaken constraints inherited
+from higher authority.
+A \emph{domain} is the runtime policy boundary
+for a process tree; it governs rule scope
+and mutability, not resource access.
 Following the self-restriction principle,
 \sys{} extends monotonic
 tightening in Landlock~\cite{landlock} and
 Capsicum~\cite{watson2010capsicum} to a
-\emph{domain hierarchy} over labeled IFC state that spans process trees.
-A \emph{domain} is the runtime policy boundary for a process tree:
+\emph{domain hierarchy} over labeled IFC state
+that spans process trees:
 
 \begin{small}
 \begin{verbatim}
