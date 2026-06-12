@@ -43,7 +43,7 @@ However, existing policy engines leave a \emph{semantic gap}:
 \emph{policy intent} is expressed in underspecified natural language,
 but enforcement needs to decide over
 concrete \emph{system actions}.
-Our empirical study of instruction-files
+Our empirical study of instruction files
  in 64~popular projects (\S\ref{sec:empirical}) 
 finds that 64\% of statements 
 are behavioral directives, and 83\% of those
@@ -73,7 +73,7 @@ OS-level enforcement with static
 policy is also insufficient. 
 Most rules reference project 
 or task context that requires resolving
-, (e.g., ``never modify upstream source,'' 
+(e.g., ``never modify upstream source,'' 
 where \emph{upstream source} needs
 to be resolved from the repository; 
 ``do not update dependencies unless
@@ -144,7 +144,7 @@ feedback about why and what to do next.
 Layered policy domains isolate each agent's policy
 to its own subtree and prevent weakening
 of inherited constraints.
-On decision-compliance benchmark,
+On the decision-compliance benchmark,
 \sys{} resolves 2.0--3.2$\times$ more violations
 than prompt-filter, tool-regex, FIDES~\cite{costa2025fides}
 (tool-level IFC), and feedback-free
@@ -153,7 +153,7 @@ indirect execution paths that tool-call
 interception cannot, while
 adding 1.9\% end-to-end overhead 
 on agent workloads and up to 8.4\% on
-kernel builds. On safety benchmark 
+kernel builds. On a safety benchmark
 of 361 personal-assistant tasks, 
 \sys{} prevents 74\% of
 baseline-unsafe behaviors 
@@ -168,7 +168,7 @@ gaps (\S\ref{sec:empirical}) and motivates \sys{}.
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system
 that addresses them
 (\S\ref{sec:design}--\ref{sec:implementation}).
-\item An \textbf{evaluation} on our decision-compliance benchmark building on empirical study, external
+\item An \textbf{evaluation} on our decision-compliance benchmark building on the empirical study, external
 coding-task and safety benchmarks covering
 workplace and personal-assistant tasks.
 (\S\ref{sec:evaluation}).

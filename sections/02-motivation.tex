@@ -3,8 +3,8 @@
 
 \textbf{AI agents and harnesses.}
 AI agents combine model reasoning with 
-external tools, memory and long-running 
-environment, such as Claude
+external tools, memory, and long-running
+environments, such as Claude
 Code~\cite{anthropic2025claudecode}, 
 Codex~\cite{openai2025codex},
 Devin~\cite{devin2025}, and
@@ -104,19 +104,19 @@ history, the same pattern that agent instructions and constraints
 \section{Empirical Study}
 \label{sec:empirical}
 
-Prior studies classify instruction files contents at file or section-heading
+Prior studies classify instruction-file contents at file or section-heading
 granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,
 santos2025claudeconfig,lulla2026agentsmd};
 Zhang et al.~\cite{zhang2026guardrails} further show that negative
 constraints and positive directives have different effects.
-we analyze at statement level to classify their
-enforcement requirements, and quantify the context they need to become
+We analyze at the statement level to classify their
+enforcement requirements and quantify the context they need to become
 concrete rules.
 
 \subsection{Methodology}
 
 We collected public GitHub repositories containing \texttt{CLAUDE.md} or
-\texttt{AGENTS.md}, prioritizing the AI-agent project created after 2025
+\texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025
 and excluding non-code, inactive, fake-star, and
 stub repositories. The snapshot (2026-05-23 UTC) contains
 64~repositories (median 20K GitHub stars, min 9.8K, total 2.2M),

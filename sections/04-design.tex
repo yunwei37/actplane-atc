@@ -40,7 +40,7 @@ or weaken inherited constraints.
 (\S\ref{sec:dsl}) that lets agents express policy intent
 in a representative form close
 to natural language. A compiler
-lowers the DSL into fixed-size kernel config.
+lowers the DSL into a fixed-size kernel config.
 A labeled information-flow state machine model
 (\S\ref{sec:ifc}) that tracks cross-event 
 state at OS level (C1). Layered
@@ -334,7 +334,7 @@ can enforce different policies.
 
 Runtime policy additions are submitted as precompiled deltas through a
 userspace ring buffer, all submission permission checks 
-remain in kernel. A delta is accepted only if it
+remain in the kernel. A delta is accepted only if it
 introduces fresh labels, binds new rules, 
 or narrows scope, without
 modifying inherited rules, labels, or effects; a delta cannot create
