@@ -61,107 +61,36 @@ enforcement, and feedback loop.}
 \label{fig:architecture}
 \end{figure}
 
-\subsection{Threat Model}
-\sys{} assumes the agent, which starts after
-higher-authority policy is loaded and
-may author additional rules at runtime,
-may be unsafe or compromised,
-following the principle of
-self-restriction in Landlock~\cite{landlock}
-and Capsicum~\cite{watson2010capsicum}.
-The adversary's influence is bounded by
-the enforced agent's normal capabilities;
-the kernel enforcement engine and
-higher-authority policy are
-loaded by a privileged process before
-the agent starts and are not
-writable by the agent.
-The trust boundary is temporal:
-any pre-defined rule loaded into the
-kernel before the enforced agent starts
-is higher-authority,
-regardless of whether a human or a separate
-policy-generation agent authored it.
-
-\sys{} provides two levels of
-assurance, by policy authority.
-Higher-authority rules can 
-carry a safety and security assurance
-under our threat model. 
-Agent-authored runtime rules are only a 
-compliance assistance under a
-cooperative-but-fallible model: 
-enforcement is deterministic, an
-adversary controlling the agent at
-policy-generation time can only weaken
-self rules; the worst case degrades to
-having no self-imposed rules,
-and cannot change inherited ones. 
-Given loaded rules, \sys{} enforces
-(1): agent-authored rules 
-never weaken inherited constraints; and
-(2): every event
-delivered to a configured
-hook is checked.
-Whether a violation is caught
-depends on \emph{policy coverage}.
-Block effects are synchronous
-(no TOCTOU gap); kill effects are
-post-operation (the process is terminated 
-before subsequent monitored
-action); notify is observation-only.
-
-The TCB is the kernel enforcement 
-engine and higher-authority blobs; 
-the compiler and
-runner are outside it (bugs weaken 
-only the agent's own rules).
-\sys{} covers indirect execution 
-paths (subprocesses, shell wrappers
-) that produce exact hooked OS events; 
-semantic equivalents bypass and file
-contents are not covered, 
-and hook types are limited by implementation.
-(e.g., a custom Git client avoids 
-\texttt{exec "git"} rules, but its
-connect/write syscalls remain visible).
-The policy enforcement covers the agent's
-entire process tree.
-Kernel compromise, \texttt{CAP\_BPF} 
-compromise, side channels, and
-content-level checks are out of scope.
-
 \subsection{Policy DSL}
 \label{sec:dsl}
 
 The DSL lets agents express policy intent 
-as enforceable system actions.
-It mainly targets the policy shapes 
-that recur in agent instruction
-files: prohibit a command, restrict
-writes to a scope, block a sink after
-a sensitive read, and
-route sensitive data through an approved tool.
+as enforceable system actions 
+in a form of data flow: data and operations
+from one source (e.g. a process 
+executing a binary, or a file read) flow
+to a target (e.g. a network endpoint
+or an output file), and the rule checks 
+whether the flow is compliant with the policy.
 
-A policy in DSL contains \emph{sources} 
-that introduce labels,
-\emph{rules} that match labeled events
- at sinks, and optional
-\emph{gates} that express cross-event 
-ordering constraints. The
-DSL restricts expressiveness 
-to source/sink/gate patterns. 
-Sources bind labels to system objects: 
-an \texttt{exec} source labels
-processes that execute a matching binary; 
-a \texttt{file} source labels
-matching paths; a network source labels 
-matching endpoints. Appendix
-~\ref{sec:appendix:dsl-grammar}
-gives the concrete grammar.
+It mainly targets the policy in agent instruction
+files as discussed in \S\ref{sec:eval:rq1}.
+
+A policy in DSL contains \emph{sources}
+that tag system objects,
+\emph{rules} that match tagged events
+ and apply effects, and optional
+\emph{gates} that express cross-event
+ordering constraints. E.g.
+an \texttt{exec} source tags
+processes that execute a matching binary;
+a \texttt{file} source tags
+matching paths; a network source tags
+matching endpoints.
 
 Rules bind an
-effect to an operation (e.g. \texttt{exec}, \texttt{open}):
+effect to an operation 
+(e.g. \texttt{exec}, \texttt{open}):
 \texttt{block} synchronously 
 denies the syscall pre-operation
 (no TOCTOU gap; the agent continues 
@@ -170,9 +99,9 @@ and can retry a different action),
 process post-operation
 (preventing it from trying alternative channels),
 and \texttt{notify} only reports without
- preventing execution.
+preventing execution.
 For example, \texttt{block write} suits
- an agent writing to a
+an agent writing to a
 wrong directory, while \texttt{kill write} 
 suits a compromised agent writing 
 outside its sandbox that should not continue.
@@ -184,9 +113,8 @@ A rule may also specify a target allow-list
 to restrict which paths or endpoints
 it applies to.
 
-Labels track provenance but are monotonic; 
-gates complement them
-by tracking freshness, such as whether a 
+Gates track temporal ordering,
+such as whether a
 test ran after the most
 recent edit.
 Gate conditions include a lineage gate 
@@ -228,15 +156,95 @@ a cross-event kill gate, and a cross-event notify gate.}
 \label{fig:policy-example}
 \end{figure}
 
-Figure~\ref{fig:policy-example} illustrates the three main rule shapes.
-The first is per-event: if the agent process deletes any file under the
-data mount, the event is blocked immediately. The second is cross-event
+Figure~\ref{fig:policy-example} illustrates 
+the three main rule shapes.
+The first is per-event: if the agent process
+deletes any file under the
+data mount, the event is blocked immediately.
+The second is cross-event
 with a kill effect: committing is
-compliant only if \texttt{go test} ran and exited successfully
-(\texttt{exits~0}) after the most recent source write. 
-The third is also cross-event but uses a notify effect:
-the agent is reminded, not blocked, when committing after a schema change
+compliant only if \texttt{go test} ran 
+and exited successfully
+(\texttt{exits~0}) after the most recent
+source write. 
+The third is also cross-event but uses 
+a notify effect:
+the agent is reminded, not blocked, when
+ committing after a schema change
 without re-running the code generator.
+ Appendix
+~\ref{sec:appendix:dsl-grammar}
+gives the concrete grammar pf the DSL.
+
+\subsection{Threat Model}
+\sys{} assumes the agent, which starts after
+higher-authority policy is loaded and
+may author additional rules at runtime,
+may be unsafe or compromised,
+following the principle of
+self-restriction in Landlock~\cite{landlock}
+and Capsicum~\cite{watson2010capsicum}.
+The adversary's influence is bounded by
+the enforced agent's normal capabilities;
+the kernel enforcement engine and
+higher-authority policy are
+loaded by a privileged process before
+the agent starts and are not
+writable by the agent.
+The trust boundary is temporal:
+any pre-defined rule loaded into the
+kernel before the enforced agent starts
+is higher-authority,
+regardless of whether a human or a separate
+policy-generation agent authored it.
+
+\sys{} provides two levels of
+assurance, by policy authority.
+Higher-authority rules can
+carry a safety and security assurance
+under our threat model.
+Agent-authored runtime rules are only a
+compliance assistance under a
+cooperative-but-fallible model:
+enforcement is deterministic, an
+adversary controlling the agent at
+policy-generation time can only weaken
+self rules; the worst case degrades to
+having no self-imposed rules,
+and cannot change inherited ones.
+Given loaded rules, \sys{} enforces
+(1): agent-authored rules
+never weaken inherited constraints; and
+(2): every event
+delivered to a configured
+hook is checked.
+Whether a violation is caught
+depends on \emph{policy coverage}.
+Block effects are synchronous
+(no TOCTOU gap); kill effects are
+post-operation (the process is terminated
+before subsequent monitored
+action); notify is observation-only.
+
+The TCB is the kernel enforcement
+engine and higher-authority blobs;
+the compiler and
+runner are outside it (bugs weaken
+only the agent's own rules).
+\sys{} covers indirect execution
+paths (subprocesses, shell wrappers
+) that produce exact hooked OS events;
+semantic equivalents bypass and file
+contents are not covered,
+and hook types are limited by implementation.
+(e.g., a custom Git client avoids
+\texttt{exec "git"} rules, but its
+connect/write syscalls remain visible).
+The policy enforcement covers the agent's
+entire process tree.
+Kernel compromise, \texttt{CAP\_BPF}
+compromise, side channels, and
+content-level checks are out of scope.
 
 \subsection{Labeled Information-Flow Model}
 \label{sec:ifc}
@@ -290,14 +298,9 @@ remain checkable for the
 entire session without requiring 
 explicit label cleanup.
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
-on objects are irrevocable by default. 
-Declassification follows the domain hierarchy:
-the author of a rule holds the declassification
-privilege and can disable rules
-and clear labels within its own domain.
-Inherited safety labels and rules cannot be declassified.
-The recommended mitigation for inherited labels is process-level
-isolation.
+on objects are irrevocable by default;
+declassification is delegated to the
+domain hierarchy (\S\ref{sec:authority}).
 
 \subsection{Layered Policy Domains}
 \label{sec:authority}
@@ -329,8 +332,15 @@ platform/operator and project-maintainer policy; the agent creates
 session and sub-agent domains below them.
 Rules added by an agent take effect only 
 within its domain and descendants, so
-multiple agents on the same system 
+multiple agents on the same system
 can enforce different policies.
+Declassification follows the domain hierarchy:
+the author of a rule holds the declassification
+privilege and can disable rules
+and clear labels within its own domain.
+Inherited safety labels and rules cannot be declassified;
+the recommended mitigation for inherited labels is process-level
+isolation.
 
 Runtime policy additions are submitted as precompiled deltas through a
 userspace ring buffer, all submission permission checks 
