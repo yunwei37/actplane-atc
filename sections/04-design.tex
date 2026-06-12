@@ -318,11 +318,8 @@ To support this, \sys{} introduces
 \emph{policy domain}.
 A \emph{domain} is the runtime policy boundary
 for a process tree; it governs rule scope
-and mutability, not resource access.
-Following the self-restriction principle,
-\sys{} extends monotonic
-tightening in Landlock~\cite{landlock} and
-Capsicum~\cite{watson2010capsicum} to a
+and mutability.
+\sys{} organizes these policies into a
 \emph{domain hierarchy} over labeled IFC state
 that spans process trees:
 
