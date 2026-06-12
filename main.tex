@@ -40,40 +40,42 @@ is a policy engine that
 enforces policies for 
 safety and effectiveness
 over the agent's actions.
-Policies are often in natural 
-language or configuration:
+Policies are often written in natural
+language or configuration files:
 our empirical study finds that 64\% of
-instruction-file statements are \emph{directives}, e.g. do not leak secrets, 
-run tests before committing.
-Yet existing policy engines fail to connect 
-policy intent to system-level actions, 
+instruction-file statements are \emph{directives},
+e.g., ``do not leak secrets'' or
+``run tests before committing.''
+Yet existing policy engines fail to connect
+policy intent to system-level actions,
 leaving a \emph{semantic gap}.
-83\% of directives include system-level 
+83\% of directives constrain system-level
 events, where tool-call guardrails can
 miss indirect system
-actions, and cross-event state
-occurs in 81\% of projects. OS-level 
-sandbox-style mechanisms 
-contain process, file, and network 
-actions but expect static policy, making it
-hard to enforce the 74\% of rules that
-need intent-level project or task context, 
-returning errors without context, 
-further confusing the agent.
+actions, and 81\% of projects contain
+cross-event directives that stateless
+interception cannot track. OS-level
+sandbox-style mechanisms
+contain process, file, and network
+actions, but they expect static policy
+that is hard to pre-define for the 74\% of rules
+needing project or task context,
+and they return errors without semantic
+context that further confuse the agent.
 
-Our key observation is that while safety constraints are inherited, 
-the required context for compliance is mainly within 
-agents closest to the project and task. To bridge the gap,
+Our key observation is that while safety constraints are inherited,
+the context required for compliance mainly resides with
+the agent closest to the project and task. To bridge the gap,
 we introduce \sys{}, a runtime-agnostic
 policy engine that allows agents to declare and enforce
 information-flow control (IFC) policies in the OS kernel
 with semantic feedback. Layered policy domains 
 isolate agent policies and prevent weakening 
 of inherited constraints.
-We implement \sys{} with eBPF and evaluate it across empirically studied
-policies, coding tasks and safety benchmarks, showing 
-improved policy compliance that covers indirect execution paths
-traditional tool-call interception cannot, with 1.9\%--8.4\% overhead.
+We implement \sys{} with eBPF and evaluate it on policies from the
+empirical study, coding-task benchmarks, and safety benchmarks, showing
+improved policy compliance, including on indirect execution paths
+that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
 \sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
 \end{abstract}
 

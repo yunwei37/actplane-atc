@@ -11,9 +11,9 @@ above. Two key challenges arise:
 The DSL should hide kernel complexity
 so that agents can write and modify
 deterministic policies with minimal
-expertise and token cost;
-most real policies are structurally
-simple (\S\ref{sec:eval:rq1}).
+expertise and token cost, which is
+feasible because most real policies are
+structurally simple (\S\ref{sec:eval:rq1}).
 Yet generating at the intent level is 
 too ambiguous to enforce,
 and generating at the syscall level 
@@ -90,7 +90,7 @@ matches paths, and a network source
 matches endpoints.
 When a source-tagged object performs a
 \emph{target} operation
-(e.g.\ \texttt{exec}, \texttt{open},
+(e.g., \texttt{exec}, \texttt{open},
 \texttt{connect}),
 the engine applies one of three \emph{effects}:
 \texttt{block} synchronously
@@ -237,11 +237,10 @@ declassification is delegated to the
 domain hierarchy (\S\ref{sec:authority}).
 
 \subsection{Threat Model}
-\sys{} assumes the enforced agent, 
-which starts after
+\sys{} assumes the enforced agent may be
+unsafe or compromised. The agent starts after
 \emph{higher-authority} policy is loaded and
 may author additional rules at runtime,
-may be unsafe or compromised,
 following the principle of
 self-restriction in Landlock~\cite{landlock}
 and Capsicum~\cite{watson2010capsicum}.
@@ -363,10 +362,10 @@ is process-level isolation.
 \section{Implementation}
 \label{sec:implementation}
 
-\sys{} consists of a Rust userspace 
-compiler/runner (~3.2\,K\,LoC) 
+\sys{} consists of a Rust userspace
+compiler/runner (roughly 3.2\,K\,LoC)
 and an eBPF
-enforcement engine (~1.8\,K\,LoC of BPF C). 
+enforcement engine (roughly 1.8\,K\,LoC of BPF C).
 The compiler parses the DSL,
 lowers Boolean label expressions and path/network
 patterns, and emits a fixed-size \texttt{\#[repr(C)]} configuration blob

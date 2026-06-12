@@ -37,8 +37,8 @@ We term their
 collective semantic meaning 
 the agent's \emph{policy intent}.
 When the agent pursues its high-level 
-goal, e.g. implement a feature 
-or book a flight, the harness
+goal, e.g., implementing a feature
+or booking a flight, the harness
 needs to enforce policy over 
 \emph{system actions}: concrete effects
 that happen on the system.
@@ -232,9 +232,9 @@ Four recurring patterns emerge: temporal ordering (``run tests before
 committing''), cross-file consistency (``update docs when behavior
 changes''), multi-step workflows (release checklists with verification
 steps), and conditional triggers (``if you change specs, also update
-SDK''). These map to IFC primitives: lineage gates, label
-propagation, and staleness-aware re-arming. Most of the operations
-are around files, processes, and network connections.
+SDK''). All four require state that spans multiple operations:
+what ran, in what order, and what has changed since. Most of the
+operations involve files, processes, and network connections.
 
 \noindent\textbf{At the repository level, 81\% of repositories contain
 at least one cross-event directive, and 43\% require all four
@@ -255,8 +255,8 @@ cross-event.}
 \centering
 \includegraphics[width=\columnwidth]{figures/empirical_rq3_enforcement_by_topic.pdf}
 \caption{Enforcement profile by topic (normalized). Topics exhibit
-distinct archetypes; cross-event directives concentrate in Development
-Process.}
+distinct archetypes, and cross-event directives concentrate in
+Development Process.}
 \Description{Stacked horizontal bar chart showing the normalized
 enforcement-level breakdown for each topic category.}
 \label{fig:enforcement-by-topic}
@@ -309,8 +309,8 @@ three outcomes: none, project, task.}
 \centering
 \includegraphics[width=\columnwidth]{figures/empirical_rq4_context_by_enforcement.pdf}
 \caption{Context requirement by enforcement level. Cross-event
-directives are 95\% context-dependent; content directives are 42\%
-self-contained.}
+directives are 95\% context-dependent, while content directives are
+42\% self-contained.}
 \Description{Stacked horizontal bar chart showing context requirement
 (none, project, task) for each enforcement level.}
 \label{fig:empirical-rq4}

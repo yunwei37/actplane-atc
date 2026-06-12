@@ -2,9 +2,9 @@
 
 % ¶1: Context — agents are powerful and widely deployed through harnesses
 AI agents are widely used for coding,
-DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands, 
+DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands,
 debenedetti2024agentdojo,zhan2024injecagent,agentsight},
-run on real infrastructure and handle sensitive data. 
+where they run on real infrastructure and handle sensitive data.
 Besides the LLM,
 agents require AI agent harnesses: 
 software around
@@ -21,7 +21,7 @@ the agent's concrete
 actions. Projects encode 
 many such
 policies in instruction files
-(e.g. \texttt{CLAUDE.md},
+(e.g., \texttt{CLAUDE.md},
 \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,
 chatlatanagulchai2025agentreadmes,santos2025claudeconfig,
 lulla2026agentsmd}, so
@@ -50,36 +50,38 @@ are behavioral directives, and 83\% of those
  involve system-level behavior: 
  commands executed, files accessed,
 and network connections made.
-Existing 
-tool-call-based policy 
-systems~\cite{xiang2025guardagent,wang2025agentspec,
-shi2025progent,costa2025fides,debenedetti2025camel} in agent
+Existing
+tool-call-based policy
+systems in agent
 runtimes such as Claude Code~\cite{anthropic2025claudecode}, whether LLM
-guardrails or regex-like checkers,
+guardrails or regex-like
+checkers~\cite{xiang2025guardagent,wang2025agentspec,
+shi2025progent,costa2025fides,debenedetti2025camel},
 lose track of indirect system actions when
-agents spawn subprocesses: e.g. 
-the same \texttt{git~push} can
-be in a \texttt{bash} wrapper 
+agents spawn subprocesses: e.g.,
+the same \texttt{git~push} can run inside
+a \texttt{bash} wrapper
 created in a previous session.
-At the repository
-level, 81\% of projects contain 
-cross-event system directives that
-are hard to enforce with stateless 
-single-call interception (e.g., 
+Stateless single-call interception also misses
+directives that span multiple operations: at the repository
+level, 81\% of projects contain
+cross-event system directives (e.g.,
 ``run tests before
 commit'').
 
 OS-level enforcement with static
 policy is also insufficient. 
-Most rules reference project 
-or task context that requires resolving
-(e.g., ``never modify upstream source,'' 
+Most rules reference project
+or task context that must be resolved
+(e.g., ``never modify upstream source,''
 where \emph{upstream source} needs
-to be resolved from the repository; 
+to be resolved from the repository;
 ``do not update dependencies unless
- requested''; 
+requested'';
 ``the reviewer sub-agent only writes
- to its project directory''), making it hard for human administrators to pre-define policy for them without context.
+to its project directory''), so human 
+administrators can hardly 
+pre-define policy for them without that context.
 We find that 74\% of system-level directives
 require intent-level context outside 
 of low-level OS events.
@@ -87,10 +89,10 @@ OS-level enforcement systems and sandboxes
  for traditional
 software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor} can 
 observe system actions but expect
-pre-defined static policy and return 
+pre-defined static policy and return
 only system events without semantic
-context, leaving the agent unlikely 
-to follow its policies.
+context, leaving the agent unlikely
+to comply with its policies.
 
 % ¶5: Insight — programmable policy engine below the tool layer
 To bridge the gap, we argue that an 
@@ -101,12 +103,12 @@ It should let agents
 use live project and task context to 
 define policy and 
 enforce actions. While safety constraints come from
-higher authority, we observe that the required context 
-is mainly within agents 
-closest to the task: they already read
-the repository, interpret the current 
-task, and resolve abstract
-references into commands and paths. 
+higher authority, we observe that the required context
+mainly resides with the agent
+closest to the task: it already reads
+the repository, interprets the current
+task, and resolves abstract
+references into commands and paths.
 This makes agents
 the natural producer of concrete compliance policy, 
 also reflecting the fact that instruction files are 
@@ -170,8 +172,8 @@ gaps (\S\ref{sec:empirical}) and motivates \sys{}.
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system
 that addresses them
 (\S\ref{sec:design}--\ref{sec:implementation}).
-\item An \textbf{evaluation} on our decision-compliance benchmark building on the empirical study, external
-coding-task and safety benchmarks covering
-workplace and personal-assistant tasks.
+\item An \textbf{evaluation} on a decision-compliance benchmark built on
+the empirical study, together with external coding-task and safety
+benchmarks covering workplace and personal-assistant tasks
 (\S\ref{sec:evaluation}).
 \end{enumerate}
