@@ -45,9 +45,9 @@ A labeled information-flow state machine model
 (\S\ref{sec:ifc}) that tracks cross-event 
 state at OS level (C1). Layered
 policy domains (\S\ref{sec:authority})
-that lets agents
+that let agents
 adapt policy at runtime without weakening
-inherited rules (C2).
+inherited constraints (C2).
 When a rule fires, \sys{} returns semantic feedback: the rule name,
 reason, and a remediation path.
 
@@ -125,7 +125,7 @@ and hook types are limited by implementation.
 (e.g., a custom Git client avoids 
 \texttt{exec "git"} rules, but its
 connect/write syscalls remain visible).
-The monitored domain is the agent's 
+The policy enforcement covers the agent's
 entire process tree.
 Kernel compromise, \texttt{CAP\_BPF} 
 compromise, side channels, and
@@ -291,10 +291,10 @@ entire session without requiring
 explicit label cleanup.
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels
 on objects are irrevocable by default. 
-Declassification follows our authority 
-model: the author of the rule holds the declassification
-privilege and can disable the rules 
-and clean the labels related to the rules.
+Declassification follows the domain hierarchy:
+the author of a rule holds the declassification
+privilege and can disable rules
+and clear labels within its own domain.
 Inherited safety labels and rules cannot be declassified.
 The recommended mitigation for inherited labels is process-level
 isolation.
