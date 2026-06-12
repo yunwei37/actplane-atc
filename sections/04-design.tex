@@ -187,21 +187,22 @@ requires tracking which sources have influenced
 which objects across the session.
 \sys{} implements this with a \emph{labeled
 information-flow} model.
-The model is a \emph{state machine}: each
+Following classical
+IFC~\cite{flume,zeldovich2006histar},
+the model is a \emph{state machine}: each
 tracked object carries state that is updated
 at system events, and rules are checked
 at each event.
 
 Each process, file, and network endpoint
-carries a 64-bit label mask.
-Each source declaration in the DSL allocates
-one or more bits. When a system object matches
-a source pattern, the corresponding bits are set.
-
-Labels \emph{propagate} along system edges via
-bitwise union. At fork, the child inherits
-the parent's mask. At exec, source-matched
-bits are added. A read copies the file's
+carries a set of \emph{labels}.
+Each source declaration in the DSL defines
+a label. When a system object matches
+a source pattern, the label is added.
+\emph{Labels} propagate along system edges.
+At fork, the child inherits
+the parent's labels. At exec, source labels
+are added. A read copies the file's
 labels into the process; a write copies the
 process's labels into the file. A connect
 copies the process's labels to the endpoint.
@@ -212,7 +213,7 @@ a source tagged with~$\ell$ may have reached
 it through observed edges.
 
 At each hooked event, the engine checks whether
-the subject's and target's label masks satisfy
+the subject's and target's labels satisfy
 any rule's conditions (required labels present,
 forbidden labels absent, gate satisfied)
 and applies the rule's effect.
@@ -231,11 +232,11 @@ Object-level labels capture indirect,
 cross-event patterns that tool-call filters
 and per-event sandboxes miss.
 Labels further summarize history: each rule
-checks masks and bounded predicates at the
+checks labels and bounded predicates at the
 current event, avoiding log reconstruction.
 
-Labels are \emph{monotonic}: propagation adds bits
-but never clears them. Once an object carries
+Labels are \emph{monotonic}: propagation adds labels
+but never removes them. Once an object carries
 a label, subsequent consumers inherit it,
 ensuring cross-event constraints remain
 checkable for the entire session.
@@ -383,7 +384,8 @@ The eBPF engine attaches to process, file, and network hooks
 (exec, open, read, write, unlink, connect, fork, exit) via
 BPF-LSM for pre-operation enforcement (block effects) and tracepoints
 for observation and post-operation termination (kill effects),
-maintaining 64-bit label state in per-object BPF maps.
+maintaining label state as 64-bit bitmasks in per-object BPF maps;
+propagation is a single bitwise OR.
 A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads
 the task exit code to arm exit-qualified gates only on
 normal termination with the specified status. Userspace does not 
