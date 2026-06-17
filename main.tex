@@ -32,50 +32,17 @@
 \renewcommand{\authorsaddresses}{}
 
 \begin{abstract}
-AI agents increasingly run in production 
-and operate through \emph{harnesses}, 
-the software runtime around the LLM.
-A major part of the agent harness 
-is a policy engine that
-enforces policies for 
-safety and effectiveness
-over the agent's actions.
-Policies are often written in natural
-language or configuration files:
-our empirical study finds that 64\% of
-instruction-file statements are \emph{directives},
-e.g., ``do not leak secrets'' or
-``run tests before committing.''
-Yet existing policy engines fail to connect
-policy intent to system-level actions,
-leaving a \emph{semantic gap}.
-83\% of directives constrain system-level
-events, where tool-call guardrails can
-miss indirect system
-actions, and 81\% of projects contain
-cross-event directives that stateless
-interception cannot track. OS-level
-sandbox-style mechanisms
-confine process, file, and network
-actions, but they expect static policy
-that is hard to pre-define for the 74\% of rules
-needing project or task context,
-and they return errors without semantic
-context that further confuse the agent.
+AI agents increasingly run in production and operate through \emph{harnesses}, the software runtime around the LLM.
+A major part of the agent harness is a policy engine that enforces policies for safety and effectiveness over the agent's actions.
+Policies are often written in natural language or configuration files: our empirical study finds that 64\% of instruction-file statements are \emph{directives}, e.g., ``do not leak secrets'' or ``run tests before committing.''
+Yet existing policy engines fail to connect policy intent to system-level actions, leaving a \emph{semantic gap}.
+83\% of directives constrain system-level events, where tool-call guardrails can miss indirect system actions, and 81\% of projects contain cross-event directives that stateless interception cannot track.
+OS-level sandbox-style mechanisms confine process, file, and network actions, but they expect static policy that is hard to pre-define for the 74\% of rules needing project or task context, and they return errors without semantic context that further confuse the agent.
 
-Our key observation is that while safety constraints are inherited,
-the context required for compliance mainly resides with
-the agent closest to the project and task. To bridge the gap,
-we introduce \sys{}, a runtime-agnostic
-policy engine that allows agents to declare and enforce
-information-flow control (IFC) policies in the OS kernel
-with semantic feedback. Layered policy domains 
-isolate agent policies and prevent weakening 
-of inherited constraints.
-We implement \sys{} with eBPF and evaluate it on policies from the
-empirical study, coding-task benchmarks, and safety benchmarks, showing
-improved policy compliance, including on indirect execution paths
-that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
+Our key observation is that while safety constraints are inherited, the context required for compliance mainly resides with the agent closest to the project and task.
+To bridge the gap, we introduce \sys{}, a runtime-agnostic policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback.
+Layered policy domains isolate agent policies and prevent weakening of inherited constraints.
+We implement \sys{} with eBPF and evaluate it on policies from the empirical study, coding-task benchmarks, and safety benchmarks, showing improved policy compliance, including on indirect execution paths that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
 \sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
 \end{abstract}
 

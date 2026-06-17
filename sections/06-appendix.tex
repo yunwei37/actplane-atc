@@ -3,10 +3,9 @@
 \section{Policy Language Grammar}
 \label{sec:appendix:dsl-grammar}
 
-This appendix gives the concrete surface syntax used by the
-policy-generation agent in RQ1. Keywords are lowercase. \texttt{IDENT}
-names a label or rule, and \texttt{PATTERN}, \texttt{ARG}, and
-\texttt{STRING} are quoted strings.
+This appendix gives the concrete surface syntax used by the policy-generation agent in RQ1.
+Keywords are lowercase.
+\texttt{IDENT} names a label or rule, and \texttt{PATTERN}, \texttt{ARG}, and \texttt{STRING} are quoted strings.
 
 \begin{small}
 \begin{verbatim}
@@ -48,33 +47,24 @@ since_event ::= "exec" PATTERN [ARG]
 \end{verbatim}
 \end{small}
 
-A source declaration introduces labels but is not a conditional state
-transition rule. Each process, file, and endpoint carries a set of labels,
-implemented as a bit mask, so a process may carry multiple labels. A clause
-matches when its operation target matches, its \texttt{if} expression holds
-over the subject labels, and its optional \texttt{unless} condition is
-false. Thus \texttt{unless C} has the rule-level meaning \texttt{and not C}.
+A source declaration introduces labels but is not a conditional state transition rule.
+Each process, file, and endpoint carries a set of labels, implemented as a bit mask, so a process may carry multiple labels.
+A clause matches when its operation target matches, its \texttt{if} expression holds over the subject labels, and its optional \texttt{unless} condition is false.
+Thus \texttt{unless C} has the rule-level meaning \texttt{and not C}.
 
-The \texttt{after} condition is the temporal gate used for cross-event
-freshness properties. Plain \texttt{after exec "pytest"} is latching:
-once the gate has happened in the process lineage, it remains satisfied.
-Adding \texttt{since write "src/**"} makes the gate stale after a later
-matching write. The \texttt{exits N} qualifier is valid only on
-\texttt{after exec} gates and opens the gate after a matching process exits
-with status \texttt{N}. The optional \texttt{ARG} in \texttt{exec}
-patterns is a single argv-token predicate, for example
-\texttt{exec "git" "commit"}.
+The \texttt{after} condition is the temporal gate used for cross-event freshness properties.
+Plain \texttt{after exec "pytest"} is latching: once the gate has happened in the process lineage, it remains satisfied.
+Adding \texttt{since write "src/**"} makes the gate stale after a later matching write.
+The \texttt{exits N} qualifier is valid only on \texttt{after exec} gates and opens the gate after a matching process exits with status \texttt{N}.
+The optional \texttt{ARG} in \texttt{exec} patterns is a single argv-token predicate, for example \texttt{exec "git" "commit"}.
 Extending \texttt{op\_pattern} and temporal gates is future work.
 
 \section{LLM-as-Judge Prompt}
 \label{sec:appendix:judge}
 
-The RQ2 trajectory judge receives a ground-truth label, the raw trace
-records, any fixture files (for indirect-execution traces), and the
-observed runner result. It outputs a single confusion-matrix label
-(\textsc{TP}, \textsc{TN}, \textsc{FP}, \textsc{FN}, or
-\textsc{unclear}) with a rationale. The prompt is reproduced below
-(template variables elided).
+The RQ2 trajectory judge receives a ground-truth label, the raw trace records, any fixture files (for indirect-execution traces), and the observed runner result.
+It outputs a single confusion-matrix label (\textsc{TP}, \textsc{TN}, \textsc{FP}, \textsc{FN}, or \textsc{unclear}) with a rationale.
+The prompt is reproduced below (template variables elided).
 
 \begin{small}
 \begin{verbatim}
@@ -85,7 +75,7 @@ Output one confusion-matrix label:
 
 - TP: the original label is a valid violation case,
   and the tested system successfully intervened on
-  the expected opaque/runtime violation 
+  the expected opaque/runtime violation
   and made the agent aware of it and try to work
   toward compliance. No need to finish the task.
 - TN: the original label is a valid compliant case,
@@ -117,7 +107,7 @@ For compliant traces:
 
 For opaque fixture violation traces:
 - Count kill, block, or execution failure caused by
-  the guardrail as TP if the agent is made aware of 
+  the guardrail as TP if the agent is made aware of
   the violation and may try to work toward compliance
   , even if the agent does not complete the task afterward
   or the agent is immediately terminated.

@@ -2,138 +2,49 @@
 \label{sec:background}
 
 \textbf{AI agents and harnesses.}
-AI agents combine model reasoning with 
-external tools, memory, and long-running
-environments, such as Claude
-Code~\cite{anthropic2025claudecode}, 
-Codex~\cite{openai2025codex},
-Devin~\cite{devin2025}, and
-OpenHands~\cite{wang2025openhands}. 
-Agents operate through an
-\emph{AI agent harness}: 
-software around the model that maintains the
-agent loop and session 
-state, routes tool calls, mediates shell, file,
-and network access, and returns results or feedback to the model,
-improving agent performance while enforcing instructions
-and constraints~\cite{langchain-harness,fowler-harness}.
-A single tool
-invocation can run arbitrary scripts, 
-browse untrusted content, call APIs,
-and touch many
-files~\cite{debenedetti2024agentdojo,
-zhan2024injecagent,
-chennabasappa2025llamafirewall}. 
-To improve task performance, safety, and compliance,
-projects often encode
-intent-level policy in natural-language 
-files (\texttt{CLAUDE.md},
-\texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,santos2025claudeconfig,
-lulla2026agentsmd} or deterministic 
-policy configurations. The policy specifies what the 
-agent should do (\emph{instructions}) or
-should not do (\emph{constraints}).
-We term their
-collective semantic meaning 
-the agent's \emph{policy intent}.
-When the agent pursues its high-level 
-goal, e.g., implementing a feature
-or booking a flight, the harness
-needs to enforce policy over 
-\emph{system actions}: concrete effects
-that happen on the system.
+AI agents combine model reasoning with external tools, memory, and long-running environments, such as Claude Code~\cite{anthropic2025claudecode}, Codex~\cite{openai2025codex}, Devin~\cite{devin2025}, and OpenHands~\cite{wang2025openhands}.
+Agents operate through an \emph{AI agent harness}: software around the model that maintains the agent loop and session state, routes tool calls, mediates shell, file, and network access, and returns results or feedback to the model, improving agent performance while enforcing instructions and constraints~\cite{langchain-harness,fowler-harness}.
+A single tool invocation can run arbitrary scripts, browse untrusted content, call APIs, and touch many files~\cite{debenedetti2024agentdojo,zhan2024injecagent,chennabasappa2025llamafirewall}.
+To improve task performance, safety, and compliance, projects often encode intent-level policy in natural-language files (\texttt{CLAUDE.md}, \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,santos2025claudeconfig,lulla2026agentsmd} or deterministic policy configurations.
+The policy specifies what the agent should do (\emph{instructions}) or should not do (\emph{constraints}).
+We term their collective semantic meaning the agent's \emph{policy intent}.
+When the agent pursues its high-level goal, e.g., implementing a feature or booking a flight, the harness needs to enforce policy over \emph{system actions}: concrete effects that happen on the system.
 
 \textbf{AI agent policy enforcement.}
-We use \emph{runtime policy enforcement
-system} for the part of an AI
-agent harness that enforces safety,
-security, and compliance policies
-while the agent executes. Existing 
-enforcement operates at three levels.
-Prompt instructions rely on the 
-model's own compliance capabilities~\cite{liu2024lost,
-jiang2024followbench,qi2025agentif}
-and are vulnerable to prompt
-injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
-Separate agents or LLM guards can
-check prompts, responses, or
-action trajectories at
-runtime~\cite{rebedea2023nemo,
-xiang2025guardagent,chennabasappa2025llamafirewall}
-but are inherently
-probabilistic.
-Tool-call guardrails and application-level IFC
-systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}
-intercept at the harness boundary deterministically.
-These three levels observe only 
-harness-mediated requests, not the
-system-level effects once a
-tool starts executing: an indirect subprocess,
-a shell-out, or a compiled binary 
-can bypass the tool boundary.
-What remains missing is the connection 
-between natural-language policy intent and
-project or task context on one side, 
-and deterministic OS-level
-observation and enforcement on the other. 
-The empirical study below
-characterizes how strongly real project 
-instructions demand this
-connection.
+We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes.
+Existing enforcement operates at three levels.
+Prompt instructions rely on the model's own compliance capabilities~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and are vulnerable to prompt injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
+Separate agents or LLM guards can check prompts, responses, or action trajectories at runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall} but are inherently probabilistic.
+Tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically.
+These three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing: an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
+What remains missing is the connection between natural-language policy intent and project or task context on one side, and deterministic OS-level observation and enforcement on the other.
+The empirical study below characterizes how strongly real project instructions demand this connection.
 
 \textbf{OS-level enforcement mechanisms.}
-OS-level mechanisms
-(seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor},
-Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock},
-BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon},
-KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain})
-restrict process, file, and network access below the tool layer
-and are increasingly adopted as agent sandboxes, but they expect
-statically pre-written policies and return opaque errors with no
-connection to policy intent.
+OS-level mechanisms (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock}, BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon}, KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain}) restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they expect statically pre-written policies and return opaque errors with no connection to policy intent.
 
 \textbf{Information-flow control.}
-Information-flow control (IFC) tracks how data moves from sources to
-sinks by attaching labels to OS objects and propagating them at
-runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
+Information-flow control (IFC) tracks how data moves from sources to sinks by attaching labels to OS objects and propagating them at runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
 Later operations are checked against accumulated label state.
 
 \section{Empirical Study}
 \label{sec:empirical}
 
-Prior studies classify instruction-file contents at file or section-heading
-granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,
-santos2025claudeconfig,lulla2026agentsmd};
-Zhang et al.~\cite{zhang2026guardrails} further show that negative
-constraints and positive directives have different effects.
-We analyze at the statement level to classify their
-enforcement requirements and quantify the context they need to become
-concrete rules.
+Prior studies classify instruction-file contents at file or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}; Zhang et al.~\cite{zhang2026guardrails} further show that negative constraints and positive directives have different effects.
+We analyze at the statement level to classify their enforcement requirements and quantify the context they need to become concrete rules.
 
 \subsection{Methodology}
 
-We collected public GitHub repositories containing \texttt{CLAUDE.md} or
-\texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025
-and excluding non-code, inactive, fake-star, and
-stub repositories. The snapshot (2026-05-23 UTC) contains
-64~repositories (median 20K GitHub stars, min 9.8K, total 2.2M),
-84 instruction files, and
-2{,}116~extracted statements. A \emph{statement} is a coherent unit
-expressing one claim or constraint. A two-pass LLM-assisted
-pipeline extracted statements with source line ranges and four labels
-(content type, topic, enforcement level, context requirement).
-A validation script verified full source coverage and verbatim span
-matching. A stratified sample of 100~statements was independently
-reviewed by human annotators, with enforceability labels additionally
-cross-checked by independent Claude and Codex agents. 
-Table~\ref{tab:examples} collects representative statements that
-illustrate all four axes, and the labels \textbf{S1}--\textbf{S8} are
-referenced throughout.
+We collected public GitHub repositories containing \texttt{CLAUDE.md} or \texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025 and excluding non-code, inactive, fake-star, and stub repositories.
+The snapshot (2026-05-23 UTC) contains 64~repositories (median 20K GitHub stars, min 9.8K, total 2.2M), 84 instruction files, and 2{,}116~extracted statements.
+A \emph{statement} is a coherent unit expressing one claim or constraint.
+A two-pass LLM-assisted pipeline extracted statements with source line ranges and four labels (content type, topic, enforcement level, context requirement).
+A validation script verified full source coverage and verbatim span matching.
+A stratified sample of 100~statements was independently reviewed by human annotators, with enforceability labels additionally cross-checked by independent Claude and Codex agents.
+Table~\ref{tab:examples} collects representative statements that illustrate all four axes, and the labels \textbf{S1}--\textbf{S8} are referenced throughout.
 
 \begin{table*}[t]
-\caption{Representative corpus statements illustrating all four
-classification axes. Enforcement level and context requirement apply
-only to directives (---\,=\,not applicable).}
+\caption{Representative corpus statements illustrating all four classification axes. Enforcement level and context requirement apply only to directives (---\,=\,not applicable).}
 \label{tab:examples}
 \centering
 \small
@@ -151,50 +62,34 @@ S7 & ``Data read from \texttt{.env} must not reach the network.'' & Dir & Securi
 S8 & ``Do not update dependencies without approval.'' & Dir & Maint. & Per-event & Task \\
 \bottomrule
 \end{tabular}
-\Description{Table of eight representative statements from the corpus,
-each classified by type, topic, enforcement level, and context
-requirement.}
+\Description{Table of eight representative statements from the corpus, each classified by type, topic, enforcement level, and context requirement.}
 \end{table*}
 
 \subsection{E-RQ1: Are Instruction Files Behavioral Policies?}
 
-A statement is a \emph{directive} if it asks the agent to perform, avoid,
-or condition an action, and is otherwise descriptive context.
-Of the 2{,}116~statements, 1{,}361 (64.3\%) are directives and
-755 (35.7\%) are descriptions (Figure~\ref{fig:empirical-rq1}).
+A statement is a \emph{directive} if it asks the agent to perform, avoid, or condition an action, and is otherwise descriptive context.
+Of the 2{,}116~statements, 1{,}361 (64.3\%) are directives and 755 (35.7\%) are descriptions (Figure~\ref{fig:empirical-rq1}).
 
-\noindent\textbf{Instruction files are mainly behavioral
-policies: the median repository has 71\% directives.}
+\noindent\textbf{Instruction files are mainly behavioral policies: the median repository has 71\% directives.}
 75\% of repositories have a directive fraction above 50\%.
-At the extremes, one repository is entirely descriptive (0\% directives)
-while another is 97\% directives.
-This majority is invisible at line level: directives average 3.6~lines
-per statement while descriptions average 6.8~lines, so the same files
-appear balanced (49\% directives) when measured by lines.
+At the extremes, one repository is entirely descriptive (0\% directives) while another is 97\% directives.
+This majority is invisible at line level: directives average 3.6~lines per statement while descriptions average 6.8~lines, so the same files appear balanced (49\% directives) when measured by lines.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/empirical_rq1_directive_fraction.pdf}
-\caption{Directive fraction per repository by statement count. Most
-repositories contain a majority of directive statements.}
+\caption{Directive fraction per repository by statement count. Most repositories contain a majority of directive statements.}
 \Description{Sorted bar chart of directive fraction per repository.}
 \label{fig:empirical-rq1}
 \end{figure}
 
 \subsection{E-RQ2: Which Topics Contain Directives?}
 
-Each statement is assigned to one of 12~topic categories adapted from
-prior instruction-file
-studies~\cite{chatlatanagulchai2025agentreadmes},
-applied at statement granularity rather than file granularity
-(Figure~\ref{fig:empirical-rq2}).
+Each statement is assigned to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}).
 
-\noindent\textbf{Directive density ranges from 0\% (System Overview) to
-87\% (Development Process).}
-Development Process and Implementation Details are directive-heavy
-(86.7\% and 85.2\%, respectively). Architecture is mostly descriptive:
-directory layouts and design summaries make it one of the largest topics
-by line count, yet only 23.0\% of its statements are directives.
+\noindent\textbf{Directive density ranges from 0\% (System Overview) to 87\% (Development Process).}
+Development Process and Implementation Details are directive-heavy (86.7\% and 85.2\%, respectively).
+Architecture is mostly descriptive: directory layouts and design summaries make it one of the largest topics by line count, yet only 23.0\% of its statements are directives.
 
 \begin{figure}[t]
 \centering
@@ -206,128 +101,70 @@ by line count, yet only 23.0\% of its statements are directives.
 
 \subsection{E-RQ3: Which Directives Require OS-Level Enforcement?}
 
-Each directive is classified into the first matching tier of an
-enforcement waterfall (Figure~\ref{fig:waterfall-enforcement}):
-\emph{semantic-only} (reasoning, communication, or
-output style), \emph{content} (predicates over file contents),
-\emph{per-event} (a single command, file access, or network connection),
-and \emph{cross-event} (history, ordering, lineage, or information flow).
-We call the union of content, per-event, and cross-event directives
-\emph{system-observable}, and the per-event and cross-event subset that
-\sys{} can enforce at OS hooks is \emph{OS-enforceable}.
+Each directive is classified into the first matching tier of an enforcement waterfall (Figure~\ref{fig:waterfall-enforcement}): \emph{semantic-only} (reasoning, communication, or output style), \emph{content} (predicates over file contents), \emph{per-event} (a single command, file access, or network connection), and \emph{cross-event} (history, ordering, lineage, or information flow).
+We call the union of content, per-event, and cross-event directives \emph{system-observable}, and the per-event and cross-event subset that \sys{} can enforce at OS hooks is \emph{OS-enforceable}.
 
 \noindent\textbf{83\% of directives constrain system-level actions.}
-Of 1{,}361~directives, 234 (17.2\%) are semantic-only, 520 (38.2\%)
-require content inspection, 392 (28.8\%) match a single OS event, and
-215 (15.8\%) require cross-event state
-(Table~\ref{tab:examples}, S2--S7 illustrate all four levels).
-Content inspection alone covers 55.4\% of directives,
-adding per-event matching reaches 84.2\%,
-and the remaining 15.8\% require cross-event IFC.
+Of 1{,}361~directives, 234 (17.2\%) are semantic-only, 520 (38.2\%) require content inspection, 392 (28.8\%) match a single OS event, and 215 (15.8\%) require cross-event state (Table~\ref{tab:examples}, S2--S7 illustrate all four levels).
+Content inspection alone covers 55.4\% of directives, adding per-event matching reaches 84.2\%, and the remaining 15.8\% require cross-event IFC.
 
-\noindent\textbf{Cross-event directives concentrate in Development
-Process, which accounts for 39.5\% of all cross-event directives
-(Figure~\ref{fig:enforcement-by-topic}).}
-Four recurring patterns emerge: temporal ordering (``run tests before
-committing''), cross-file consistency (``update docs when behavior
-changes''), multi-step workflows (release checklists with verification
-steps), and conditional triggers (``if you change specs, also update
-SDK''). All four require state that spans multiple operations:
-what ran, in what order, and what has changed since. Most of the
-operations involve files, processes, and network connections.
+\noindent\textbf{Cross-event directives concentrate in Development Process, which accounts for 39.5\% of all cross-event directives (Figure~\ref{fig:enforcement-by-topic}).}
+Four recurring patterns emerge: temporal ordering (``run tests before committing''), cross-file consistency (``update docs when behavior changes''), multi-step workflows (release checklists with verification steps), and conditional triggers (``if you change specs, also update SDK'').
+All four require state that spans multiple operations: what ran, in what order, and what has changed since.
+Most of the operations involve files, processes, and network connections.
 
-\noindent\textbf{At the repository level, 81\% of repositories contain
-at least one cross-event directive, and 43\% require all four
-enforcement layers.}
+\noindent\textbf{At the repository level, 81\% of repositories contain at least one cross-event directive, and 43\% require all four enforcement layers.}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\columnwidth]{figures/empirical-waterfall-enforcement.pdf}
-\caption{Enforcement-level waterfall. Each directive exits at the first
-matching tier.}
-\Description{Flowchart showing the enforcement-level waterfall decision
-procedure with four outcomes: semantic-only, content, per-event,
-cross-event.}
+\caption{Enforcement-level waterfall. Each directive exits at the first matching tier.}
+\Description{Flowchart showing the enforcement-level waterfall decision procedure with four outcomes: semantic-only, content, per-event, cross-event.}
 \label{fig:waterfall-enforcement}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/empirical_rq3_enforcement_by_topic.pdf}
-\caption{Enforcement profile by topic (normalized). Topics exhibit
-distinct archetypes, and cross-event directives concentrate in
-Development Process.}
-\Description{Stacked horizontal bar chart showing the normalized
-enforcement-level breakdown for each topic category.}
+\caption{Enforcement profile by topic (normalized). Topics exhibit distinct archetypes, and cross-event directives concentrate in Development Process.}
+\Description{Stacked horizontal bar chart showing the normalized enforcement-level breakdown for each topic category.}
 \label{fig:enforcement-by-topic}
 \end{figure}
 
 \subsection{E-RQ4: What Context Is Needed to Instantiate Rules?}
 
-Each system-observable directive is classified by what additional context
-an enforcement mechanism needs beyond the directive text itself
-(Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all
-commands, paths, and patterns are explicit; \emph{project context} if it
-references an unresolved repository-specific concept (``the full test
-suite,'' ``the migration tool''); or \emph{task context} if it depends on
-the current user request or a per-session grant (``unless explicitly
-requested,'' ``without approval'').
+Each system-observable directive is classified by what additional context an enforcement mechanism needs beyond the directive text itself (Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all commands, paths, and patterns are explicit; \emph{project context} if it references an unresolved repository-specific concept (``the full test suite,'' ``the migration tool''); or \emph{task context} if it depends on the current user request or a per-session grant (``unless explicitly requested,'' ``without approval'').
 
-\noindent\textbf{74\% of system-observable directives require project
-or task context to instantiate as concrete rules.}
-Of the 1{,}127~system-observable directives, only 26.4\% are
-self-contained. Another 64.2\% require project context: the directive
-mentions ``the test suite,'' ``the linter,'' or ``upstream source,''
-whose concrete command or path needs to be resolved from the repository.
-The remaining 9.4\% require task context
-(Figure~\ref{fig:empirical-rq4};
-Table~\ref{tab:examples}: S4 is self-contained; S5--S7 require project
-context; S8 requires task context).
+\noindent\textbf{74\% of system-observable directives require project or task context to instantiate as concrete rules.}
+Of the 1{,}127~system-observable directives, only 26.4\% are self-contained.
+Another 64.2\% require project context: the directive mentions ``the test suite,'' ``the linter,'' or ``upstream source,'' whose concrete command or path needs to be resolved from the repository.
+The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}; Table~\ref{tab:examples}: S4 is self-contained; S5--S7 require project context; S8 requires task context).
 
-\noindent\textbf{Cross-event directives are 95\% context-dependent,
-compared to 58\% for content directives.}
-Of cross-event directives, 76.7\% require project context and 18.6\%
-task context (95.3\% total), while content directives are only 57.5\%
-context-dependent. This compounds the enforcement challenge: directives
-that require cross-event IFC rarely specify the concrete commands
-and paths needed to write the rule. Generic static rules can cover
-only the self-contained fraction, and the majority require the agent itself
-to read the repository, interpret the current task, and produce a
-concrete policy before enforcement begins.
+\noindent\textbf{Cross-event directives are 95\% context-dependent, compared to 58\% for content directives.}
+Of cross-event directives, 76.7\% require project context and 18.6\% task context (95.3\% total), while content directives are only 57.5\% context-dependent.
+This compounds the enforcement challenge: directives that require cross-event IFC rarely specify the concrete commands and paths needed to write the rule.
+Generic static rules can cover only the self-contained fraction, and the majority require the agent itself to read the repository, interpret the current task, and produce a concrete policy before enforcement begins.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.78\columnwidth]{figures/empirical-waterfall-context.pdf}
-\caption{Context-requirement waterfall. Each system-level directive
-exits at the first matching tier.}
-\Description{Flowchart showing the context-requirement waterfall with
-three outcomes: none, project, task.}
+\caption{Context-requirement waterfall. Each system-level directive exits at the first matching tier.}
+\Description{Flowchart showing the context-requirement waterfall with three outcomes: none, project, task.}
 \label{fig:waterfall-context}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/empirical_rq4_context_by_enforcement.pdf}
-\caption{Context requirement by enforcement level. Cross-event
-directives are 95\% context-dependent, while content directives are
-42\% self-contained.}
-\Description{Stacked horizontal bar chart showing context requirement
-(none, project, task) for each enforcement level.}
+\caption{Context requirement by enforcement level. Cross-event directives are 95\% context-dependent, while content directives are 42\% self-contained.}
+\Description{Stacked horizontal bar chart showing context requirement (none, project, task) for each enforcement level.}
 \label{fig:empirical-rq4}
 \end{figure}
 
-\textbf{Summary}. These findings establish two requirements for
-a policy engine in AI agent harnesses.
+\textbf{Summary}.
+These findings establish two requirements for a policy engine in AI agent harnesses.
 \emph{R1: agent-writable, OS-enforceable policy specification.}
-Most rules need project or task context that resides with the
-agent (E-RQ4), so the agent itself must be able to turn directives
-into concrete rules, and it needs semantic feedback to understand
-violations and recover. Yet many directives constrain system-level
-behavior that spans multiple operations and is invisible to
-tool-call guardrails (E-RQ3), so the rules must be concrete enough
-for deterministic OS-level cross-event enforcement.
+Most rules need project or task context that resides with the agent (E-RQ4), so the agent itself must be able to turn directives into concrete rules, and it needs semantic feedback to understand violations and recover.
+Yet many directives constrain system-level behavior that spans multiple operations and is invisible to tool-call guardrails (E-RQ3), so the rules must be concrete enough for deterministic OS-level cross-event enforcement.
 \emph{R2: safe, isolated, and efficient enforcement.}
-Enforcement must hold under probabilistic errors or prompt
-injection, agent-authored policy must not weaken safety constraints
-set by higher authority or affect other agents' policies, and
-enforcement must not slow the agent's normal workload.
+Enforcement must hold under probabilistic errors or prompt injection, agent-authored policy must not weaken safety constraints set by higher authority or affect other agents' policies, and enforcement must not slow the agent's normal workload.
