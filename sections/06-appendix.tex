@@ -9,7 +9,7 @@ This appendix gives the concrete surface syntax used by the policy-generation ag
 Keywords are lowercase.
 % 中：关键字为小写。
 \texttt{IDENT} names a label or rule, and \texttt{PATTERN}, \texttt{ARG}, and \texttt{STRING} are quoted strings.
-% 中：\texttt{IDENT}命名标签或规则，\texttt{PATTERN}、\texttt{ARG} 和 \texttt{STRING}是带引号的字符串。
+% 中：\texttt{IDENT} 命名一个标签或规则，\texttt{PATTERN}、\texttt{ARG} 和 \texttt{STRING} 是带引号的字符串。
 
 \begin{small}
 \begin{verbatim}
@@ -52,37 +52,37 @@ since_event ::= "exec" PATTERN [ARG]
 \end{small}
 
 A source declaration introduces labels but is not a conditional state transition rule.
-% 中：源声明引入标签，但不是条件状态转换规则。
+% 中：一个源声明引入标签，但不是一条条件状态转换规则。
 Each process, file, and endpoint carries a set of labels, implemented as a bit mask, so a process may carry multiple labels.
-% 中：每个进程、文件和端点携带一组标签，实现为位掩码，因此进程可以携带多个标签。
+% 中：每个进程、文件和端点携带一组标签，实现为一个位掩码，因此一个进程可以携带多个标签。
 A clause matches when its operation target matches, its \texttt{if} expression holds over the subject labels, and its optional \texttt{unless} condition is false.
-% 中：当操作目标匹配、\texttt{if}表达式在主体标签上成立、且可选的 \texttt{unless}条件为假时，子句匹配。
+% 中：一条子句在以下情况下匹配：其操作目标匹配、其 \texttt{if} 表达式在主体标签上成立、且其可选的 \texttt{unless} 条件为假。
 Thus \texttt{unless C} has the rule-level meaning \texttt{and not C}.
 % 中：因此 \texttt{unless C}在规则级别具有 \texttt{and not C}的含义。
 
 The \texttt{after} condition is the temporal gate used for cross-event freshness properties.
 % 中：\texttt{after}条件是用于跨事件新鲜度属性的时间门控。
 Plain \texttt{after exec "pytest"} is latching: once the gate has happened in the process lineage, it remains satisfied.
-% 中：普通的 \texttt{after exec "pytest"}是锁存的：一旦门控在进程血统中发生，它就保持满足。
+% 中：普通的 \texttt{after exec "pytest"} 是锁存的：一旦门控在进程血统中发生过，它就保持满足。
 Adding \texttt{since write "src/**"} makes the gate stale after a later matching write.
-% 中：添加 \texttt{since write "src/**"}使门控在后续匹配写入后过期。
+% 中：添加 \texttt{since write "src/**"} 使门控在后续匹配的写入后过期。
 The \texttt{exits N} qualifier is valid only on \texttt{after exec} gates and opens the gate after a matching process exits with status \texttt{N}.
-% 中：\texttt{exits N}限定符仅对 \texttt{after exec}门控有效，在匹配进程以状态 \texttt{N}退出后打开门控。
+% 中：\texttt{exits N} 限定符仅对 \texttt{after exec} 门控有效，并在一个匹配的进程以状态 \texttt{N} 退出后打开门控。
 The optional \texttt{ARG} in \texttt{exec} patterns is a single argv-token predicate, for example \texttt{exec "git" "commit"}.
-% 中：\texttt{exec}模式中的可选 \texttt{ARG}是单个 argv-token 谓词，例如 \texttt{exec "git" "commit"}。
+% 中：\texttt{exec} 模式中的可选 \texttt{ARG} 是一个单 argv-token 谓词，例如 \texttt{exec "git" "commit"}。
 Extending \texttt{op\_pattern} and temporal gates is future work.
-% 中：扩展 \texttt{op\_pattern}和时间门控是未来工作。
+% 中：扩展 \texttt{op\_pattern} 和时间门控是未来工作。
 
 \section{LLM-as-Judge Prompt}
 % 中：\section{LLM 作为判断器提示词}
 \label{sec:appendix:judge}
 
 The RQ2 trajectory judge receives a ground-truth label, the raw trace records, any fixture files (for indirect-execution traces), and the observed runner result.
-% 中：RQ2 轨迹判断器接收真实标签、原始轨迹记录、任何装置文件（用于间接执行轨迹）和观察到的运行器结果。
+% 中：RQ2 轨迹判断器接收一个真实标签、原始轨迹记录、任何装置文件（用于间接执行轨迹）和观察到的运行器结果。
 It outputs a single confusion-matrix label (\textsc{TP}, \textsc{TN}, \textsc{FP}, \textsc{FN}, or \textsc{unclear}) with a rationale.
-% 中：它输出单个混淆矩阵标签（\textsc{TP}、\textsc{TN}、\textsc{FP}、\textsc{FN}或 \textsc{unclear}）及其理由。
+% 中：它输出一个单一的混淆矩阵标签（\textsc{TP}、\textsc{TN}、\textsc{FP}、\textsc{FN} 或 \textsc{unclear}）及其理由。
 The prompt is reproduced below (template variables elided).
-% 中：提示词如下复制（模板变量已省略）。
+% 中：提示词在下方复制（模板变量已省略）。
 
 \begin{small}
 \begin{verbatim}
