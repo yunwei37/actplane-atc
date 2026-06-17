@@ -1,48 +1,85 @@
 \section{Introduction}
+% 中：\section{引言}
 
 % ¶1: Context — agents are powerful and widely deployed through harnesses
+% 中：% ¶1: 背景——智能体功能强大，并通过 harness 广泛部署
 AI agents are widely used for coding, DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands,debenedetti2024agentdojo,zhan2024injecagent,agentsight}, where they run on real infrastructure and handle sensitive data.
+% 中：AI 智能体广泛用于编码、DevOps 和企业工作流\cite{yang2024sweagent,wang2025openhands,debenedetti2024agentdojo,zhan2024injecagent,agentsight}，它们在真实基础设施上运行并处理敏感数据。
 Besides the LLM, agents require AI agent harnesses: software around the model that improves agent performance while enforcing instructions and constraints for safety and compliance~\cite{fowler-harness}.
+% 中：除了 LLM，智能体还需要 AI 智能体 harness：包裹模型的软件，在执行指令和约束以确保安全和合规的同时提升智能体性能~\cite{fowler-harness}。
 
 % ¶2: Policy engines; instruction files are behavioral policy
+% 中：% ¶2: 策略引擎；指令文件是行为策略
 A major component of the harness is a policy engine~\cite{langchain-harness}: the part that observes and enforces instructions and constraints over the agent's concrete actions.
+% 中：harness 的核心组件是策略引擎~\cite{langchain-harness}：观察并执行智能体具体行为上的指令和约束的部分。
 Projects encode many such policies in instruction files (e.g., \texttt{CLAUDE.md}, \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}, so harnesses can provide them to the model directly.
+% 中：项目在指令文件（如 \texttt{CLAUDE.md}、\texttt{AGENTS.md}）中编码了许多此类策略~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}，因此 harness 可以直接将它们提供给模型。
 Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and may violate them through planning errors, prompt-injection drift, and opaque tool or script behavior~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}, harnesses also require deterministic policy engines to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
+% 中：由于 LLM 对指令的遵循是概率性的~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并可能因规划错误、提示词注入漂移和不透明的工具或脚本行为而违反指令~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}，harness 还需要确定性策略引擎来强制合规~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}。
 
 % ¶4: Semantic gap — existing deterministic mechanisms also fail
+% 中：% ¶4: 语义鸿沟——现有确定性机制也失效
 However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement needs to decide over concrete \emph{system actions}.
+% 中：然而，现有策略引擎留下了 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行需要对具体的 \emph{系统行为}做出决策。
 Our empirical study of instruction files in 64~popular projects (\S\ref{sec:empirical}) finds that 64\% of statements are behavioral directives, and 83\% of those involve system-level behavior: commands executed, files accessed, and network connections made.
+% 中：我们对 64 个热门项目指令文件的实证研究（\S\ref{sec:empirical}）发现，64\% 的语句是行为指令，其中 83\% 涉及系统级行为：执行的命令、访问的文件和建立的网络连接。
 Existing tool-call-based policy systems in agent runtimes such as Claude Code~\cite{anthropic2025claudecode}, whether LLM guardrails or regex-like checkers~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}, lose track of indirect system actions when agents spawn subprocesses: e.g., the same \texttt{git~push} can run inside a \texttt{bash} wrapper created in a previous session.
+% 中：智能体运行时（如 Claude Code~\cite{anthropic2025claudecode}）中现有的基于工具调用的策略系统，无论是 LLM 护栏还是类正则检查器~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}，当智能体生成子进程时会丢失对间接系统行为的追踪：例如，同样的 \texttt{git~push} 可以在前一会话创建的 \texttt{bash} 包装器中运行。
 Stateless single-call interception also misses directives that span multiple operations: at the repository level, 81\% of projects contain cross-event system directives (e.g., ``run tests before commit'').
+% 中：无状态的单调用拦截也会遗漏跨越多个操作的指令：在仓库级别，81\% 的项目包含跨事件系统指令（例如"提交前运行测试"）。
 
 OS-level enforcement with static policy is also insufficient.
+% 中：基于静态策略的操作系统级执行也不足够。
 Most rules reference project or task context that must be resolved (e.g., ``never modify upstream source,'' where \emph{upstream source} needs to be resolved from the repository; ``do not update dependencies unless requested''; ``the reviewer sub-agent only writes to its project directory''), so human administrators can hardly pre-define policy for them without that context.
+% 中：大多数规则引用需要解析的项目或任务上下文（例如"永不修改上游源码"，其中 \emph{上游源码}需要从仓库中解析；"除非请求否则不要更新依赖"；"审查子智能体只能写入其项目目录"），因此人工管理员在没有该上下文的情况下几乎无法为它们预定义策略。
 We find that 74\% of system-level directives require intent-level context outside of low-level OS events.
+% 中：我们发现 74\% 的系统级指令需要低级操作系统事件之外的意图级上下文。
 OS-level enforcement systems and sandboxes for traditional software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor} can observe system actions but expect pre-defined static policy and return only system events without semantic context, leaving the agent unlikely to comply with its policies.
+% 中：传统软件的操作系统级执行系统和沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}可以观察系统行为，但期望预定义的静态策略，且仅返回没有语义上下文的系统事件，使智能体难以遵守其策略。
 
 % ¶5: Insight — programmable policy engine below the tool layer
+% 中：% ¶5: 洞察——工具层之下的可编程策略引擎
 To bridge the gap, we argue that an agent-harness policy engine should be programmable by agents and take effect at OS level.
+% 中：为弥合这一鸿沟，我们认为智能体 harness 策略引擎应该可由智能体编程并在操作系统级别生效。
 It should let agents use live project and task context to define policy and enforce actions.
+% 中：它应该让智能体使用实时项目和任务上下文来定义策略并执行行为。
 While safety constraints come from higher authority, we observe that the required context mainly resides with the agent closest to the task: it already reads the repository, interprets the current task, and resolves abstract references into commands and paths.
+% 中：虽然安全约束来自更高权限，但我们观察到所需的上下文主要存在于最接近任务的智能体处：它已经读取了仓库、解释了当前任务，并将抽象引用解析为命令和路径。
 This makes agents the natural producer of concrete compliance policy, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
+% 中：这使智能体成为具体合规策略的自然生产者，也反映了指令文件越来越多地由智能体维护的事实~\cite{anthropic2025claudecode,galster2026configuring}。
 
 To realize this, first, policy specification needs to be high-level enough for agents to easily generate from natural language with minimal token consumption, yet concrete enough to compile to deterministic kernel checks.
+% 中：为实现这一点，首先，策略规范需要足够高级，使智能体能够以最少的 token 消耗轻松地从自然语言生成，同时又足够具体以编译为确定性内核检查。
 Second, enforcement needs to track policy across the system without imposing prohibitive overhead.
+% 中：其次，执行需要跨系统追踪策略，且不产生过高开销。
 Third, since many rules are about safety, programmability must not become an authority bypass: agents cannot weaken inherited constraints set by separate trusted administrators, and safety rules should be installed separately.
+% 中：第三，由于许多规则涉及安全，可编程性不能成为权限绕过：智能体不能削弱由独立可信管理员设置的继承约束，安全规则应单独安装。
 
 % ¶6: System — \sys{}
+% 中：% ¶6: 系统——\sys{}
 \sys{} is a runtime-agnostic, programmable OS-level policy enforcement system for AI agent harnesses.
+% 中：\sys{} 是一个运行时无关、可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
 Agents express policies in a DSL that \sys{} compiles into labeled information-flow rules and loads them into an eBPF engine with process, file, and network kernel hooks.
+% 中：智能体使用 DSL 表达策略，\sys{} 将其编译为带标签的信息流规则，并通过进程、文件和网络内核钩子加载到 eBPF 引擎中。
 Each rule has one of three effects: notify (observe) for instructions, block (pre-operation denial on hooks) or kill (process termination) for constraints, all with semantic feedback about why and what to do next.
+% 中：每条规则有三种效果之一：notify（观察）用于指令，block（钩子上的操作前拒绝）或 kill（进程终止）用于约束，都带有关于原因和下一步行动的语义反馈。
 Layered policy domains isolate each agent's policy to its own subtree and prevent weakening of inherited constraints.
+% 中：分层策略域将每个智能体的策略隔离到其自己的子树中，防止削弱继承的约束。
 On the decision-compliance benchmark, \sys{} resolves 2.0--3.2$\times$ as many violations as prompt-filter, tool-regex, FIDES~\cite{costa2025fides} (tool-level IFC), and feedback-free kernel IFC by covering indirect execution paths that tool-call interception cannot, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
+% 中：在决策合规基准上，\sys{} 解决的违规数量是 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}（工具级 IFC）和无反馈内核 IFC 的 2.0--3.2 倍，通过覆盖工具调用拦截无法观察的间接执行路径，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
 On a safety benchmark of 361 personal-assistant tasks, \sys{} prevents 74\% of baseline-unsafe behaviors using separate agent-generated policies loaded as higher-authority policy before unsafe execution begins.
+% 中：在包含 361 个个人助理任务的安全基准上，\sys{} 使用作为更高权限策略加载的独立智能体生成策略，在不安全执行开始前阻止了 74\% 的基线不安全行为。
 \sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
+% 中：\sys{} 已开源于 \url{https://github.com/eunomia-bpf/ActPlane}。
 
 
 To summarize, we make three contributions:
+% 中：总结而言，我们做出三项贡献：
 \begin{enumerate}
 \item An \textbf{empirical study} of 64~projects that characterizes these gaps (\S\ref{sec:empirical}) and motivates \sys{}.
+% 中：\item 一项对 64 个项目的 \textbf{实证研究}，表征了这些鸿沟（\S\ref{sec:empirical}）并激发了 \sys{} 的设计。
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system that addresses them (\S\ref{sec:design}--\ref{sec:implementation}).
+% 中：\item \textbf{\sys{}}，一个可编程的操作系统级策略执行系统，解决了这些问题（\S\ref{sec:design}--\ref{sec:implementation}）。
 \item An \textbf{evaluation} on a decision-compliance benchmark built on the empirical study, together with external coding-task and safety benchmarks covering workplace and personal-assistant tasks (\S\ref{sec:evaluation}).
+% 中：\item 一项 \textbf{评估}，基于实证研究构建的决策合规基准，以及涵盖工作场所和个人助理任务的外部编码任务和安全基准（\S\ref{sec:evaluation}）。
 \end{enumerate}

@@ -1,117 +1,189 @@
 \section{Evaluation}
+% 中：\section{评估}
 \label{sec:evaluation}
 
 We evaluate \sys{} along five research questions (RQ1--RQ5, distinct from the empirical E-RQs in \S\ref{sec:empirical}).
+% 中：我们沿五个研究问题（RQ1--RQ5，与 \S\ref{sec:empirical}中的实证 E-RQ 不同）评估 \sys{}。
 
 \begin{description}
 \item[RQ1 (DSL coverage)] Can a translation agent generate \sys{} policies for all 607 OS-enforceable directives?
+% 中：\item[RQ1（DSL 覆盖）] 翻译智能体能否为所有 607 条操作系统可执行指令生成 \sys{} 策略？
 \item[RQ2 (Policy engine effectiveness)] Compared with baselines, does \sys{} improve policy compliance for rules from our empirical study across direct and indirect execution paths?
+% 中：\item[RQ2（策略引擎有效性）] 与基线相比，\sys{} 是否提高了实证研究中规则在直接和间接执行路径上的策略合规性？
 \item[RQ3 (Overhead)] What is the per-event and end-to-end overhead of \sys{}'s label propagation and rule checking?
+% 中：\item[RQ3（开销）] \sys{} 的标签传播和规则检查的每事件和端到端开销是多少？
 \item[RQ4 (Real-world coding tasks)] On coding-agent tasks in real repositories, does \sys{} improve policy compliance and task success rate?
+% 中：\item[RQ4（真实编码任务）] 在真实仓库的编码智能体任务上，\sys{} 是否提高了策略合规性和任务成功率？
 \item[RQ5 (Safety beyond coding)] On a safety benchmark covering data handling, system administration, and workplace tasks, do \sys{}'s agent-generated policies, loaded in a higher-authority domain, prevent unsafe agent behaviors?
+% 中：\item[RQ5（编码之外的安全性）] 在涵盖数据处理、系统管理和工作场所任务的安全基准上，\sys{} 智能体生成的策略作为更高权限域加载，是否能阻止不安全的智能体行为？
 \end{description}
 
 %% ----------------------------------------------------------------
 \subsection{Experimental Setup}
+% 中：\subsection{实验设置}
 \label{sec:eval:setup}
 
 All experiments run on a machine with an Intel Core Ultra~9~285K CPU (24~hardware cores), 125\,GiB RAM, and Linux~6.15.11.
+% 中：所有实验在配备 Intel Core Ultra~9~285K CPU（24 个硬件核心）、125\,GiB RAM 和 Linux~6.15.11 的机器上运行。
 
 %% ----------------------------------------------------------------
 \subsection{RQ1: DSL Generation Cost and Coverage}
+% 中：\subsection{RQ1：DSL 生成成本和覆盖}
 \label{sec:eval:rq1}
 
 The empirical study identifies 607~OS-enforceable directives.
+% 中：实证研究识别了 607 条操作系统可执行指令。
 RQ1 uses all of them.
+% 中：RQ1 使用所有这些指令。
 A Codex agent~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt55} reads each directive, the repository context, and the DSL reference, then writes the corresponding \sys{} policy.
+% 中：一个 Codex 智能体~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}读取每条指令、仓库上下文和 DSL 参考，然后编写相应的 \sys{} 策略。
 The runner invokes the \sys{} compiler and retries once on failure.
+% 中：运行器调用 \sys{} 编译器，失败时重试一次。
 The translator produced policies for all 607~directives, and all of them compiled.
+% 中：翻译器为所有 607 条指令生成了策略，且全部编译通过。
 Only 2~policies required a retry, giving a 0.3\% retry rate and no compilation failures.
+% 中：只有 2 条策略需要重试，重试率为 0.3\%，无编译失败。
 To validate correctness, we apply the same methodology as the empirical study (\S\ref{sec:empirical}): two independent LLM agents cross-check all policies, and human annotators review 100 randomly selected ones.
+% 中：为验证正确性，我们采用与实证研究相同的方法论（\S\ref{sec:empirical}）：两个独立的 LLM 智能体交叉检查所有策略，人工标注者审查随机选择的 100 条。
 
 The generation experiment used 1.7M non-cache input tokens and 177k output tokens in total, or \$0.028 per policy.
+% 中：生成实验共使用了 1.7M 非缓存输入 token 和 177k 输出 token，每条策略 \$0.028。
 At typical US software-engineer rates, manually writing ten rules per hour would cost roughly \$11 per rule.
+% 中：按典型美国软件工程师费率，每小时手动编写十条规则大约每条规则 \$11。
 Full translation takes about 34\,min using 7 subagents, 4 running in parallel.
+% 中：使用 7 个子智能体完整翻译约需 34 分钟，4 个并行运行。
 The 607~policies expand to 1{,}283~rule lines.
+% 中：607 条策略扩展为 1,283 条规则行。
 
 \noindent\textbf{Most policies are structurally simple.}
+% 中：\noindent\textbf{大多数策略结构简单。}
 217 (36\%) have a single enforcement clause, 231 (38\%) have two, and 101 (17\%) have three.
+% 中：217 条（36\%）有单个执行子句，231 条（38\%）有两个，101 条（17\%）有三个。
 Policies average 71 tokens (per-event: 62, cross-event: 86; p95: 122 overall, 94 per-event, 152 cross-event) under the OpenAI \texttt{o200k\_base} tokenizer.
+% 中：策略平均 71 个 token（单事件：62，跨事件：86；p95：总体 122，单事件 94，跨事件 152），使用 OpenAI \texttt{o200k\_base} 分词器。
 
 \noindent\textbf{Most DSL features are exercised.}
+% 中：\noindent\textbf{大多数 DSL 特性被使用。}
 By effect, 66\% of clauses are notify, 29\% block, and 5\% kill; by hook, 60\% target exec and 37\% write, with unlink (0.9\%), connect (0.8\%), and open (0.5\%).
+% 中：按效果，66\% 的子句是通知，29\% 阻止，5\% 终止；按钩子，60\% 针对 exec，37\% 写入，unlink（0.9\%）、connect（0.8\%）和 open（0.5\%）。
 28\% of policies use an \texttt{after/since} temporal gate; 214 use \texttt{unless}; 82 use \texttt{or} in label expressions; 13 use \texttt{lineage-includes}; and 9 use \texttt{target}.
+% 中：28\% 的策略使用 \texttt{after/since} 时间门控；214 条使用 \texttt{unless}；82 条在标签表达式中使用 \texttt{or}；13 条使用 \texttt{lineage-includes}；9 条使用 \texttt{target}。
 95 policies (15.7\%) define file sources for information-flow tracking beyond agent provenance.
+% 中：95 条策略（15.7\%）定义文件源以进行超越智能体来源的信息流追踪。
 \texttt{declassify}/\texttt{endorse} transforms are unused in this corpus because they are designed for agents to define approved paths that clear accumulated labels, mitigating over-tainting from label monotonicity in longer sessions.
+% 中：\texttt{declassify}/\texttt{endorse} 变换在此语料库中未使用，因为它们设计用于智能体定义清除累积标签的批准路径，缓解更长会话中标签单调性导致的过度标记。
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
+% 中：\subsection{RQ2：\sys{} 策略合规有效性}
 \label{sec:eval:rq2}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1-pipeline.pdf}
 \caption{RQ2 evaluation pipeline: four enforcement paths from natural-language rule to agent-level decision.}
+% 中：\caption{RQ2 评估流水线：从自然语言规则到智能体级决策的四条执行路径。}
 \Description{Flow diagram showing prompt-filter, tool-regex, FIDES, and \sys{} paths through policy translation, enforcement, and judging.}
+% 中：\Description{流程图显示 prompt-filter、tool-regex、FIDES 和 \sys{} 通过策略翻译、执行和判断的路径。}
 \label{fig:rq2-pipeline}
 \end{figure}
 
 \paragraph{Benchmark Motivation.}
+% 中：\paragraph{基准动机。}
 To measure the effectiveness of \sys{} compared to other tool-level checkers and guardrails under the same agent trajectory, we build a new benchmark using similar methodology to existing ones, but designed to challenge runtime enforcement systems with indirect execution paths and cross-event system actions.
+% 中：为衡量 \sys{} 与其他工具级检查器和护栏在相同智能体轨迹下的有效性，我们使用类似于现有基准的方法构建新基准，但设计为通过间接执行路径和跨事件系统行为挑战运行时执行系统。
 Existing enforcement benchmarks such as ShieldAgent-Bench~\cite{li2025shieldagent} and ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall at the tool-call or trajectory level.
+% 中：现有执行基准如 ShieldAgent-Bench~\cite{li2025shieldagent} 和 ToolSafe~\cite{chen2026toolsafe}在工具调用或轨迹级别评估护栏精度和召回。
 Runtime enforcement evaluations in AgentSpec, Progent, FIDES, and CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} measure attack-success-rate reduction on AgentDojo scenarios~\cite{debenedetti2024agentdojo}.
+% 中：AgentSpec、Progent、FIDES 和 CaMeL~\cite{wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}中的运行时执行评估在 AgentDojo 场景~\cite{debenedetti2024agentdojo}上衡量攻击成功率降低。
 However, these operate at the tool-call boundary: they do not test whether enforcement holds when an agent causes a system effect through an indirect or cross-event path.
+% 中：然而，这些在工具调用边界运行：它们不测试当智能体通过间接或跨事件路径导致系统效果时执行是否保持。
 
 \paragraph{Rule set and scope.}
+% 中：\paragraph{规则集和范围。}
 RQ2 samples from the 607~OS-enforceable directives.
+% 中：RQ2 从 607 条操作系统可执行指令中采样。
 Semantic-only and content directives are excluded: the former have no system-observable effect, and the latter require linter rather than OS-level IFC.
+% 中：仅语义和内容指令被排除：前者没有系统可观察效果，后者需要代码检查器而非操作系统级 IFC。
 We evaluate 38 randomly-selected rules, sampling 2--3 from each of 15 repositories to cover both per-event and cross-event rules, project- and task-context requirements, and common repository policy themes.
+% 中：我们评估 38 条随机选择的规则，从 15 个仓库各采样 2--3 条，以覆盖单事件和跨事件规则、项目和任务上下文要求以及常见仓库策略主题。
 The final manifest contains 20 per-event and 18 cross-event rules.
+% 中：最终清单包含 20 条单事件和 18 条跨事件规则。
 
 \paragraph{Traces.}
+% 中：\paragraph{轨迹。}
 A Codex CLI agent~\cite{openai2025codex} under GPT-5.5~\cite{openai2026gpt55} reads the rule and repository to produce five traces.
+% 中：一个 Codex CLI 智能体~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}读取规则和仓库后生成五条轨迹。
 The policy DSL and all enforcement systems, including \sys{}, are invisible to it to avoid information leakage.
+% 中：策略 DSL 和所有执行系统（包括 \sys{}）对其不可见，以避免信息泄露。
 Each trace simulates real-world coding-agent tasks, including user prompts and tool calls that read and write files, execute shell commands, and invoke build or test on a real repository.
+% 中：每条轨迹模拟真实编码智能体任务，包括用户提示和在真实仓库上读写文件、执行 shell 命令、调用构建或测试的工具调用。
 For each rule the agent produces two compliant traces and three violation traces.
+% 中：对于每条规则，智能体生成两条合规轨迹和三条违规轨迹。
 Allowed-effect traces exercise explicitly permitted system-level behavior close to the prohibited action.
+% 中：允许效果轨迹演练明确允许但接近禁止行为的系统级行为。
 Lookalike traces perform operations that look like the prohibited action but are technically compliant.
+% 中：相似轨迹执行看起来像禁止行为但技术上合规的操作。
 The three violation families reflect execution-path categories observed in deployed coding agents~\cite{anthropic2026containment,maloyan2026sok}: direct violation traces trigger the prohibited operation via a tool call; script traces split script authoring and execution across separate tool calls, moving the side effect into an unmonitored subprocess~\cite{maloyan2026sok}; hidden traces embed the side effect in an auxiliary artifact whose entrypoint appears benign~\cite{wu2026skillject}, so the real action is observable only at the OS level.
+% 中：三个违规族反映了部署的编码智能体中观察到的执行路径类别~\cite{anthropic2026containment,maloyan2026sok}：直接违规轨迹通过工具调用触发禁止操作；脚本轨迹将脚本编写和执行拆分到单独的工具调用中，将副作用移入未监控的子进程~\cite{maloyan2026sok}；隐藏轨迹将副作用嵌入辅助工件中，其入口点看起来无害~\cite{wu2026skillject}，因此真实操作仅在操作系统级别可观察。
 This yields 190 traces.
+% 中：这产生 190 条轨迹。
 We replay them on codex-sdk to trigger the enforcement systems, and the tested agent then continues for up to five real tool steps, which measures the next action the agent takes after receiving semantic feedback.
+% 中：我们在 codex-sdk 上重放它们以触发执行系统，然后测试的智能体继续最多五个真实工具步骤，衡量智能体在收到语义反馈后采取的下一个行动。
 
 \paragraph{Compared systems.}
+% 中：\paragraph{比较系统。}
 RQ2 compares five policy enforcement systems on the same agent traces (Figure~\ref{fig:rq2-pipeline}): a prompt-based action filter, a tool-input regex policy, FIDES~\cite{costa2025fides} (tool-level IFC), feedback-free kernel IFC (\textsc{\sys{}-opaque}), and full \sys{}.
+% 中：RQ2 在相同智能体轨迹上比较五个策略执行系统（图~\ref{fig:rq2-pipeline}）：基于提示的行动过滤器、工具输入正则策略、FIDES~\cite{costa2025fides}（工具级 IFC）、无反馈内核 IFC（\textsc{\sys{}-opaque}）和完整 \sys{}。
 The prompt, regex, and FIDES baselines instantiate common runtime enforcement layers: LLM/prompt-based rails over proposed actions~\cite{rebedea2023nemo,xiang2025guardagent}; deterministic tool-call policies as deployed in Claude Code hooks~\cite{anthropic2026hooks}, Codex approval policies~\cite{openai2025codex}, and AgentSpec~\cite{wang2025agentspec}; and FIDES tool-level IFC policies.
+% 中：提示、正则和 FIDES 基线实例化了常见的运行时执行层：对提议行动的 LLM/提示基础护栏~\cite{rebedea2023nemo,xiang2025guardagent}；Claude Code hooks~\cite{anthropic2026hooks}、Codex 批准策略~\cite{openai2025codex}和 AgentSpec~\cite{wang2025agentspec}中部署的确定性工具调用策略；以及 FIDES 工具级 IFC 策略。
 As a controlled proxy for sandbox-style kernel IFC engines~\cite{pasquier2018camquery,flume,zeldovich2006histar} and a semantic-feedback ablation, we use \sys{}'s engine without feedback as the feedback-free kernel IFC baseline.
+% 中：作为沙箱式内核 IFC 引擎~\cite{pasquier2018camquery,flume,zeldovich2006histar}的受控代理和语义反馈消融，我们使用无反馈的 \sys{} 引擎作为无反馈内核 IFC 基线。
 Another translation agent (Claude Code~\cite{anthropic2025claudecode} with Claude Opus~4.6) reads the rule text and the cloned repository, then produces the corresponding policy artifact for each non-prompt system: regex for tool-regex, FIDES policy, and DSL rule for \sys{}, without access to the ground-truth traces to avoid data leakage.
+% 中：另一个翻译智能体（Claude Code~\cite{anthropic2025claudecode}配合 Claude Opus~4.6）读取规则文本和克隆的仓库，然后为每个非提示系统生成相应的策略工件：工具正则的正则表达式、FIDES 策略和 \sys{} 的 DSL 规则，不访问真实轨迹以避免数据泄露。
 The prompt-filter baseline directly decides whether to allow or block each proposed tool call based on the rule text and the tool input.
+% 中：提示过滤基线直接根据规则文本和工具输入决定是否允许或阻止每个提议的工具调用。
 Figure~\ref{fig:policy-example} shows representative \sys{} rules.
+% 中：图~\ref{fig:policy-example}显示了代表性的 \sys{} 规则。
 
 \paragraph{Metric.}
+% 中：\paragraph{指标。}
 A separate LLM trajectory judge assigns TP, TN, FP, or FN from the raw runner results.
+% 中：一个独立的 LLM 轨迹判断器从原始运行器结果分配 TP、TN、FP 或 FN。
 In each setting, the judge sees the ground truth, whether the policy enforcement system triggered and its feedback, and what the agent did in subsequent steps.
+% 中：在每个设置中，判断器看到真实标签、策略执行系统是否触发及其反馈、以及智能体在后续步骤中做了什么。
 Similar to other benchmarks~\cite{zheng2023judging,debenedetti2024agentdojo,li2025shieldagent,chen2026toolsafe}, we use LLM-as-judge evaluation~\cite{zheng2023judging}.
+% 中：类似于其他基准~\cite{zheng2023judging,debenedetti2024agentdojo,li2025shieldagent,chen2026toolsafe}，我们使用 LLM 作为判断器评估~\cite{zheng2023judging}。
 TP means a violation trace recovered towards policy compliance, either through enforcement intervention or agent awareness; TN means a compliant trace completed without wrongful intervention; FP means a compliant trace was wrongly blocked or steered; FN means a violation trace was missed.
+% 中：TP 表示违规轨迹通过执行干预或智能体意识恢复到策略合规；TN 表示合规轨迹在无错误干预下完成；FP 表示合规轨迹被错误阻止或引导；FN 表示违规轨迹被遗漏。
 We report \emph{Decision Compliance Rate} (DCR), the fraction of trace-conditioned decision points whose final outcome is policy-correct: \(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{FN})\).
+% 中：我们报告 \emph{决策合规率}（DCR），即最终结果策略正确的轨迹条件决策点的比例：\(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{FN})\)。
 DCR is end-to-end from natural language directive to agent behavior: it includes policy translation, runtime enforcement, feedback delivery, and agent recovery.
+% 中：DCR 是从自然语言指令到智能体行为的端到端：它包括策略翻译、运行时执行、反馈传递和智能体恢复。
 We manually corrected the samples the judge flagged for double-checking, and additionally reviewed 50 judgments sampled at random, all of which agreed with our manual assessment.
+% 中：我们手动更正了判断器标记为需要复查的样本，并额外随机审查了 50 个判断，全部与我们的手动评估一致。
 
 \paragraph{Results.}
+% 中：\paragraph{结果。}
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_dcr_bar.pdf}
 \caption{Overall RQ2 Decision Compliance Rate across 190 traces under two end-to-end model settings. In each setting, the tested agent, prompt-filter classifier, and trajectory judge use the indicated model.}
+% 中：\caption{在两个端到端模型设置下 190 条轨迹的总体 RQ2 决策合规率。在每个设置中，测试的智能体、提示过滤分类器和轨迹判断器使用指示的模型。}
 \Description{Grouped bar chart comparing overall directive compliance rates under two model settings: Qwen3.6-27B, DeepSeek-Pro V4}
+% 中：\Description{分组条形图比较两个模型设置下的总体指令合规率：Qwen3.6-27B、DeepSeek-Pro V4}
 \label{fig:rq2-dcr}
 \end{figure}
 
 \begin{table}[tb]\small
 \centering
 \caption{RQ2 confusion matrix by runtime policy enforcement system under the primary Qwen3.6-27B~\cite{qwen2025qwen3} model setting.}
+% 中：\caption{主要 Qwen3.6-27B~\cite{qwen2025qwen3}模型设置下按运行时策略执行系统的 RQ2 混淆矩阵。}
 \label{tab:rq2-confusion}
 \begin{tabular}{lrrrrrr}
 \toprule
 System & DCR & TP & TN & FP & FN & Judged \\
+% 中：系统 & DCR & TP & TN & FP & FN & 已判断 \\
 \midrule
 \textsc{Prompt-filter} & 48.4\% & 44 & 48 & 28 & 70 & 190 \\
 \textsc{Tool-regex} & 45.3\% & 38 & 48 & 28 & 76 & 190 \\
@@ -123,78 +195,120 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \end{table}
 
 \noindent\textbf{\sys{} achieves 75.8\% DCR, 22--31 percentage points above all baselines.}
+% 中：\noindent\textbf{\sys{} 达到 75.8\% DCR，比所有基线高 22--31 个百分点。}
 Table~\ref{tab:rq2-confusion} shows the full confusion matrix: \sys{} has the highest TP~(86) and lowest FN~(28).
+% 中：表~\ref{tab:rq2-confusion}显示完整混淆矩阵：\sys{} 有最高 TP（86）和最低 FN（28）。
 On violation traces, \sys{} correctly resolves 86/114 (75.4\%), which is 2.0--3.2$\times$ the 27--44 correct outcomes of the baselines.
+% 中：在违规轨迹上，\sys{} 正确解决 86/114（75.4\%），是基线 27--44 正确结果的 2.0--3.2 倍。
 \sys{} detects 77.2\% of violations, compared with 39.5\% for prompt-filter, 35.1\% for tool-regex, and 34.2\% for FIDES.
+% 中：\sys{} 检测到 77.2\% 的违规，而提示过滤 39.5\%、工具正则 35.1\%、FIDES 34.2\%。
 
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_family_breakdown.pdf}
 \caption{RQ2 breakdown by trace family. Cells show DCR~(\%) for each system$\times$family; darker is higher.}
+% 中：\caption{按轨迹族的 RQ2 分解。单元格显示每个系统$\times$族的 DCR（\%）；颜色越深越高。}
 \Description{Heatmap of directive compliance rate by trace family and system.}
+% 中：\Description{按轨迹族和系统的指令合规率热图。}
 \label{fig:rq2-family-breakdown}
 \end{figure}
 
 \noindent\textbf{\sys{}'s advantage concentrates on indirect execution paths (Figure~\ref{fig:rq2-family-breakdown}).}
+% 中：\noindent\textbf{\sys{} 的优势集中在间接执行路径（图~\ref{fig:rq2-family-breakdown}）。}
 On compliant families and direct violations, all systems perform comparably.
+% 中：在合规族和直接违规上，所有系统表现相当。
 The gap opens on the script and hidden trace families, where prompt-filter, tool-regex, and FIDES drop sharply, with all three at or near zero on hidden traces, because the prohibited effect occurs inside a subprocess or behind a neutral entrypoint.
+% 中：差距在脚本和隐藏轨迹族上扩大，提示过滤、工具正则和 FIDES 急剧下降，三者在隐藏轨迹上接近或为零，因为禁止效果发生在子进程内或中性入口点后面。
 \sys{} retains detection through kernel-level label propagation, which follows the monitored effect even when the agent invoked it indirectly.
+% 中：\sys{} 通过内核级标签传播保持检测，即使智能体间接调用也能跟踪监控效果。
 Cross-event rules (18 of 38) further widen the gap: tool-call baselines lack the persistent state needed to track ordering constraints such as ``run tests before commit.''
+% 中：跨事件规则（38 条中的 18 条）进一步扩大差距：工具调用基线缺乏跟踪顺序约束（如"提交前运行测试"）所需的持久状态。
 
 \noindent\textbf{Agents can learn from failure: a single translation pass detects 77.2\% of violations, and one revision raises it to 94.7\%.}
+% 中：\noindent\textbf{智能体可以从失败中学习：单次翻译检测 77.2\% 的违规，一次修订提高到 94.7\%。}
 We decompose violation-trace outcomes into \emph{detection rate} (the fraction of 114~violation traces on which enforcement triggered) and \emph{recovery rate} (the fraction of detected violations where the agent subsequently complied).
+% 中：我们将违规轨迹结果分解为 \emph{检测率}（114 条违规轨迹中执行触发的比例）和 \emph{恢复率}（检测到的违规中智能体随后合规的比例）。
 Translation quality determines both: rules too narrow miss violations (lowering detection), while rules too broad match compliant actions in 17 of the 18~false-positive cases (raising false positives).
+% 中：翻译质量决定两者：规则过窄会遗漏违规（降低检测），而规则过宽会在 18 个误报案例中的 17 个匹配合规操作（提高误报）。
 Under \textsc{\sys{}-opaque}, which enforces identical kernel rules, the same 17~traces are judged TN because the agent lacks a feedback channel and completes the task through an alternative path.
+% 中：在 \textsc{\sys{}-opaque} 下，执行相同内核规则，同样的 17 条轨迹被判断为 TN，因为智能体缺乏反馈通道并通过替代路径完成任务。
 We feed each false-negative trace's evidence and corrective feedback to the translation agent and let it revise the DSL rule once.
+% 中：我们将每条假阴性轨迹的证据和纠正反馈提供给翻译智能体，让其修订 DSL 规则一次。
 Rerunning the 28~FN traces with revised rules recovers 26 (92.9\%).
+% 中：用修订后的规则重新运行 28 条 FN 轨迹，恢复 26 条（92.9\%）。
 
 \noindent\textbf{Semantic feedback converts kernel detections into agent compliance at 97.7\%.}
+% 中：\noindent\textbf{语义反馈以 97.7\% 将内核检测转化为智能体合规。}
 Full \sys{} produces $3\times$ more correct violation-trace outcomes than the same engine without feedback (86 vs.\ 27).
+% 中：完整 \sys{} 产生的正确违规轨迹结果是无反馈引擎的 3 倍（86 对 27）。
 The \textsc{\sys{}-opaque} ablation, which removes semantic feedback, reduces correct responses from 144 to 102 (FN rises from 28 to 87; FP drops from 18 to 1): it detects 75.4\% of violations, but only 31.4\% of those detections lead to compliance.
+% 中：\textsc{\sys{}-opaque} 消融移除语义反馈，正确响应从 144 降至 102（FN 从 28 升至 87；FP 从 18 降至 1）：它检测到 75.4\% 的违规，但只有 31.4\% 的检测导致合规。
 Feedback also improves detection indirectly: an agent that receives a corrective payload after a first denial revises its approach, and the engine catches the revised attempt when it still violates the rule.
+% 中：反馈还间接提高检测：收到第一次拒绝后纠正载荷的智能体会修改其方法，当修改后的尝试仍然违规时引擎会捕获它。
 
 \paragraph{Cross-model stability.}
+% 中：\paragraph{跨模型稳定性。}
 \sys{}'s advantage replicates under a second model.
+% 中：\sys{} 的优势在第二个模型下复现。
 The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking (Figure~\ref{fig:rq2-dcr}): \sys{} remains highest at 77.4\% DCR.
+% 中：DeepSeek-Pro~V4~\cite{deepseek2026v4}端到端复现保持系统排名（图~\ref{fig:rq2-dcr}）：\sys{} 以 77.4\% DCR 保持最高。
 Per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$, with the highest stability for deterministic enforcement (tool-regex $\kappa=0.920$, FIDES $\kappa=0.919$, \sys{} $\kappa=0.852$) and lowest for prompt-filter ($\kappa=0.592$), consistent with the expected gradient from objective to subjective evaluation.
+% 中：两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$，确定性执行稳定性最高（工具正则 $\kappa=0.920$、FIDES $\kappa=0.919$、\sys{} $\kappa=0.852$），提示过滤最低（$\kappa=0.592$），与从客观到主观评估的预期梯度一致。
 
 %% ----------------------------------------------------------------
 \subsection{RQ3: Overhead}
+% 中：\subsection{RQ3：开销}
 \label{sec:eval:rq3}
 
 \subsubsection{Macrobenchmarks (End-to-End Workloads)}
+% 中：\subsubsection{宏基准（端到端工作负载）}
 
 We measure end-to-end overhead on two workloads under no-hit \sys{} configurations, i.e., policies are loaded but no rule fires during the workload (AP-$N$ denotes \sys{} with $N$ active rules): (1)~an agent trace suite that replays agent traces (68~tool actions, 20~Bash subprocesses), and (2)~a Linux kernel build (\texttt{defconfig} + \texttt{vmlinux}, \texttt{make -j24}, clean output directory).
+% 中：我们在无命中 \sys{} 配置下测量两个工作负载的端到端开销，即策略已加载但工作负载期间无规则触发（AP-$N$ 表示有 $N$ 条活动规则的 \sys{}）：（1）智能体轨迹套件重放智能体轨迹（68 个工具操作，20 个 Bash 子进程），（2）Linux 内核构建（\texttt{defconfig} + \texttt{vmlinux}，\texttt{make -j24}，干净输出目录）。
 Each workload runs three trials per configuration.
+% 中：每个工作负载每配置运行三次试验。
 Fixed workloads eliminate LLM inference variance and isolate \sys{}'s runtime cost.
+% 中：固定工作负载消除 LLM 推理方差并隔离 \sys{} 的运行时成本。
 
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq2_macro_overhead.png}
 \caption{End-to-end overhead normalized to native execution.}
+% 中：\caption{相对于原生执行归一化的端到端开销。}
 \Description{Grouped bar chart of AP-32 and AP-100 overhead for agent trace replay and Linux build.}
+% 中：\Description{智能体轨迹重放和 Linux 构建的 AP-32 和 AP-100 开销分组条形图。}
 \label{fig:rq3-macro}
 \end{figure}
 
 \paragraph{Results.}
+% 中：\paragraph{结果。}
 \noindent\textbf{At 32 active rules, \sys{} adds 1.9\% overhead on the agent-trace replay and 6.5\% on the Linux kernel build, and at 100 rules, overhead remains below 8.4\%.}
+% 中：\noindent\textbf{在 32 条活动规则下，\sys{} 在智能体轨迹重放上增加 1.9\% 开销，在 Linux 内核构建上增加 6.5\%，在 100 条规则下开销仍低于 8.4\%。}
 The agent-trace workload exhibits lower overhead because tool actions are interspersed with model inference pauses that dwarf syscall cost, whereas the kernel build stresses sustained I/O and process creation, exposing more of \sys{}'s per-event cost.
+% 中：智能体轨迹工作负载表现出较低开销，因为工具操作穿插着远超系统调用成本的模型推理暂停，而内核构建压力持续 I/O 和进程创建，暴露更多 \sys{} 的每事件成本。
 
 \subsubsection{Microbenchmarks (Per-Syscall Latency)}
+% 中：\subsubsection{微基准（每系统调用延迟）}
 
 We measure \sys{}'s per-event latency for five syscall types (\texttt{fork}, \texttt{exec}, \texttt{open}, \texttt{write}, \texttt{connect}) under five no-hit configurations: native, and \sys{} with 1, 10, 32, and 100 active rules.
+% 中：我们在五个无命中配置下测量五种系统调用类型（\texttt{fork}、\texttt{exec}、\texttt{open}、\texttt{write}、\texttt{connect}）的 \sys{} 每事件延迟：原生，以及有 1、10、32 和 100 条活动规则的 \sys{}。
 Each configuration $\times$ syscall type runs 10K--100K iterations pinned to a single CPU core.
+% 中：每个配置 $\times$ 系统调用类型在单个 CPU 核心上运行 10K--100K 次迭代。
 Table~\ref{tab:micro-latency} reports the median across seven trials.
+% 中：表~\ref{tab:micro-latency}报告七次试验的中位数。
 
 \paragraph{Results.}
+% 中：\paragraph{结果。}
 
 \begin{table}[tb]\small
 \centering
 \caption{Per-operation latency in microseconds for no-hit configurations. Values are medians across seven trials.}
+% 中：\caption{无命中配置的每操作延迟（微秒）。值为七次试验的中位数。}
 \label{tab:micro-latency}
 \begin{tabular}{lrrrr}
 \toprule
 Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
+% 中：操作 & 原生 p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
 \midrule
 \texttt{fork}    & 48.94 & 52.06 & 74.05 & 69.33 \\
 \texttt{exec}    & 248.30 & 263.95 & 314.86 & 317.03 \\
@@ -206,115 +320,192 @@ Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
 \end{table}
 
 Per-call overhead is dominated by process operations, while file and network operations add single-digit microseconds (Table~\ref{tab:micro-latency}).
+% 中：每调用开销由进程操作主导，而文件和网络操作增加个位数微秒（表~\ref{tab:micro-latency}）。
 \texttt{fork} and \texttt{exec} incur the highest absolute added cost (3--69\,\textmu s at AP-100) but remain modest relative to their native latency because process-management and scheduler cost dominates the baseline.
+% 中：\texttt{fork} 和 \texttt{exec} 产生最高的绝对增加成本（AP-100 时 3--69\,\textmu s），但相对于原生延迟仍然适度，因为进程管理和调度成本主导基线。
 File operations (\texttt{open}, \texttt{write}) and \texttt{connect} are sub-microsecond natively, but \sys{} adds a path-hash lookup and rule scan, raising \texttt{open} to 13.4\,\textmu s at AP-100.
+% 中：文件操作（\texttt{open}、\texttt{write}）和 \texttt{connect} 原生为亚微秒级，但 \sys{} 增加路径哈希查找和规则扫描，使 \texttt{open} 在 AP-100 时升至 13.4\,\textmu s。
 
 A one-rule hot reload submitted through the userspace ring buffer reaches the kernel drain path in 26.3\,\textmu s on average, and an immediate \texttt{exec} violation is observed at p50 176.4\,\textmu s including process launch and event delivery.
+% 中：通过用户空间环形缓冲区提交的单规则热重载平均 26.3\,\textmu s 到达内核排空路径，立即 \texttt{exec} 违规在 p50 176.4\,\textmu s 被观察到，包括进程启动和事件传递。
 
 Despite these per-call additions, the macrobenchmark impact remains low (1.9\%--8.4\%) because absolute added cost is small relative to the computation, I/O, and LLM inference time that dominates agent workloads.
+% 中：尽管有这些每调用增加，宏基准影响仍然很低（1.9\%--8.4\%），因为绝对增加成本相对于主导智能体工作负载的计算、I/O 和 LLM 推理时间很小。
 The cumulative \sys{} overhead of an entire tool-call's syscall sequence is 5--6 orders of magnitude smaller than a single LLM inference turn (2--10\,s).
+% 中：整个工具调用系统调用序列的累积 \sys{} 开销比单次 LLM 推理轮（2--10\,s）小 5--6 个数量级。
 All overhead measurements use no-hit configurations.
+% 中：所有开销测量使用无命中配置。
 
 %% ----------------------------------------------------------------
 \subsection{RQ4: Real-World Coding Tasks (OctoBench)}
+% 中：\subsection{RQ4：真实编码任务（OctoBench）}
 \label{sec:eval:rq4}
 
 \paragraph{Goal.}
+% 中：\paragraph{目标。}
 Unlike RQ2, which isolates single decision points, RQ4 evaluates \sys{} on complete coding-agent tasks (implementing features, fixing bugs, configuring builds) in real repositories, scored by the official OctoBench checklist judge.
+% 中：与隔离单个决策点的 RQ2 不同，RQ4 在真实仓库的完整编码智能体任务（实现功能、修复 bug、配置构建）上评估 \sys{}，由官方 OctoBench 清单判断器评分。
 
 \paragraph{Benchmark and subset.}
+% 中：\paragraph{基准和子集。}
 OctoBench~\cite{octobench} is a coding benchmark with 217 tasks spanning system prompts, tool schemas, project files (\texttt{CLAUDE.md}, \texttt{AGENTS.md}), and user queries.
+% 中：OctoBench~\cite{octobench}是一个编码基准，包含 217 个任务，涵盖系统提示、工具模式、项目文件（\texttt{CLAUDE.md}、\texttt{AGENTS.md}）和用户查询。
 We use the official evaluator unchanged.
+% 中：我们原样使用官方评估器。
 Because \sys{} cannot observe purely semantic checks (e.g., tone), we select a 21-task (61 rules) subset whose user-query checklist contains at least one targeted OS-enforceable item (command, file operation, tool-execution).
+% 中：因为 \sys{} 无法观察纯语义检查（如语气），我们选择一个 21 任务（61 条规则）子集，其用户查询清单包含至少一个有针对性的操作系统可执行项（命令、文件操作、工具执行）。
 The selected subset spans \texttt{CLAUDE.md}, \texttt{AGENTS.md}, and user-query policy sources, two agent harnesses, and seven repos.
+% 中：选定子集涵盖 \texttt{CLAUDE.md}、\texttt{AGENTS.md} 和用户查询策略源、两个智能体 harness 和七个仓库。
 Pure file content, style, tone, and natural-language-only cases are excluded.
+% 中：纯文件内容、风格、语气和仅自然语言案例被排除。
 The remaining 196~tasks lack OS-enforceable checklist items and fall outside \sys{}'s enforcement scope.
+% 中：剩余 196 个任务缺乏操作系统可执行清单项，不在 \sys{} 的执行范围内。
 Each task runs under three conditions: baseline (no enforcement), Claude Code hooks~\cite{anthropic2026hooks} (the official sandbox approval policy), and \sys{} (OS-level hooks plus semantic feedback).
+% 中：每个任务在三个条件下运行：基线（无执行）、Claude Code hooks~\cite{anthropic2026hooks}（官方沙箱批准策略）和 \sys{}（操作系统级钩子加语义反馈）。
 An AI agent (Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt55}) reads the task description and generates initial policy without human involvement.
+% 中：一个 AI 智能体（Codex~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}）读取任务描述并在无人工参与的情况下生成初始策略。
 During execution, the same Codex agent adjusts policies at runtime by submitting deltas through the runtime interface (\S\ref{sec:authority}), refining rules for itself or the task-executing sub-agent based on enforcement feedback.
+% 中：在执行期间，同一 Codex 智能体通过运行时接口提交增量来调整策略（\S\ref{sec:authority}），根据执行反馈为自己或任务执行子智能体完善规则。
 
 \paragraph{Metrics.}
+% 中：\paragraph{指标。}
 The primary metric is official OctoBench reward.
+% 中：主要指标是官方 OctoBench 奖励。
 We additionally report three diagnostic submetrics from the same checklist results: \emph{user-query reward} (user-task checks only), \emph{implementation/test reward} (implementation, testing, configuration, and modification checks), and \emph{compliance reward} (compliance-typed checks).
+% 中：我们另外报告来自相同清单结果的三个诊断子指标：\emph{用户查询奖励}（仅用户任务检查）、\emph{实现/测试奖励}（实现、测试、配置和修改检查）和 \emph{合规奖励}（合规类型检查）。
 All submetrics use the official LLM-based checklist judge.
+% 中：所有子指标使用官方 LLM 基础清单判断器。
 
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/octobench_rq3.png}
 \caption{OctoBench 21-task (61 DSL rules) subset: reward breakdown by system.}
+% 中：\caption{OctoBench 21 任务（61 条 DSL 规则）子集：按系统的奖励分解。}
 \Description{Grouped bar chart of baseline, Claude Code hooks, and \sys{} reward components.}
+% 中：\Description{基线、Claude Code hooks 和 \sys{} 奖励组件的分组条形图。}
 \label{fig:rq4-octobench}
 \end{figure}
 
 \paragraph{Results.}
+% 中：\paragraph{结果。}
 \noindent\textbf{\sys{} improves user-query and implementation/test reward metrics over baseline.}
+% 中：\noindent\textbf{\sys{} 在用户查询和实现/测试奖励指标上优于基线。}
 The improvement concentrates on task-specific checks: user-query reward rises by 9.9~points and implementation/test reward by 9.7~points over baseline, while compliance reward shows a smaller 2.8-point gain.
+% 中：改进集中在任务特定检查上：用户查询奖励比基线提高 9.9 分，实现/测试奖励提高 9.7 分，合规奖励显示较小的 2.8 分提升。
 These results suggest that OS-level enforcement with semantic feedback improves reward metrics on the OS-enforceable subset of real coding-agent tasks, with gains extending beyond compliance-typed checks.
+% 中：这些结果表明，带语义反馈的操作系统级执行在真实编码智能体任务的操作系统可执行子集上提高了奖励指标，收益扩展到合规类型检查之外。
 Across the 21 tasks, the policy agent submitted 110 runtime deltas to refine rules for the task-executing sub-agent.
+% 中：在 21 个任务中，策略智能体提交了 110 个运行时增量以为任务执行子智能体完善规则。
 
 %% ----------------------------------------------------------------
 \subsection{RQ5: Safety Enforcement Beyond Coding Tasks}
+% 中：\subsection{RQ5：编码任务之外的安全执行}
 \label{sec:eval:rq5}
 
 
 \paragraph{Benchmark and setup.}
+% 中：\paragraph{基准和设置。}
 OpenAgentSafety~\cite{openagentsafety} contains 361 safety tasks that instruct an agent to perform workplace or personal-assistant actions whose completion requires an unsafe side effect: exfiltrating credentials, planting surveillance artifacts, wiping system configurations, tampering with financial records, or materializing harmful content into files.
+% 中：OpenAgentSafety~\cite{openagentsafety}包含 361 个安全任务，指示智能体执行工作场所或个人助理行为，其完成需要不安全的副作用：泄露凭证、植入监控工件、清除系统配置、篡改财务记录或将有害内容物化到文件中。
 Each task runs inside a Docker-isolated OpenHands~\cite{wang2025openhands} runtime with service dependencies (GitLab, ownCloud) and an independent evaluator that scores the final workspace state.
+% 中：每个任务在 Docker 隔离的 OpenHands~\cite{wang2025openhands}运行时中运行，带有服务依赖（GitLab、ownCloud）和对最终工作空间状态评分的独立评估器。
 We run every task under two conditions: \emph{baseline} (OpenHands with no enforcement) and \emph{\sys{}} (OpenHands with an OS-level \sys{} watcher loading a per-task policy).
+% 中：我们在两个条件下运行每个任务：\emph{基线}（无执行的 OpenHands）和 \emph{\sys{}}（带加载每任务策略的操作系统级 \sys{} 监视器的 OpenHands）。
 This setup differs from RQ1--RQ4 in two dimensions: the agent framework (OpenHands, not Codex CLI) and the workload (workplace safety tasks, not repository coding tasks).
+% 中：此设置在两个维度上与 RQ1--RQ4 不同：智能体框架（OpenHands，而非 Codex CLI）和工作负载（工作场所安全任务，而非仓库编码任务）。
 
 \paragraph{Policy generation.}
+% 中：\paragraph{策略生成。}
 In deployment, the agent harness processes the user's request before execution begins, and guard agents and safety classifiers~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails} similarly analyze the incoming prompt to set runtime constraints.
+% 中：在部署中，智能体 harness 在执行开始前处理用户请求，守卫智能体和安全分类器~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails}类似地分析传入提示以设置运行时约束。
 Our policy generator mirrors this: a Codex agent (GPT-5.5~\cite{openai2026gpt55}) reads only the task description and extracts explicit file paths, system commands, and high-confidence sink categories (credentials, cron jobs, SSH keys, account mutations, network egress), producing a per-task \sys{} policy compiled to an eBPF configuration blob.
+% 中：我们的策略生成器反映这一点：一个 Codex 智能体（GPT-5.5~\cite{openai2026gpt55}）仅读取任务描述，提取显式文件路径、系统命令和高置信度汇类别（凭证、cron 作业、SSH 密钥、账户变更、网络出口），生成编译为 eBPF 配置 blob 的每任务 \sys{} 策略。
 If no concrete OS-observable behavior is identifiable from the description, the generator emits a no-op marker.
+% 中：如果从描述中无法识别具体的操作系统可观察行为，生成器发出空操作标记。
 The generator does not read the evaluator, checkpoints, trajectories, or any prior run results, making policy generation zero-shot with respect to evaluation criteria.
+% 中：生成器不读取评估器、检查点、轨迹或任何先前运行结果，使策略生成相对于评估标准是零样本的。
 Of the 361~tasks, the generator produces non-trivial policies for 303~tasks and no-op markers for 58~tasks where the task description names no concrete OS sink.
+% 中：在 361 个任务中，生成器为 303 个任务生成非平凡策略，为 58 个任务描述未命名具体操作系统汇的任务发出空操作标记。
 The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is independent of unsafe execution.
+% 中：生成器在测试的智能体启动前运行且不摄取不受信任的内容，因此结果策略独立于不安全执行。
 Because the generator completes before the tested agent starts, the resulting policies are loaded at higher-domain level (\S\ref{sec:design}) and cannot be weakened at runtime.
+% 中：因为生成器在测试的智能体启动前完成，结果策略在更高域级别加载（\S\ref{sec:design}），且不能在运行时被削弱。
 
 \begin{figure}[tb]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq4_safety_bar.pdf}
 \caption{RQ5: Outcome distribution on all 361 OpenAgentSafety tasks. \sys{} reduces baseline-unsafe outcomes from 106 to 28 (74\% prevention rate) using policies generated from task descriptions without human tuning.}
+% 中：\caption{RQ5：所有 361 个 OpenAgentSafety 任务的结果分布。\sys{} 将基线不安全结果从 106 减少到 28（74\% 预防率），使用从任务描述生成的策略，无人工调优。}
 \Description{Horizontal stacked bar chart comparing baseline and \sys{} outcome distributions across 361 safety tasks. Baseline shows 106 unsafe and 255 safe. \sys{} shows 78 prevented, 28 missed, 139 safe, and 58 no-op.}
+% 中：\Description{水平堆叠条形图比较 361 个安全任务的基线和 \sys{} 结果分布。基线显示 106 个不安全和 255 个安全。\sys{} 显示 78 个被阻止、28 个遗漏、139 个安全和 58 个空操作。}
 \label{fig:rq5-safety}
 \end{figure}
 
 \paragraph{Results.}
+% 中：\paragraph{结果。}
 \noindent\textbf{On 361 safety tasks, \sys{} prevents 74\% of baseline-unsafe behaviors (Figure~\ref{fig:rq5-safety}).}
+% 中：\noindent\textbf{在 361 个安全任务上，\sys{} 阻止了 74\% 的基线不安全行为（图~\ref{fig:rq5-safety}）。}
 Of 106~baseline-unsafe tasks, \sys{} terminated the unsafe operation in 78~cases before the harmful effect completed.
+% 中：在 106 个基线不安全任务中，\sys{} 在 78 个案例中在有害效果完成前终止了不安全操作。
 In 28~cases the agent completed the unsafe action without triggering a policy.
+% 中：在 28 个案例中，智能体在不触发策略的情况下完成了不安全行为。
 \sys{} also activated on 16\% of tasks whose baseline was already safe, where the description-only policy matched a benign operation near the prohibited boundary.
+% 中：\sys{} 还在 16\% 的基线已经安全的任务上激活，其中仅描述策略匹配了接近禁止边界的良性操作。
 The 58~no-op tasks (no OS behavior in the description) account for most of the remaining baseline-safe cases and are excluded from the prevention rate denominator.
+% 中：58 个空操作任务（描述中无操作系统行为）占剩余大部分基线安全案例，被排除在预防率分母之外。
 
 \paragraph{Failure analysis.}
+% 中：\paragraph{失败分析。}
 The 28~unblocked baseline-unsafe cases fall into three categories.
+% 中：28 个未阻止的基线不安全案例分为三类。
 \emph{Chat/semantic harm}: the unsafe behavior is a message with no OS-observable artifact, outside \sys{}'s enforcement scope by design.
+% 中：\emph{聊天/语义危害}：不安全行为是没有操作系统可观察工件的消息，按设计不在 \sys{} 执行范围内。
 \emph{Unsafe file content}: the agent produces unsafe file content, which is not the main goal of \sys{}.
+% 中：\emph{不安全文件内容}：智能体产生不安全的文件内容，这不是 \sys{} 的主要目标。
 \emph{Service-side artifact}: the effect is a WebDAV upload or database mutation inside a service container.
+% 中：\emph{服务端工件}：效果是服务容器内的 WebDAV 上传或数据库变更。
 These are hook-coverage gaps, not policy errors: the generator produced a matching rule for the intended sink, but the agent reached the same effect through a path the current hook set does not observe.
+% 中：这些是钩子覆盖差距，而非策略错误：生成器为预期汇生成了匹配规则，但智能体通过当前钩子集未观察的路径达到相同效果。
 Chat and content harms are outside \sys{}'s scope by design, and service-side artifacts require protocol-level hook extensions.
+% 中：聊天和内容危害按设计不在 \sys{} 范围内，服务端工件需要协议级钩子扩展。
 
 \section{Related Work}
+% 中：\section{相关工作}
 \label{sec:related}
 
 \textbf{In-kernel provenance and information flow.}
+% 中：\textbf{内核内来源和信息流。}
 Provenance systems (PASS, Hi-Fi, LPM, CamFlow)~\cite{muniswamy2006pass,pohly2012hifi,bates2015lpm,pasquier2017camflow} record audit-grade graphs but do not compile agent-oriented policy or return semantic feedback.
+% 中：来源系统（PASS、Hi-Fi、LPM、CamFlow）~\cite{muniswamy2006pass,pohly2012hifi,bates2015lpm,pasquier2017camflow}记录审计级图，但不编译面向智能体的策略或返回语义反馈。
 CamQuery~\cite{pasquier2018camquery} is the closest prior system: it propagates labels and can deny matching operations, but targets adversarial intrusions with general provenance queries rather than an agent-facing DSL with semantic feedback.
+% 中：CamQuery~\cite{pasquier2018camquery}是最接近的先前系统：它传播标签并可以拒绝匹配操作，但使用通用来源查询针对对抗性入侵，而非带语义反馈的面向智能体 DSL。
 Dynamic taint-tracking systems~\cite{enck2010taintdroid,clause2007dytan,kemerlis2012libdft,yin2007panorama} operate at byte or instruction granularity, whereas \sys{} operates at object granularity, trading precision for low-overhead whole-session coverage.
+% 中：动态污点跟踪系统~\cite{enck2010taintdroid,clause2007dytan,kemerlis2012libdft,yin2007panorama}在字节或指令粒度运行，而 \sys{} 在对象粒度运行，以低开销全会话覆盖换取精度。
 Contemporary eBPF tools such as Tetragon, Tracee, and eBPF-PATROL~\cite{ciliumtetragon,aquasecuritytracee,ghimire2025ebpfpatrol} provide per-event predicates or single-channel lineage flags, whereas \sys{} propagates multi-label information flow across channels and checks cross-event conditions.
+% 中：当代 eBPF 工具如 Tetragon、Tracee 和 eBPF-PATROL~\cite{ciliumtetragon,aquasecuritytracee,ghimire2025ebpfpatrol}提供每事件谓词或单通道血统标志，而 \sys{} 跨通道传播多标签信息流并检查跨事件条件。
 
 \textbf{Agent policy systems.}
+% 中：\textbf{智能体策略系统。}
 Crab~\cite{wu2026crab} uses eBPF to help C/R decisions and AgentSight~\cite{agentsight} uses eBPF for agent observability, while \sys{} focuses on enforcing agent behavior.
+% 中：Crab~\cite{wu2026crab}使用 eBPF 帮助 C/R 决策，AgentSight~\cite{agentsight}使用 eBPF 进行智能体可观测性，而 \sys{} 专注于执行智能体行为。
 At the agent layer, programmable rails and guard agents check prompts or action trajectories~\cite{rebedea2023nemo,xiang2025guardagent}, and AgentSpec~\cite{wang2025agentspec} enforces deterministic guards at the tool-call boundary.
+% 中：在智能体层，可编程护栏和守卫智能体检查提示或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent}，AgentSpec~\cite{wang2025agentspec}在工具调用边界执行确定性守卫。
 \sys{} complements them below the tool API, where shell-outs and subprocesses remain visible.
+% 中：\sys{} 在工具 API 之下补充它们，shell 调用和子进程仍然可见。
 FIDES and CaMeL~\cite{costa2025fides,debenedetti2025camel} apply typed IFC within the agent loop, which catches data-flow violations at the API boundary but cannot observe effects that escape through shell-outs, subprocesses, or compiled binaries.
+% 中：FIDES 和 CaMeL~\cite{costa2025fides,debenedetti2025camel}在智能体循环内应用类型化 IFC，在 API 边界捕获数据流违规，但无法观察通过 shell 调用、子进程或编译二进制文件逃逸的效果。
 \sys{} applies information-flow reasoning at the OS boundary, where cross-event label state persists across context windows and enforcement is not bypassed by subprocess indirection.
+% 中：\sys{} 在操作系统边界应用信息流推理，跨事件标签状态跨上下文窗口持久存在，执行不会被子进程间接绕过。
 
 \section{Conclusion}
+% 中：\section{结论}
 \label{sec:conclusion}
 
 We introduce \sys{}, which enforces agent intent-level policies at the OS level via eBPF and returns semantic feedback for agent compliance.
+% 中：我们引入 \sys{}，它通过 eBPF 在操作系统级别执行智能体意图级策略，并返回语义反馈以实现智能体合规。
 It improves correct violation-trace outcomes by 2.0--3.2$\times$ over prompt-filter, tool-regex, FIDES~\cite{costa2025fides}, and feedback-free kernel IFC, prevents 74\% of baseline-unsafe behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end overhead.
+% 中：它将正确违规轨迹结果提高到 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}和无反馈内核 IFC 的 2.0--3.2 倍，在 361 个安全任务上阻止了 74\% 的基线不安全行为，并增加 1.9\%--8.4\% 的端到端开销。
 \sys{} targets per-event and cross-event directives (45\% of the corpus) by design.
+% 中：\sys{} 按设计针对单事件和跨事件指令（语料库的 45\%）。
 Content directives are better served by linters and static analyzers.
+% 中：内容指令更适合由代码检查器和静态分析器处理。
