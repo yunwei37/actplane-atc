@@ -33,28 +33,28 @@
 
 \begin{abstract}
 AI agents increasingly run in production and operate through \emph{harnesses}, the software runtime around the LLM.
-% 中：AI 智能体日益在生产环境中运行，并通过 \emph{harness}（包裹 LLM 的软件运行时）来操作。
+% 中：AI 智能体越来越多地在生产环境中运行，并通过 \emph{harness}——包裹 LLM 的软件运行时——来操作。
 A major part of the agent harness is a policy engine that enforces policies for safety and effectiveness over the agent's actions.
-% 中：智能体 harness 的核心部分是策略引擎，它对智能体的行为执行安全性和有效性策略。
+% 中：智能体 harness 的主要部分是策略引擎，它对智能体的行为执行安全性和有效性的策略。
 Policies are often written in natural language or configuration files: our empirical study finds that 64\% of instruction-file statements are \emph{directives}, e.g., ``do not leak secrets'' or ``run tests before committing.''
 % 中：策略通常以自然语言或配置文件编写：我们的实证研究发现，64\% 的指令文件语句是 \emph{指令}，例如"不要泄露密钥"或"提交前运行测试"。
 Yet existing policy engines fail to connect policy intent to system-level actions, leaving a \emph{semantic gap}.
-% 中：然而，现有策略引擎无法将策略意图与系统级行为关联，留下了 \emph{语义鸿沟}。
+% 中：然而现有策略引擎无法将策略意图连接到系统级行为，留下了 \emph{语义鸿沟}。
 83\% of directives constrain system-level events, where tool-call guardrails can miss indirect system actions, and 81\% of projects contain cross-event directives that stateless interception cannot track.
-% 中：83\% 的指令约束系统级事件，而工具调用护栏可能遗漏间接系统行为；81\% 的项目包含跨事件指令，无状态拦截无法追踪。
+% 中：83\% 的指令约束系统级事件，其中工具调用护栏可能遗漏间接系统行为，而 81\% 的项目包含无状态拦截无法追踪的跨事件指令。
 OS-level sandbox-style mechanisms confine process, file, and network actions, but they expect static policy that is hard to pre-define for the 74\% of rules needing project or task context, and they return errors without semantic context that further confuse the agent.
-% 中：操作系统级沙箱式机制限制进程、文件和网络行为，但它们期望静态策略，而 74\% 需要项目或任务上下文的规则难以预定义，且它们返回的错误缺乏语义上下文，进一步使智能体困惑。
+% 中：操作系统级沙箱式机制限制进程、文件和网络行为，但它们期望静态策略，而这对于 74\% 需要项目或任务上下文的规则难以预定义，且它们返回缺乏语义上下文的错误，进一步使智能体困惑。
 
 Our key observation is that while safety constraints are inherited, the context required for compliance mainly resides with the agent closest to the project and task.
-% 中：我们的核心观察是：虽然安全约束是继承的，但合规所需的上下文主要存在于最接近项目和任务的智能体处。
+% 中：我们的关键观察是，虽然安全约束是继承的，合规所需的上下文主要存在于最接近项目和任务的智能体处。
 To bridge the gap, we introduce \sys{}, a runtime-agnostic policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback.
-% 中：为弥合这一鸿沟，我们引入 \sys{}，一个运行时无关的策略引擎，允许智能体在操作系统内核中声明和执行信息流控制（IFC）策略，并提供语义反馈。
+% 中：为弥合这一鸿沟，我们引入 \sys{}，一个运行时无关的策略引擎，它允许智能体在操作系统内核中声明和执行信息流控制（IFC）策略，并带有语义反馈。
 Layered policy domains isolate agent policies and prevent weakening of inherited constraints.
-% 中：分层策略域隔离智能体策略，防止削弱继承的约束。
+% 中：分层策略域隔离智能体策略，并防止削弱继承的约束。
 We implement \sys{} with eBPF and evaluate it on policies from the empirical study, coding-task benchmarks, and safety benchmarks, showing improved policy compliance, including on indirect execution paths that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
-% 中：我们使用 eBPF 实现 \sys{}，并在实证研究的策略、编码任务基准和安全基准上评估，结果显示策略合规性提升，包括在工具调用拦截无法观察的间接执行路径上，开销为 1.9\%--8.4\%。
+% 中：我们使用 eBPF 实现 \sys{}，并在来自实证研究的策略、编码任务基准和安全基准上评估它，显示了策略合规性的提升，包括在工具调用拦截无法观察的间接执行路径上，开销为 1.9\%--8.4\%。
 \sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
-% 中：\sys{} 已开源于 \url{https://github.com/eunomia-bpf/ActPlane}。
+% 中：\sys{} 已在 \url{https://github.com/eunomia-bpf/ActPlane} 开源。
 \end{abstract}
 
 \begin{CCSXML}
