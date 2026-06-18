@@ -38,10 +38,10 @@ A major part of the agent harness is a policy engine that enforces policies for 
 % 中：智能体 harness 的主要部分是策略引擎，它对智能体的行为执行安全性和有效性的策略。
 Policies are often written in natural language or configuration files: our empirical study finds that 64\% of instruction-file statements are \emph{policies}, e.g., ``do not leak secrets'' or ``run tests before committing.''
 % 中：策略通常以自然语言或配置文件编写：我们的实证研究发现，64\% 的指令文件语句是 \emph{策略}，例如"不要泄露密钥"或"提交前运行测试"。
-Yet existing policy engines fail to connect policy intent to system-level actions, leaving a \emph{semantic gap}.
-% 中：然而现有策略引擎无法将策略意图连接到系统级行为，留下了 \emph{语义鸿沟}。
-83\% of policies constrain system-level events, where tool-call guardrails can miss indirect system actions, and 81\% of projects contain cross-event policies that stateless interception cannot track.
-% 中：83\% 的策略约束系统级事件，其中工具调用护栏可能遗漏间接系统行为，而 81\% 的项目包含无状态拦截无法追踪的跨事件策略。
+Yet existing policy engines fail to connect policy intent to system actions, leaving a \emph{semantic gap}.
+% 中：然而现有策略引擎无法将策略意图连接到系统行为，留下了 \emph{语义鸿沟}。
+83\% of policies constrain system actions, where tool-call guardrails can miss indirect ones, and 81\% of projects contain cross-event policies that stateless interception cannot track.
+% 中：83\% 的策略约束系统行为，其中工具调用护栏可能遗漏间接行为，而 81\% 的项目包含无状态拦截无法追踪的跨事件策略。
 OS-level sandbox-style mechanisms confine process, file, and network actions, but they expect static policy that is hard to pre-define for the 74\% of rules needing project or task context, and they return errors without semantic context that further confuse the agent.
 % 中：操作系统级沙箱式机制限制进程、文件和网络行为，但它们期望静态策略，而这对于 74\% 需要项目或任务上下文的规则难以预定义，且它们返回缺乏语义上下文的错误，进一步使智能体困惑。
 

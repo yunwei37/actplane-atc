@@ -90,7 +90,7 @@ By effect, 66\% of clauses are notify, 29\% block, and 5\% kill; by hook, 60\% t
 
 \paragraph{Benchmark Motivation.}
 % 中：\paragraph{基准动机。}
-To measure the effectiveness of \sys{} compared to other tool-level checkers and guardrails under the same agent trajectory, we build a new benchmark using similar methodology to existing ones, but designed to challenge runtime enforcement systems with indirect execution paths and cross-event system actions.
+To measure the effectiveness of \sys{} compared to other tool-level checkers and guardrails under the same agent trajectory, we build a new benchmark using similar methodology to existing ones, but designed to challenge runtime enforcement systems with indirect execution paths and cross-event policies.
 % 中：为衡量 \sys{} 与其他工具级检查器和护栏在相同智能体轨迹下的有效性，我们使用类似于现有基准的方法构建新基准，但设计为通过间接执行路径和跨事件系统行为挑战运行时执行系统。
 Existing enforcement benchmarks such as ShieldAgent-Bench~\cite{li2025shieldagent} and ToolSafe~\cite{chen2026toolsafe} evaluate guardrail precision and recall at the tool-call or trajectory level.
 % 中：现有执行基准如 ShieldAgent-Bench~\cite{li2025shieldagent} 和 ToolSafe~\cite{chen2026toolsafe}在工具调用或轨迹级别评估护栏精度和召回。
@@ -120,8 +120,8 @@ Each trace simulates real-world coding-agent tasks, including user prompts and t
 % 中：每条轨迹模拟真实编码智能体任务，包括用户提示和在真实仓库上读写文件、执行 shell 命令、调用构建或测试的工具调用。
 For each rule the agent produces two compliant traces and three violation traces.
 % 中：对于每条规则，智能体生成两条合规轨迹和三条违规轨迹。
-Allowed-effect traces exercise explicitly permitted system-level behavior close to the prohibited action.
-% 中：允许效果轨迹演练明确允许的、接近禁止行为的系统级行为。
+Allowed-effect traces exercise explicitly permitted system actions close to the prohibited one.
+% 中：允许效果轨迹演练明确允许的、接近禁止行为的系统行为。
 Lookalike traces perform operations that look like the prohibited action but are technically compliant.
 % 中：相似轨迹执行看起来像禁止行为、但技术上合规的操作。
 The three violation families reflect execution-path categories observed in deployed coding agents~\cite{anthropic2026containment,maloyan2026sok}: direct violation traces trigger the prohibited operation via a tool call; script traces split script authoring and execution across separate tool calls, moving the side effect into an unmonitored subprocess~\cite{maloyan2026sok}; hidden traces embed the side effect in an auxiliary artifact whose entrypoint appears benign~\cite{wu2026skillject}, so the real action is observable only at the OS level.

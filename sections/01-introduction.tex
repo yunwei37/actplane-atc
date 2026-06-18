@@ -21,8 +21,8 @@ Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2
 % 中：% ¶4: 语义鸿沟——现有确定性机制也失效
 However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement needs to decide over concrete \emph{system actions}.
 % 中：然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行需要对具体的 \emph{系统行为}做出决定。
-Our empirical study of instruction files in 64~popular projects (\S\ref{sec:empirical}) finds that 64\% of statements are behavioral policies, and 83\% of those involve system-level behavior: commands executed, files accessed, and network connections made.
-% 中：我们对 64 个热门项目中指令文件的实证研究（\S\ref{sec:empirical}）发现，64\% 的语句是行为策略，其中 83\% 涉及系统级行为：执行的命令、访问的文件和建立的网络连接。
+Our empirical study of instruction files in 64~popular projects (\S\ref{sec:empirical}) finds that 64\% of statements are policies, and 83\% of those involve system actions: commands executed, files accessed, and network connections made.
+% 中：我们对 64 个热门项目中指令文件的实证研究（\S\ref{sec:empirical}）发现，64\% 的语句是策略，其中 83\% 涉及系统行为：执行的命令、访问的文件和建立的网络连接。
 
 
 Existing tool-call-based policy systems in agent runtimes such as Claude Code~\cite{anthropic2025claudecode}, whether LLM guardrails or regex-like checkers~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}, lose track of indirect system actions when agents spawn subprocesses: e.g., the same \texttt{git~push} can run inside a \texttt{bash} wrapper created in a previous session.

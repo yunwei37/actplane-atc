@@ -118,8 +118,8 @@ A statement is a \emph{policy} if it asks the agent to perform, avoid, or condit
 Of the 2{,}116~statements, 1{,}361 (64.3\%) are policies and 755 (35.7\%) are descriptions (Figure~\ref{fig:empirical-rq1}).
 % 中：在 2,116 条语句中，1,361 条（64.3\%）是策略，755 条（35.7\%）是描述（图~\ref{fig:empirical-rq1}）。
 
-\noindent\textbf{Instruction files are mainly behavioral policies: the median repository has 71\% policies.}
-% 中：\noindent\textbf{指令文件主要是行为策略：中位数仓库有 71\% 策略。}
+\noindent\textbf{Instruction files are mainly policies: the median repository has 71\% policies.}
+% 中：\noindent\textbf{指令文件主要是策略：中位数仓库有 71\% 策略。}
 75\% of repositories have a policy fraction above 50\%.
 % 中：75\% 的仓库有超过 50\% 的策略比例。
 At the extremes, one repository is entirely descriptive (0\% policies) while another is 97\% policies.
@@ -168,8 +168,8 @@ Each policy is classified into the first matching tier of an enforcement waterfa
 We call the union of content, per-event, and cross-event policies \emph{system-observable}, and the per-event and cross-event subset that \sys{} can enforce at OS hooks is \emph{OS-enforceable}.
 % 中：我们将内容、单事件和跨事件策略的并集称为 \emph{系统可观察}，\sys{} 可以在操作系统钩子上执行的单事件和跨事件子集是 \emph{操作系统可执行}。
 
-\noindent\textbf{83\% of policies constrain system-level actions.}
-% 中：\noindent\textbf{83\% 的策略约束系统级行为。}
+\noindent\textbf{83\% of policies constrain system actions.}
+% 中：\noindent\textbf{83\% 的策略约束系统行为。}
 Of 1{,}361~policies, 234 (17.2\%) are semantic-only, 520 (38.2\%) require content inspection, 392 (28.8\%) match a single OS event, and 215 (15.8\%) require cross-event state (Table~\ref{tab:examples}, S2--S7 illustrate all four levels).
 % 中：在 1,361 条策略中，234 条（17.2\%）是仅语义的，520 条（38.2\%）需要内容检查，392 条（28.8\%）匹配单个操作系统事件，215 条（15.8\%）需要跨事件状态（表~\ref{tab:examples}，S2--S7 说明所有四个级别）。
 Content inspection alone covers 55.4\% of policies, adding per-event matching reaches 84.2\%, and the remaining 15.8\% require cross-event IFC.
@@ -259,8 +259,8 @@ These findings establish two requirements for a policy engine in AI agent harnes
 % 中：\emph{R1：智能体可编写的、操作系统可执行的策略规范。}
 Most rules need project or task context that resides with the agent (E-RQ4), so the agent itself must be able to turn policies into concrete rules, and it needs semantic feedback to understand violations and recover.
 % 中：大多数规则需要存在于智能体处的项目或任务上下文（E-RQ4），因此智能体自身必须能够将策略转化为具体规则，并且它需要语义反馈来理解违规并恢复。
-Yet many policies constrain system-level behavior that spans multiple operations and is invisible to tool-call guardrails (E-RQ3), so the rules must be concrete enough for deterministic OS-level cross-event enforcement.
-% 中：然而许多策略约束跨越多个操作的系统级行为，这对工具调用护栏是不可见的（E-RQ3），因此规则必须足够具体以进行确定性操作系统级跨事件执行。
+Yet many policies constrain system actions that span multiple operations and are invisible to tool-call guardrails (E-RQ3), so the rules must be concrete enough for deterministic OS-level cross-event enforcement.
+% 中：然而许多策略约束跨越多个操作的系统行为，这对工具调用护栏是不可见的（E-RQ3），因此规则必须足够具体以进行确定性操作系统级跨事件执行。
 \emph{R2: safe, isolated, and efficient enforcement.}
 % 中：\emph{R2：安全的、隔离的和高效的执行。}
 Enforcement must hold under probabilistic errors or prompt injection, agent-authored policy must not weaken safety constraints set by higher authority or affect other agents' policies, and enforcement must not slow the agent's normal workload.

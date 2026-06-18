@@ -69,7 +69,7 @@ yunwei37 on "AI agent intent":
 
 yunwei37 on the semantic gap:
 
-> However, existing policy engines leave a semantic gap: AI agent intent of constraints or instructions (directives?) are expressed in natural language, but enforcement needs to decide over system actions.
+> However, existing policy engines leave a semantic gap: AI agent intent of constraints or instructions (policies) are expressed in natural language, but enforcement needs to decide over system actions.
 > The natural language interface is (Ambiguity and probabilistic). So, we want one that 1. solve the context problem, be specific so can be enforced 2. deterministic
 
 ### Decisions
@@ -78,20 +78,31 @@ yunwei37 on the semantic gap:
 2. **instruction vs constraint** defined in Background.
 3. **reminder/restriction** used in paper alongside notify/block/kill, not as replacements.
 
-## Core terms: directive vs rule vs policy
+## Core terms: policy vs rule
 
 | Term | Scope | Meaning | Example |
 |------|-------|---------|---------|
-| **directive** | Empirical study only (§3) | A classification label for NL statements that ask the agent to perform, avoid, or condition an action. Contrast with "description." | "64% of statements are directives" |
-| **rule** | DSL and general usage | An individual constraint, whether in natural language or in the DSL. In the DSL, each `rule name:` block is one rule. | "38 randomly-selected rules"; `rule tests-before-commit:` |
-| **policy** | DSL compilation unit | A collection of rules compiled into a single configuration blob. | "the agent generates a policy"; "per-task policy" |
+| **policy** | Throughout paper | A statement that asks the agent to perform, avoid, or condition an action. Contrast with "description." Also: the DSL compilation unit (a collection of rules). | "64% of statements are policies"; "per-task policy" |
+| **rule** | DSL syntax only | An individual DSL block. In the DSL, each `rule name:` block is one rule. | `rule tests-before-commit:` |
 
 ### Usage guidelines
 
-- **In the empirical study (§3)**: use "directive" as the classification label. "system-observable directives", "cross-event directives", etc.
-- **When summarizing empirical study findings** (abstract, intro): "directive" is OK when directly citing the study's numbers (e.g., "83% of directives"). Otherwise prefer "rule."
-- **Outside the empirical study**: use "rule" for individual constraints and "policy" for the compiled DSL unit. Do not use "directive" in design, implementation, or evaluation sections (except when explicitly referencing the empirical study's classification).
-- **Avoid mixing in the same sentence**: e.g., ~~"Cross-event directives (18 of 38 rules)"~~ → "Cross-event rules (18 of 38)".
+- **Throughout the paper**: use "policy" for NL statements and compiled units. "system-observable policies", "cross-event policies", etc.
+- **DSL syntax only**: use "rule" when referring to the `rule name:` syntax block.
+- **Avoid "directive"**: we unified on "policy" to reduce terminology burden.
+
+## System actions vs system events
+
+| Term | Perspective | Meaning | Example |
+|------|-------------|---------|---------|
+| **system actions** | Agent | Concrete effects the agent causes on the system. | "lose track of indirect system actions" |
+| **system events** | Kernel | Syscall-level events the kernel observes. | "state updated at system events" |
+
+### Usage guidelines
+
+- **Agent perspective** (what the agent does): use "system actions".
+- **Kernel perspective** (what the kernel sees): use "system events".
+- **Avoid "system-level"** prefix: redundant; "system" already implies system-level.
 
 ## Quantifier and precision conventions
 
