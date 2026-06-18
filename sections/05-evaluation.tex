@@ -7,7 +7,7 @@ We evaluate \sys{} along five research questions (RQ1--RQ5, distinct from the em
 
 \begin{description}
 \item[RQ1 (DSL coverage)] Can a translation agent generate \sys{} policies for all 607 OS-enforceable policies?
-% 中：\item[RQ1（DSL 覆盖）] 一个翻译智能体能否为所有 607 条操作系统可执行指令生成 \sys{} 策略？
+% 中：\item[RQ1（DSL 覆盖）] 一个翻译智能体能否为所有 607 条操作系统可执行策略生成 \sys{} 规则？
 \item[RQ2 (Policy engine effectiveness)] Compared with baselines, does \sys{} improve policy compliance for rules from our empirical study across direct and indirect execution paths?
 % 中：\item[RQ2（策略引擎有效性）] 与基线相比，\sys{} 是否提高了来自我们实证研究的规则在直接和间接执行路径上的策略合规性？
 \item[RQ3 (Overhead)] What is the per-event and end-to-end overhead of \sys{}'s label propagation and rule checking?
@@ -32,15 +32,15 @@ All experiments run on a machine with an Intel Core Ultra~9~285K CPU (24~hardwar
 \label{sec:eval:rq1}
 
 The empirical study identifies 607~OS-enforceable policies.
-% 中：该实证研究识别了 607 条操作系统可执行指令。
+% 中：该实证研究识别了 607 条操作系统可执行策略。
 RQ1 uses all of them.
-% 中：RQ1 使用所有这些指令。
+% 中：RQ1 使用所有这些策略。
 A Codex agent~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt55} reads each policy, the repository context, and the DSL reference, then writes the corresponding \sys{} rule.
-% 中：一个 Codex 智能体~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}读取每条指令、仓库上下文和 DSL 参考，然后编写相应的 \sys{} 策略。
+% 中：一个 Codex 智能体~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}读取每条策略、仓库上下文和 DSL 参考，然后编写相应的 \sys{} 规则。
 The runner invokes the \sys{} compiler and retries once on failure.
 % 中：运行器调用 \sys{} 编译器，失败时重试一次。
 The translator produced rules for all 607~policies, and all of them compiled.
-% 中：该翻译器为所有 607 条指令生成了策略，且它们全部编译通过。
+% 中：该翻译器为所有 607 条策略生成了规则，且它们全部编译通过。
 Only 2~policies required a retry, giving a 0.3\% retry rate and no compilation failures.
 % 中：只有 2 条策略需要重试，给出 0.3\% 的重试率且无编译失败。
 To validate correctness, we apply the same methodology as the empirical study (\S\ref{sec:empirical}): two independent LLM agents cross-check all policies, and human annotators review 100 randomly selected ones.
@@ -102,9 +102,9 @@ However, these operate at the tool-call boundary: they do not test whether enfor
 \paragraph{Rule set and scope.}
 % 中：\paragraph{规则集和范围。}
 RQ2 samples from the 607~OS-enforceable policies.
-% 中：RQ2 从 607 条操作系统可执行指令中采样。
+% 中：RQ2 从 607 条操作系统可执行策略中采样。
 Semantic-only and content policies are excluded: the former have no system-observable effect, and the latter require linter rather than OS-level IFC.
-% 中：仅语义的和内容指令被排除：前者没有系统可观察的效果，后者需要代码检查器而非操作系统级 IFC。
+% 中：仅语义的和内容策略被排除：前者没有系统可观察的效果，后者需要代码检查器而非操作系统级 IFC。
 We evaluate 38 randomly-selected rules, sampling 2--3 from each of 15 repositories to cover both per-event and cross-event rules, project- and task-context requirements, and common repository policy themes.
 % 中：我们评估 38 条随机选择的规则，从 15 个仓库各采样 2--3 条，以覆盖单事件和跨事件规则、项目和任务上下文要求以及常见仓库策略主题。
 The final manifest contains 20 per-event and 18 cross-event rules.
@@ -159,7 +159,7 @@ TP means a violation trace recovered towards policy compliance, either through e
 We report \emph{Decision Compliance Rate} (DCR), the fraction of trace-conditioned decision points whose final outcome is policy-correct: \(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{FN})\).
 % 中：我们报告 \emph{决策合规率}（DCR），即最终结果策略正确的轨迹条件决策点的比例：\(\mathrm{DCR}=(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{FN})\)。
 DCR is end-to-end from natural language policy to agent behavior: it includes policy translation, runtime enforcement, feedback delivery, and agent recovery.
-% 中：DCR 是从自然语言指令到智能体行为的端到端：它包括策略翻译、运行时执行、反馈传递和智能体恢复。
+% 中：DCR 是从自然语言策略到智能体行为的端到端：它包括策略翻译、运行时执行、反馈传递和智能体恢复。
 We manually corrected the samples the judge flagged for double-checking, and additionally reviewed 50 judgments sampled at random, all of which agreed with our manual assessment.
 % 中：我们手动更正了判断器标记为需要复查的样本，并额外随机审查了 50 个判断，全部与我们的手动评估一致。
 
@@ -171,7 +171,7 @@ We manually corrected the samples the judge flagged for double-checking, and add
 \caption{Overall RQ2 Decision Compliance Rate across 190 traces under two end-to-end model settings. In each setting, the tested agent, prompt-filter classifier, and trajectory judge use the indicated model.}
 % 中：\caption{在两个端到端模型设置下 190 条轨迹的总体 RQ2 决策合规率。在每个设置中，测试的智能体、提示过滤分类器和轨迹判断器使用指示的模型。}
 \Description{Grouped bar chart comparing overall policy compliance rates under two model settings: Qwen3.6-27B, DeepSeek-Pro V4}
-% 中：\Description{分组条形图比较两个模型设置下的总体指令合规率：Qwen3.6-27B、DeepSeek-Pro V4}
+% 中：\Description{分组条形图比较两个模型设置下的总体策略合规率：Qwen3.6-27B、DeepSeek-Pro V4}
 \label{fig:rq2-dcr}
 \end{figure}
 
@@ -209,7 +209,7 @@ On violation traces, \sys{} correctly resolves 86/114 (75.4\%), which is 2.0--3.
 \caption{RQ2 breakdown by trace family. Cells show DCR~(\%) for each system$\times$family; darker is higher.}
 % 中：\caption{按轨迹族的 RQ2 分解。单元格显示每个系统$\times$族的 DCR（\%）；颜色越深越高。}
 \Description{Heatmap of policy compliance rate by trace family and system.}
-% 中：\Description{按轨迹族和系统的指令合规率热图。}
+% 中：\Description{按轨迹族和系统的策略合规率热图。}
 \label{fig:rq2-family-breakdown}
 \end{figure}
 
@@ -506,6 +506,6 @@ We introduce \sys{}, which enforces agent intent-level policies at the OS level 
 It improves correct violation-trace outcomes by 2.0--3.2$\times$ over prompt-filter, tool-regex, FIDES~\cite{costa2025fides}, and feedback-free kernel IFC, prevents 74\% of baseline-unsafe behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end overhead.
 % 中：它将正确违规轨迹结果提高到 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}和无反馈内核 IFC 的 2.0--3.2 倍，在 361 个安全任务上阻止了 74\% 的基线不安全行为，并增加 1.9\%--8.4\% 的端到端开销。
 \sys{} targets per-event and cross-event policies (45\% of the corpus) by design.
-% 中：\sys{} 按设计针对单事件和跨事件指令（语料库的 45\%）。
+% 中：\sys{} 按设计针对单事件和跨事件策略（语料库的 45\%）。
 Content policies are better served by linters and static analyzers.
-% 中：内容指令更适合由代码检查器和静态分析器处理。
+% 中：内容策略更适合由代码检查器和静态分析器处理。
