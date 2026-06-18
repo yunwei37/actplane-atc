@@ -28,7 +28,7 @@ When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and 
 \includegraphics[width=\columnwidth]{figures/architecture.pdf}
 \caption{\sys{} architecture: policy generation, compilation, kernel enforcement, and feedback loop.}
 % 中：\caption{\sys{} 架构：策略生成、编译、内核执行和反馈循环。}
-\Description{Three-layer diagram: agent (directives, LLM), userspace (compiler, feedback), kernel (hooks, IFC engine, authority checker).}
+\Description{Three-layer diagram: agent (policies, LLM), userspace (compiler, feedback), kernel (hooks, IFC engine, authority checker).}
 % 中：\Description{三层图：智能体（指令、LLM）、用户空间（编译器、反馈）、内核（钩子、IFC 引擎、权限检查器）。}
 \label{fig:architecture}
 \end{figure}
@@ -39,14 +39,14 @@ When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and 
 
 The DSL lets agents express policy intent as enforceable system-level constraints.
 % 中：该 DSL 让智能体将策略意图表达为可执行的系统级约束。
-We observe that OS-enforceable directives from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
+We observe that OS-enforceable policies from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
 % 中：我们观察到实证研究中的操作系统可执行指令共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
-Some directives match a single operation, while others require cross-event history.
+Some policies match a single operation, while others require cross-event history.
 % 中：一些指令匹配单个操作，而其他指令需要跨事件历史。
-The DSL captures both by mapping each directive to a \emph{rule} expressed as a source-to-target constraint.
+The DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.
 % 中：该 DSL 通过将每条指令映射到表示为源到目标约束的 \emph{规则}来捕获两者。
 
-Each \emph{rule} encodes one directive with five components: a \emph{source}, a \emph{target} operation, an \emph{effect}, an optional temporal \emph{gate}, and a \emph{reason} for semantic feedback.
+Each \emph{rule} encodes one policy with five components: a \emph{source}, a \emph{target} operation, an \emph{effect}, an optional temporal \emph{gate}, and a \emph{reason} for semantic feedback.
 % 中：每条 \emph{规则}用五个组件编码一条指令：一个 \emph{源}、一个 \emph{目标}操作、一个 \emph{效果}、一个可选的时间 \emph{门控}和用于语义反馈的 \emph{原因}。
 
 \emph{Sources} identify which system objects a rule applies to: an \texttt{exec} source matches processes by binary name, a \texttt{file} source matches paths, and a network source matches endpoints.
@@ -60,7 +60,7 @@ For example, \texttt{block write} suits an agent writing to a wrong directory, w
 A rule may also specify a target allow-list to restrict which paths or endpoints it applies to.
 % 中：一条规则还可以指定一个目标允许列表，以限制它适用于哪些路径或端点。
 
-Some cross-event directives require temporal ordering: ``run tests before committing'' means tests must have run \emph{after} the most recent edit, not merely at some earlier point.
+Some cross-event policies require temporal ordering: ``run tests before committing'' means tests must have run \emph{after} the most recent edit, not merely at some earlier point.
 % 中：一些跨事件指令需要时间顺序："提交前运行测试"意味着测试必须在最近的编辑 \emph{之后}运行，而不仅仅是在某个更早的时间点。
 \emph{Gates} capture this by attaching temporal conditions to rules.
 % 中：\emph{门控}通过将时间条件附加到规则来捕获这一点。
@@ -232,7 +232,7 @@ A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads the t
 % 中：一个 \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint 读取任务退出码，仅在以指定状态正常终止时激活退出限定门控。
 Userspace does not re-detect violations but only formats kernel-reported matches into semantic feedback.
 % 中：用户空间不重新检测违规，仅将内核报告的匹配格式化为语义反馈。
-The engine supports up to 128 concurrent rules, sized to cover the largest observed repository (66 OS-enforceable directives) with margin for layered domain composition.
+The engine supports up to 128 concurrent rules, sized to cover the largest observed repository (66 OS-enforceable policies) with margin for layered domain composition.
 % 中：引擎支持最多 128 条并发规则，大小足以覆盖观察到的最大仓库（66 条操作系统可执行指令），并为分层域组合留有余量。
 
 The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy before the target starts, seeds the agent label, and records kernel-reported matches in a feedback file that agent hooks relay into the model's next turn.
