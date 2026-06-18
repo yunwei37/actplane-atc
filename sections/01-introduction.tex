@@ -34,8 +34,8 @@ OS-level enforcement with static policy is also insufficient.
 % 中：使用静态策略的操作系统级执行也是不足够的。
 Most rules reference project or task context that must be resolved (e.g., ``never modify upstream source,'' where \emph{upstream source} needs to be resolved from the repository; ``do not update dependencies unless requested''; ``the reviewer sub-agent only writes to its project directory''), so human administrators can hardly pre-define policy for them without that context.
 % 中：大多数规则引用必须被解析的项目或任务上下文（例如"永不修改上游源码"，其中 \emph{上游源码}需要从仓库中解析；"除非请求否则不要更新依赖"；"审查子智能体只写入其项目目录"），因此人工管理员在没有该上下文的情况下几乎无法为它们预定义策略。
-We find that 74\% of system-level policies require intent-level context outside of low-level OS events.
-% 中：我们发现 74\% 的系统级策略需要低级操作系统事件之外的意图级上下文。
+We find that 74\% of these policies require intent-level context outside of low-level OS events.
+% 中：我们发现 74\% 的这些策略需要低级操作系统事件之外的意图级上下文。
 OS-level enforcement systems and sandboxes for traditional software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor} can observe system actions but expect pre-defined static policy and return only system events without semantic context, leaving the agent unlikely to comply with its policies.
 % 中：传统软件的操作系统级执行系统和沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}可以观察系统行为，但期望预定义的静态策略，并仅返回没有语义上下文的系统事件，使智能体不太可能遵守其策略。
 
