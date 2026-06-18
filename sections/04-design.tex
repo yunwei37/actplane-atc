@@ -115,6 +115,8 @@ Appendix~\ref{sec:appendix:dsl-grammar} gives the concrete grammar.
 % 中：\subsection{带标签的信息流}
 \label{sec:ifc}
 
+Information-flow control (IFC) tracks how data moves from sources to sinks by attaching labels to OS objects and propagating them at runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
+% 中：信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
 Enforcing the DSL's source-to-target constraints requires tracking which sources have influenced which objects across the session.
 % 中：执行 DSL 的源到目标约束需要追踪哪些源在整个会话中影响了哪些对象。
 \sys{} does so with a \emph{labeled information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine}: each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.

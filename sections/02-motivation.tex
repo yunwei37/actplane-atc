@@ -1,5 +1,9 @@
-\section{Background}
-% 中：\section{背景}
+\section{Motivation}
+% 中：\section{动机}
+\label{sec:motivation}
+
+\subsection{Agent Harnesses and Policy}
+% 中：\subsection{智能体 Harness 和策略}
 \label{sec:background}
 
 \textbf{AI agents and harnesses.}
@@ -43,24 +47,14 @@ The empirical study below characterizes how strongly real project instructions d
 OS-level mechanisms (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock}, BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon}, KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain}) restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they expect statically pre-written policies and return opaque errors with no connection to policy intent.
 % 中：操作系统级机制（seccomp~\cite{seccomp-bpf}、AppArmor~\cite{apparmor}、Capsicum~\cite{watson2010capsicum}、Landlock~\cite{landlock}、BPF-LSM~\cite{linuxbpflsm}、Tetragon~\cite{ciliumtetragon}、KubeArmor~\cite{kubearmor} 和 BPFContain~\cite{findlay2021bpfcontain}）在工具层之下限制进程、文件和网络访问，并越来越多地被采用为智能体沙箱，但它们期望静态预写的策略，并返回与策略意图没有连接的不透明错误。
 
-\textbf{Information-flow control.}
-% 中：\textbf{信息流控制。}
-Information-flow control (IFC) tracks how data moves from sources to sinks by attaching labels to OS objects and propagating them at runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
-% 中：信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
-Later operations are checked against accumulated label state.
-% 中：后续操作根据累积的标签状态进行检查。
-
-\section{Empirical Study}
-% 中：\section{实证研究}
+\subsection{Empirical Study: Methodology}
+% 中：\subsection{实证研究：方法论}
 \label{sec:empirical}
 
 Prior studies classify instruction-file contents at file or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}; Zhang et al.~\cite{zhang2026guardrails} further show that negative constraints and positive policies have different effects.
 % 中：先前的研究在文件或章节标题粒度上对指令文件内容进行分类~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}；Zhang 等人~\cite{zhang2026guardrails}进一步表明否定约束和肯定指令具有不同的效果。
 We analyze at the statement level to classify their enforcement requirements and quantify the context they need to become concrete rules.
 % 中：我们在语句级别进行分析，以分类它们的执行要求，并量化它们需要成为具体规则的上下文。
-
-\subsection{Methodology}
-% 中：\subsection{方法论}
 
 We collected public GitHub repositories containing \texttt{CLAUDE.md} or \texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025 and excluding non-code, inactive, fake-star, and stub repositories.
 % 中：我们收集了包含 \texttt{CLAUDE.md} 或 \texttt{AGENTS.md} 的公开 GitHub 仓库，优先考虑 2025 年后创建的 AI 智能体项目，并排除非代码、不活跃、刷星和占位仓库。
