@@ -27,7 +27,7 @@
 ]
 
 % Agent layer.
-\node[agent] (directive) at (-3.0,3.2) {Project\\directives};
+\node[agent] (policy) at (-3.0,3.2) {Project\\policies};
 \node[agent] (agent) at (0.0,3.2) {Agent};
 \node[dsl] (policy) at (3.0,3.2) {DSL\\policy};
 
@@ -41,7 +41,7 @@
 \node[kernel] (authority) at (3.0,-0.55) {Authority\\checker};
 
 % Policy update path.
-\draw[arr] (directive) -- (agent);
+\draw[arr] (policy) -- (agent);
 \draw[arr] (agent) -- (policy);
 \draw[arr] (policy) -- (compiler);
 \draw[arr] (compiler) -- node[right,lbl] {load/update} (authority);
@@ -53,7 +53,7 @@
 \draw[arr] (feedback) -- (agent);
 
 \begin{scope}[on background layer]
-  \node[fit=(directive)(agent), fill=green!4, draw=green!40,
+  \node[fit=(policy)(agent), fill=green!4, draw=green!40,
         rounded corners=4pt, inner xsep=11pt, inner ysep=10pt,
         label={[font=\scriptsize\bfseries]above left:Agent}] {};
   \node[fit=(feedback)(compiler), fill=blue!4, draw=blue!30,

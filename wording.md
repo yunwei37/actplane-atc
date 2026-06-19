@@ -31,7 +31,7 @@ The DSL lets agents express policy intent as enforceable system actions: reminde
 
 Most system-level instructions can be reframed as constraints ("run tests before committing" → "do not commit without running tests"). The distinction matters for enforcement effect: constraints map to block/kill (hard enforcement), while instructions map to notify (soft reminder). Some instructions are better as reminders because the agent may have a valid reason to deviate.
 
-This maps to the empirical finding (Zhang et al., 2026) that negative constraints and positive directives affect agent behavior differently.
+This maps to the empirical finding (Zhang et al., 2026) that negative constraints and positive policies affect agent behavior differently.
 
 ### Andi's model (reference)
 
@@ -89,7 +89,7 @@ yunwei37 on the semantic gap:
 
 - **Throughout the paper**: use "policy" for NL statements and compiled units. "system-observable policies", "cross-event policies", etc.
 - **DSL syntax only**: use "rule" when referring to the `rule name:` syntax block.
-- **Avoid "directive"**: we unified on "policy" to reduce terminology burden.
+- **Avoid "policy"**: we unified on "policy" to reduce terminology burden.
 
 ## System actions vs system events
 

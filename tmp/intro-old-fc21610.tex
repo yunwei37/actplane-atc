@@ -14,10 +14,10 @@ policies. Projects encode such policies in instruction files such
 as \texttt{CLAUDE.md} and
 \texttt{AGENTS.md}~\cite{chatlatanagulchai2025manifests,lulla2026agentsmd}.
 Our empirical study of 64~projects extracts 2{,}116 statements and finds
-that 64\% are behavioral directives, 83\% of which involve system-level
+that 64\% are behavioral policies, 83\% of which involve system-level
 behavior, and 81\% of projects require cross-event state tracking
 (\S\ref{sec:empirical}).
-A directive is \emph{per-event} if it can be checked against a single
+A policy is \emph{per-event} if it can be checked against a single
 operation (``do not run \texttt{git push --force}'') and
 \emph{cross-event} if it requires state across operations (``run tests
 before committing''---the commit is forbidden unless a test execution
@@ -31,7 +31,7 @@ behavior~\cite{jimenez2024swebench}.
 
 % ¶3: Gap — context gap + semantic gap
 Enforcing these policies faces two compounding gaps. First, a
-\emph{context gap}: 74\% of system-level directives are not
+\emph{context gap}: 74\% of system-level policies are not
 self-contained---they reference project domains (``run the test suite'')
 or delegate judgment to the current task (``unless explicitly
 requested'') that cannot be resolved without the agent's own project
@@ -63,7 +63,7 @@ reliably follow it during execution.
 % ¶5: System — ActPlane
 ActPlane is such an interface. Agents and developers declare behavioral
 policies in a compact DSL that agents themselves can generate from
-natural-language directives; ActPlane compiles them into labeled
+natural-language policies; ActPlane compiles them into labeled
 information-flow rules and loads them into an eBPF/BPF-LSM backend. Named
 labels propagate across process, file, and network objects at kernel hooks,
 encoding execution history as checkable state: when a process reads a file
@@ -87,7 +87,7 @@ This paper makes three contributions.
 \begin{enumerate}
 \item An \textbf{empirical study} of instruction files from 64~popular
 projects, showing that cross-event information-flow policies are pervasive
-(81\% of repositories) and that 74\% of system-level directives require
+(81\% of repositories) and that 74\% of system-level policies require
 project or task context that only the agent can supply.
 
 \item \textbf{ActPlane}, a programmable OS-level control plane for agent
@@ -97,7 +97,7 @@ and network boundaries, returns semantic feedback that reconnects rule
 matches to intent-level remediation, and supports layered policies where
 higher-authority constraints cannot be weakened by the agent.
 
-\item An \textbf{evaluation} on 607 OS-level directives from the
+\item An \textbf{evaluation} on 607 OS-level policies from the
 empirical study, measuring DSL expressiveness, LLM-based
 natural-language-to-DSL translation correctness, system correctness
 across bypass paths, per-event overhead, and feedback effectiveness on

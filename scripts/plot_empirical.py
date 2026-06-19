@@ -114,7 +114,7 @@ total = desc + dire
 total_dir = sum(enf_total.values())
 total_sys = sum(ctx_total.values())
 
-# ===== Fig: E-RQ1 — Per-repo directive fraction =====
+# ===== Fig: E-RQ1 — Per-repo policy fraction =====
 fig, ax = plt.subplots(figsize=(7, 4))
 dir_pcts = sorted([r['dir_pct'] for r in repo_stats])
 colors = ['#FF6B6B' if p >= 50 else '#4ECDC4' for p in dir_pcts]
@@ -122,19 +122,19 @@ ax.bar(range(len(dir_pcts)), dir_pcts, color=colors, width=1.0, edgecolor='none'
 ax.axhline(y=np.median(dir_pcts), color='black', linestyle='--', linewidth=1.5,
            label=f'Median = {np.median(dir_pcts):.1f}%')
 ax.axhline(y=50, color='gray', linestyle=':', linewidth=1, alpha=0.5)
-p_dir = mpatches.Patch(color='#FF6B6B', label='Majority directive (>50%)')
+p_dir = mpatches.Patch(color='#FF6B6B', label='Majority policy (>50%)')
 p_desc = mpatches.Patch(color='#4ECDC4', label='Majority description (<50%)')
 ax.legend(handles=[p_dir, p_desc, ax.get_lines()[0]], loc='upper left')
-ax.set_xlabel('Repositories (sorted by directive fraction)')
-ax.set_ylabel('Directive Fraction (%)')
+ax.set_xlabel('Repositories (sorted by policy fraction)')
+ax.set_ylabel('Policy Fraction (%)')
 ax.set_ylim(0, 105)
 plt.tight_layout()
-plt.savefig(os.path.join(OUTDIR, 'empirical_rq1_directive_fraction.pdf'),
+plt.savefig(os.path.join(OUTDIR, 'empirical_rq1_policy_fraction.pdf'),
             bbox_inches='tight')
 plt.close()
-print('E-RQ1: directive fraction')
+print('E-RQ1: policy fraction')
 
-# ===== Fig: E-RQ2 — Directive ratio by topic =====
+# ===== Fig: E-RQ2 — Policy ratio by topic =====
 fig, ax = plt.subplots(figsize=(7, 4.5))
 y = np.arange(len(topics))
 dir_ratio = np.array([100 * d / t if t > 0 else 0 for d, t in zip(dire, total)])
@@ -147,22 +147,22 @@ avg_line = ax.axvline(x=100 * sum(dire) / sum(total), color='black',
                       linestyle='--', linewidth=1.5)
 for i, (v, t) in enumerate(zip(sr, [total[j] for j in si])):
     ax.text(v + 1, i, f'{v:.0f}% (n={t})', va='center', fontsize=11)
-p_high = mpatches.Patch(color='#FF6B6B', label='Directive-dominant (>70%)')
+p_high = mpatches.Patch(color='#FF6B6B', label='Policy-dominant (>70%)')
 p_mid = mpatches.Patch(color='#FFD93D', label='Mixed (40–70%)')
 p_low = mpatches.Patch(color='#4ECDC4', label='Description-dominant (<40%)')
 ax.legend(handles=[p_high, p_mid, p_low, avg_line], labels=[
-    'Directive-dominant (>70%)', 'Mixed (40–70%)', 'Description-dominant (<40%)',
+    'Policy-dominant (>70%)', 'Mixed (40–70%)', 'Description-dominant (<40%)',
     f'Overall avg ({100 * sum(dire) / sum(total):.1f}%)'],
     loc='lower right')
 ax.set_yticks(y)
 ax.set_yticklabels(sl)
-ax.set_xlabel('Directive Ratio (%)')
+ax.set_xlabel('Policy Ratio (%)')
 ax.set_xlim(0, 105)
 plt.tight_layout()
-plt.savefig(os.path.join(OUTDIR, 'empirical_rq2_directive_ratio.pdf'),
+plt.savefig(os.path.join(OUTDIR, 'empirical_rq2_policy_ratio.pdf'),
             bbox_inches='tight')
 plt.close()
-print('E-RQ2: directive ratio by topic')
+print('E-RQ2: policy ratio by topic')
 
 # ===== Fig: E-RQ3 — Enforcement profile by topic (normalized) =====
 fig, ax = plt.subplots(figsize=(7, 4.5))
