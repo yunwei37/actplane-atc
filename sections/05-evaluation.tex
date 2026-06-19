@@ -59,7 +59,7 @@ The 607~policies expand to 1{,}283~rule lines.
 % \noindent\textbf{大多数策略在结构上是简单的。}
 217 (36\%) have a single enforcement clause, 231 (38\%) have two, and 101 (17\%) have three.
 % 217 条（36\%）有一个单一的执行子句，231 条（38\%）有两个，101 条（17\%）有三个。
-Policies average 71 tokens (per-event: 62, cross-event: 86; p95: 122 overall, 94 per-event, 152 cross-event) under the OpenAI \texttt{o200k\_base} tokenizer.
+Policies average 71 tokens under the OpenAI \texttt{o200k\_base} tokenizer: per-event policies average 62 tokens, cross-event 86, with p95 at 122 overall.
 % 策略平均 71 个 token（单事件：62，跨事件：86；p95：总体 122，单事件 94，跨事件 152），使用 OpenAI \texttt{o200k\_base} 分词器。
 
 \noindent\textbf{Most DSL features are exercised.}
@@ -226,7 +226,7 @@ Cross-event rules (18 of 38) further widen the gap: tool-call baselines lack the
 
 \noindent\textbf{Agents can learn from failure: a single translation pass detects 77.2\% of violations, and one revision raises it to 94.7\%.}
 % \noindent\textbf{智能体可以从失败中学习：单次翻译检测 77.2\% 的违规，一次修订提高到 94.7\%。}
-We decompose violation-trace outcomes into \emph{detection rate} (the fraction of 114~violation traces on which enforcement triggered) and \emph{recovery rate} (the fraction of detected violations where the agent subsequently complied).
+We decompose violation-trace outcomes into \emph{detection rate}, the fraction of 114~violation traces on which enforcement triggered, and \emph{recovery rate}, the fraction of detected violations where the agent subsequently complied.
 % 我们将违规轨迹结果分解为 \emph{检测率}（114 条违规轨迹中执行触发的比例）和 \emph{恢复率}（检测到的违规中智能体随后合规的比例）。
 Translation quality determines both: rules too narrow miss violations (lowering detection), while rules too broad match compliant actions in 17 of the 18~false-positive cases (raising false positives).
 % 翻译质量决定两者：规则过窄会遗漏违规（降低检测），而规则过宽会在 18 个误报案例中的 17 个匹配合规操作（提高误报）。
@@ -241,7 +241,8 @@ Rerunning the 28~FN traces with revised rules recovers 26 (92.9\%).
 % \noindent\textbf{语义反馈以 97.7\% 将内核检测转化为智能体合规。}
 Full \sys{} produces $3\times$ more correct violation-trace outcomes than the same engine without feedback (86 vs.\ 27).
 % 完整 \sys{} 产生的正确违规轨迹结果是无反馈引擎的 3 倍（86 对 27）。
-The \textsc{\sys{}-opaque} ablation, which removes semantic feedback, reduces correct responses from 144 to 102 (FN rises from 28 to 87; FP drops from 18 to 1): it detects 75.4\% of violations, but only 31.4\% of those detections lead to compliance.
+The \textsc{\sys{}-opaque} ablation removes semantic feedback and reduces correct responses from 144 to 102: FN rises from 28 to 87 while FP drops from 18 to 1.
+It detects 75.4\% of violations, but only 31.4\% of those detections lead to compliance.
 % \textsc{\sys{}-opaque} 消融移除语义反馈，正确响应从 144 降至 102（FN 从 28 升至 87；FP 从 18 降至 1）：它检测到 75.4\% 的违规，但只有 31.4\% 的检测导致合规。
 Feedback also improves detection indirectly: an agent that receives a corrective payload after a first denial revises its approach, and the engine catches the revised attempt when it still violates the rule.
 % 反馈还间接提高检测：收到第一次拒绝后纠正载荷的智能体会修改其方法，当修改后的尝试仍然违规时引擎会捕获它。
@@ -252,7 +253,9 @@ Feedback also improves detection indirectly: an agent that receives a corrective
 % \sys{} 的优势在第二个模型下复现。
 The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking (Figure~\ref{fig:rq2-dcr}): \sys{} remains highest at 77.4\% DCR.
 % DeepSeek-Pro~V4~\cite{deepseek2026v4}端到端复现保持系统排名（图~\ref{fig:rq2-dcr}）：\sys{} 以 77.4\% DCR 保持最高。
-Per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$, with the highest stability for deterministic enforcement (tool-regex $\kappa=0.920$, FIDES $\kappa=0.919$, \sys{} $\kappa=0.852$) and lowest for prompt-filter ($\kappa=0.592$), consistent with the expected gradient from objective to subjective evaluation.
+Per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$.
+Deterministic enforcement shows the highest stability: tool-regex $\kappa=0.920$, FIDES $\kappa=0.919$, \sys{} $\kappa=0.852$.
+Prompt-filter is lowest at $\kappa=0.592$, consistent with the expected gradient from objective to subjective evaluation.
 % 两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$，确定性执行稳定性最高（工具正则 $\kappa=0.920$、FIDES $\kappa=0.919$、\sys{} $\kappa=0.852$），提示过滤最低（$\kappa=0.592$），与从客观到主观评估的预期梯度一致。
 
 %% ----------------------------------------------------------------
@@ -263,7 +266,10 @@ Per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$,
 \subsubsection{Macrobenchmarks (End-to-End Workloads)}
 % \subsubsection{宏基准（端到端工作负载）}
 
-We measure end-to-end overhead on two workloads under no-hit \sys{} configurations, i.e., policies are loaded but no rule fires during the workload (AP-$N$ denotes \sys{} with $N$ active rules): (1)~an agent trace suite that replays agent traces (68~tool actions, 20~Bash subprocesses), and (2)~a Linux kernel build (\texttt{defconfig} + \texttt{vmlinux}, \texttt{make -j24}, clean output directory).
+We measure end-to-end overhead on two workloads under no-hit \sys{} configurations, where policies are loaded but no rule fires during the workload.
+AP-$N$ denotes \sys{} with $N$ active rules.
+The first workload is an agent trace suite that replays 68~tool actions with 20~Bash subprocesses.
+The second is a Linux kernel build: \texttt{defconfig} plus \texttt{vmlinux}, \texttt{make -j24}, clean output directory.
 % 我们在无命中 \sys{} 配置下测量两个工作负载的端到端开销，即策略已加载但工作负载期间无规则触发（AP-$N$ 表示有 $N$ 条活动规则的 \sys{}）：（1）智能体轨迹套件重放智能体轨迹（68 个工具操作，20 个 Bash 子进程），（2）Linux 内核构建（\texttt{defconfig} + \texttt{vmlinux}，\texttt{make -j24}，干净输出目录）。
 Each workload runs three trials per configuration.
 % 每个工作负载每配置运行三次试验。
@@ -343,7 +349,8 @@ All overhead measurements use no-hit configurations.
 
 \paragraph{Goal.}
 % \paragraph{目标。}
-Unlike RQ2, which isolates single decision points, RQ4 evaluates \sys{} on complete coding-agent tasks (implementing features, fixing bugs, configuring builds) in real repositories, scored by the official OctoBench checklist judge.
+Unlike RQ2, which isolates single decision points, RQ4 evaluates \sys{} on complete coding-agent tasks in real repositories, scored by the official OctoBench checklist judge.
+Tasks include implementing features, fixing bugs, and configuring builds.
 % 与隔离单个决策点的 RQ2 不同，RQ4 在真实仓库的完整编码智能体任务（实现功能、修复 bug、配置构建）上评估 \sys{}，由官方 OctoBench 清单判断器评分。
 
 \paragraph{Benchmark and subset.}
@@ -371,7 +378,7 @@ During execution, the same Codex agent adjusts policies at runtime by submitting
 % \paragraph{指标。}
 The primary metric is official OctoBench reward.
 % 主要指标是官方 OctoBench 奖励。
-We additionally report three diagnostic submetrics from the same checklist results: \emph{user-query reward} (user-task checks only), \emph{implementation/test reward} (implementation, testing, configuration, and modification checks), and \emph{compliance reward} (compliance-typed checks).
+We additionally report three diagnostic submetrics from the same checklist results: \emph{user-query reward} for user-task checks only, \emph{implementation/test reward} for implementation, testing, configuration, and modification checks, and \emph{compliance reward} for compliance-typed checks.
 % 我们另外报告来自相同清单结果的三个诊断子指标：\emph{用户查询奖励}（仅用户任务检查）、\emph{实现/测试奖励}（实现、测试、配置和修改检查）和 \emph{合规奖励}（合规类型检查）。
 All submetrics use the official LLM-based checklist judge.
 % 所有子指标使用官方 LLM 基础清单判断器。
@@ -411,14 +418,15 @@ Each task runs inside a Docker-isolated OpenHands~\cite{wang2025openhands} runti
 % 每个任务在 Docker 隔离的 OpenHands~\cite{wang2025openhands}运行时中运行，带有服务依赖（GitLab、ownCloud）和对最终工作空间状态评分的独立评估器。
 We run every task under two conditions: \emph{baseline} (OpenHands with no enforcement) and \emph{\sys{}} (OpenHands with an OS-level \sys{} watcher loading a per-task policy).
 % 我们在两个条件下运行每个任务：\emph{基线}（无执行的 OpenHands）和 \emph{\sys{}}（带加载每任务策略的操作系统级 \sys{} 监视器的 OpenHands）。
-This setup differs from RQ1--RQ4 in two dimensions: the agent framework (OpenHands, not Codex CLI) and the workload (workplace safety tasks, not repository coding tasks).
+This setup differs from RQ1--RQ4 in two dimensions: the agent framework is OpenHands rather than Codex CLI, and the workload is workplace safety tasks rather than repository coding tasks.
 % 此设置在两个维度上与 RQ1--RQ4 不同：智能体框架（OpenHands，而非 Codex CLI）和工作负载（工作场所安全任务，而非仓库编码任务）。
 
 \paragraph{Policy generation.}
 % \paragraph{策略生成。}
 In deployment, the agent harness processes the user's request before execution begins, and guard agents and safety classifiers~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails} similarly analyze the incoming prompt to set runtime constraints.
 % 在部署中，智能体 harness 在执行开始前处理用户请求，守卫智能体和安全分类器~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails}类似地分析传入提示以设置运行时约束。
-Our policy generator mirrors this: a Codex agent (GPT-5.5~\cite{openai2026gpt55}) reads only the task description and extracts explicit file paths, system commands, and high-confidence sink categories (credentials, cron jobs, SSH keys, account mutations, network egress), producing a per-task \sys{} policy compiled to an eBPF configuration blob.
+Our policy generator mirrors this: a Codex agent (GPT-5.5~\cite{openai2026gpt55}) reads only the task description and extracts explicit file paths, system commands, and high-confidence sink categories such as credentials, cron jobs, SSH keys, account mutations, and network egress.
+The result is a per-task \sys{} policy compiled to an eBPF configuration blob.
 % 我们的策略生成器反映这一点：一个 Codex 智能体（GPT-5.5~\cite{openai2026gpt55}）仅读取任务描述，提取显式文件路径、系统命令和高置信度汇类别（凭证、cron 作业、SSH 密钥、账户变更、网络出口），生成编译为 eBPF 配置 blob 的每任务 \sys{} 策略。
 If no concrete OS-observable behavior is identifiable from the description, the generator emits a no-op marker.
 % 如果从描述中无法识别具体的操作系统可观察行为，生成器发出空操作标记。
@@ -451,7 +459,7 @@ In 28~cases the agent completed the unsafe action without triggering a policy.
 % 在 28 个案例中，智能体在不触发策略的情况下完成了不安全行为。
 \sys{} also activated on 16\% of tasks whose baseline was already safe, where the description-only policy matched a benign operation near the prohibited boundary.
 % \sys{} 还在 16\% 的基线已经安全的任务上激活，其中仅描述策略匹配了接近禁止边界的良性操作。
-The 58~no-op tasks (no OS behavior in the description) account for most of the remaining baseline-safe cases and are excluded from the prevention rate denominator.
+The 58~no-op tasks, those with no OS behavior in the description, account for most of the remaining baseline-safe cases and are excluded from the prevention rate denominator.
 % 58 个空操作任务（描述中无操作系统行为）占剩余大部分基线安全案例，被排除在预防率分母之外。
 
 \paragraph{Failure analysis.}

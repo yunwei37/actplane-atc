@@ -14,7 +14,8 @@ The specification needs to be \emph{high-level} enough for agents to write and m
 
 \textbf{C2: Safe, isolated, and efficient agent programmability} (\S\ref{sec:authority}).
 % \textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
-R2 requires agents to adapt IFC policies at runtime (a sub-agent may need a narrower scope, or the current task may require a new constraint) without affecting other agents' policies or weakening inherited constraints, while the added enforcement must not slow the agent's normal workload.
+R2 requires agents to adapt IFC policies at runtime without affecting other agents' policies or weakening inherited constraints.
+A sub-agent may need a narrower scope, or the current task may require a new constraint, and the added enforcement must not slow the agent's normal workload.
 % R2 要求智能体在运行时调整 IFC 策略（一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束），而不影响其他智能体的策略或削弱继承的约束，同时增加的执行不能减慢智能体的正常工作负载。
 
 
@@ -51,7 +52,10 @@ Each \emph{rule} encodes one policy with five components: a \emph{source}, a \em
 
 \emph{Sources} identify which system objects a rule applies to: an \texttt{exec} source matches processes by binary name, a \texttt{file} source matches paths, and a network source matches endpoints.
 % \emph{源}标识一条规则适用于哪些系统对象：一个 \texttt{exec} 源按二进制名称匹配进程，一个 \texttt{file} 源匹配路径，一个网络源匹配端点。
-When a source-tagged object performs a \emph{target} operation (e.g., \texttt{exec}, \texttt{open}, \texttt{connect}), the engine applies one of three \emph{effects}: \texttt{block} synchronously denies the syscall pre-operation (no TOCTOU gap, and the agent can retry a different action), \texttt{kill} terminates the offending process post-operation (preventing it from trying alternative channels), and \texttt{notify} only reports without preventing execution.
+When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}.
+\texttt{block} synchronously denies the syscall pre-operation, leaving no TOCTOU gap and letting the agent retry a different action.
+\texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels.
+\texttt{notify} only reports without preventing execution.
 % 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一：\texttt{block} 在操作前同步拒绝系统调用（无 TOCTOU 间隙，智能体可以重试一个不同的行为），\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），\texttt{notify} 仅报告而不阻止执行。
 For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
 % 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
@@ -171,7 +175,8 @@ The TCB comprises the kernel enforcement engine and higher-authority blobs, whil
 % TCB 包括内核执行引擎和更高权限 blob，而编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
 Enforcement covers the agent's entire process tree, including indirect execution paths (subprocesses, shell wrappers) that produce hooked OS events.
 % 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
-Semantically equivalent operations and file contents are not covered, and hook types are limited by implementation (e.g., a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible).
+Semantically equivalent operations and file contents are not covered, and hook types are limited by implementation.
+For example, a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible.
 % 语义等效操作和文件内容不被覆盖，钩子类型受实现限制（例如，一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见）。
 Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and content-level checks are out of scope.
 % 内核入侵、\texttt{CAP\_BPF} 入侵、侧信道和内容级检查不在范围内。
@@ -180,7 +185,7 @@ Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and content-leve
 % \subsection{分层策略域}
 \label{sec:authority}
 
-Agents need to adapt policy at runtime (e.g., a sub-agent may need a narrower scope), but doing so must not weaken constraints inherited from higher authority.
+Agents need to adapt policy at runtime, for instance when a sub-agent requires a narrower scope, but doing so must not weaken constraints inherited from higher authority.
 % 智能体需要在运行时调整策略（例如，一个子智能体可能需要更窄的范围），但这样做不能削弱从更高权限继承的约束。
 
 To support this, \sys{} introduces \emph{policy domains}, organized into a \emph{domain hierarchy}.
