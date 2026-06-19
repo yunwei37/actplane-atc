@@ -32,22 +32,31 @@
 \renewcommand{\authorsaddresses}{}
 
 \begin{abstract}
-AI agents increasingly run in production and operate through \emph{harnesses}, the software runtime around the LLM.
-% AI 智能体越来越多地在生产环境中运行，并通过 \emph{harness}——包裹 LLM 的软件运行时——来操作。
-A major part of the agent harness is a policy engine that enforces policies for safety and effectiveness over the agent's actions.
-% 智能体 harness 的主要部分是策略引擎，它对智能体的行为执行安全性和有效性的策略。
-Policies are often written in natural language or configuration files: our empirical study finds that 64\% of instruction-file statements are \emph{policies}, e.g., ``do not leak secrets'' or ``run tests before committing.''
-% 策略通常以自然语言或配置文件编写：我们的实证研究发现，64\% 的指令文件语句是 \emph{策略}，例如"不要泄露密钥"或"提交前运行测试"。
-Yet existing policy engines fail to connect policy intent to system actions, leaving a \emph{semantic gap}.
-% 然而现有策略引擎无法将策略意图连接到系统行为，留下了 \emph{语义鸿沟}。
-83\% of policies constrain system actions, where tool-call guardrails can miss indirect ones, and 81\% of projects contain cross-event policies that stateless interception cannot track.
-% 83\% 的策略约束系统行为，其中工具调用护栏可能遗漏间接行为，而 81\% 的项目包含无状态拦截无法追踪的跨事件策略。
-OS-level sandbox-style mechanisms confine process, file, and network actions, but they expect static policy that is hard to pre-define for the 74\% of rules needing project or task context, and they return errors without semantic context that further confuse the agent.
-% 操作系统级沙箱式机制限制进程、文件和网络行为，但它们期望静态策略，而这对于 74\% 需要项目或任务上下文的规则难以预定义，且它们返回缺乏语义上下文的错误，进一步使智能体困惑。
+AI agents increasingly run in production through \emph{harnesses}, the software around the LLM, 
+including a engine that enforces safety and effectiveness \emph{policies}.
+% AI 智能体越来越多地通过 \emph{harness}（围绕 LLM 的软件层）运行于生产环境。
+Our empirical study finds that 64\% of content in CLAUDE.md, 
+AGENTS.md are these \emph{policies}, e.g., 
+``do not leak secrets'' or ``run tests before committing.'',
+83\% of policies constrain events that change the system state.
+% 我们的实证研究发现，CLAUDE.md、AGENTS.md 配置文件中 64\% 的内容是关于安全性与有效性的\emph{策略}，例如"不得泄露密钥"或"提交前必须运行测试"。
+Yet enforcing these policies exposes a \emph{semantic gap}: 
+policy intent is expressed in underspecified natural language, 
+while enforcement must act on concrete \emph{system actions}.
+% 然而，执行这些策略时暴露出一个\emph{语义鸿沟}：策略意图以模糊的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
+Neither existing approach closes this gap.
+Tool-call guardrails miss indirect ones that bypass the tool layer.
+% 83\% 的策略约束系统操作，但工具调用护栏会遗漏绕过工具层的间接操作。
+OS sandboxes expect static policy, hard to pre-define for 74\% of rules
+needing context, and return errors that confuse the agent.
+% 操作系统沙箱期望静态策略，而 74\% 的规则需要上下文难以预定义，且返回的错误令智能体困惑。
+
 Our key observation is that while safety constraints are inherited, the context required for compliance mainly resides with the agent closest to the project and task.
 % 我们的关键观察是，虽然安全约束是继承的，合规所需的上下文主要存在于最接近项目和任务的智能体处。
 To bridge the gap, we introduce \sys{}, a runtime-agnostic policy engine that allows agents to declare and enforce information-flow control (IFC) policies in the OS kernel with semantic feedback.
 % 为弥合这一鸿沟，我们引入 \sys{}，一个运行时无关的策略引擎，它允许智能体在操作系统内核中声明和执行信息流控制（IFC）策略，并带有语义反馈。
+81\% of projects contain cross-event policies that stateless interception cannot track, so we adopt labeled IFC for stateful propagation.
+% 81\% 的项目包含跨事件策略，无状态拦截无法追踪，因此我们采用标记 IFC 进行有状态传播。
 Layered policy domains isolate agent policies and prevent weakening of inherited constraints.
 % 分层策略域隔离智能体策略，并防止削弱继承的约束。
 We implement \sys{} with eBPF and evaluate it on policies from the empirical study, coding-task benchmarks, and safety benchmarks, showing improved policy compliance, including on indirect execution paths that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
