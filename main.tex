@@ -39,10 +39,8 @@ Our empirical study finds that 64\% of content in CLAUDE.md,
 AGENTS.md are these \emph{policies}, e.g., 
 ``do not leak secrets'' or ``run tests before committing.'',
 % 我们的实证研究发现，CLAUDE.md、AGENTS.md 配置文件中 64\% 的内容是\emph{策略}，例如"不得泄露密钥"或"提交前必须运行测试"。
-Yet enforcing these policies exposes a \emph{semantic gap}: 
-policy intent is expressed in underspecified natural language, and 74\% need addititonal project or task context,
-while enforcement must act on concrete \emph{system actions} for 83\% of policies constrain system-state-changing events.
-% 然而，执行这些策略时暴露出一个\emph{语义鸿沟}：策略意图以模糊的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
+Yet enforcing these policies exposes a \emph{semantic gap}: policy intent is expressed in natural language with 74\% need additional context, yet enforcement for 83\% of policies must act on concrete \emph{system actions}.
+% 然而，执行这些策略时暴露出一个\emph{语义鸿沟}：策略意图以模糊的自然语言表达，且 74\% 需要额外的项目或任务上下文，而执行层必须对具体的\emph{系统操作}做出判断。
 
 Neither existing approach closes this gap.
 Tool-call guardrails miss indirect ones that bypass the tool layer.
