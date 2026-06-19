@@ -1,73 +1,73 @@
 \section{Design}
-% 中：\section{设计}
+% \section{设计}
 \label{sec:design}
 
 \sys{} is a runtime-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a key challenge:
-% 中：\sys{} 是一个运行时无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个关键挑战：
+% \sys{} 是一个运行时无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个关键挑战：
 
 \textbf{C1: High-level yet kernel-enforceable policy specification} (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-% 中：\textbf{C1：高级但可内核执行的策略规范}（\S\ref{sec:dsl}、\S\ref{sec:ifc}）。
+% \textbf{C1：高级但可内核执行的策略规范}（\S\ref{sec:dsl}、\S\ref{sec:ifc}）。
 R1 pulls in two directions: generating policy at the intent level is too ambiguous to enforce deterministically, while generating at the syscall level is costly and error-prone for agents.
-% 中：R1 拉向两个方向：在意图级别生成策略过于模糊而无法确定性执行，而在系统调用级别生成对智能体来说成本高且容易出错。
+% R1 拉向两个方向：在意图级别生成策略过于模糊而无法确定性执行，而在系统调用级别生成对智能体来说成本高且容易出错。
 The specification needs to be \emph{high-level} enough for agents to write and modify with minimal expertise and token cost, which is feasible because most real policies are structurally simple (\S\ref{sec:eval:rq1}), yet \emph{concrete} enough to compile to deterministic kernel checks.
-% 中：规范需要足够 \emph{高级}，使智能体能够以最少的专业知识和 token 成本编写和修改，这是可行的因为大多数真实策略结构简单（\S\ref{sec:eval:rq1}），同时又足够 \emph{具体}以编译为确定性内核检查。
+% 规范需要足够 \emph{高级}，使智能体能够以最少的专业知识和 token 成本编写和修改，这是可行的因为大多数真实策略结构简单（\S\ref{sec:eval:rq1}），同时又足够 \emph{具体}以编译为确定性内核检查。
 
 \textbf{C2: Safe, isolated, and efficient agent programmability} (\S\ref{sec:authority}).
-% 中：\textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
+% \textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
 R2 requires agents to adapt IFC policies at runtime (a sub-agent may need a narrower scope, or the current task may require a new constraint) without affecting other agents' policies or weakening inherited constraints, while the added enforcement must not slow the agent's normal workload.
-% 中：R2 要求智能体在运行时调整 IFC 策略（一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束），而不影响其他智能体的策略或削弱继承的约束，同时增加的执行不能减慢智能体的正常工作负载。
+% R2 要求智能体在运行时调整 IFC 策略（一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束），而不影响其他智能体的策略或削弱继承的约束，同时增加的执行不能减慢智能体的正常工作负载。
 
 
 \sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): a policy DSL (\S\ref{sec:dsl}) lets agents express policy intent in a form close to natural language, which a compiler lowers into a fixed-size kernel config; a labeled information-flow model (\S\ref{sec:ifc}) tracks cross-event state at OS level (together they address C1); and layered policy domains (\S\ref{sec:authority}) let agents adapt policy at runtime without weakening inherited constraints (C2's safety and isolation), with a compact kernel representation that keeps enforcement within C2's efficiency budget (\S\ref{sec:eval:rq3}).
-% 中：\sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：一个策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，一个编译器将其降低为固定大小的内核配置；一个带标签的信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态（两者共同解决 C1）；分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（C2 的安全性和隔离性），紧凑的内核表示使执行保持在 C2 的效率预算内（\S\ref{sec:eval:rq3}）。
+% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：一个策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，一个编译器将其降低为固定大小的内核配置；一个带标签的信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态（两者共同解决 C1）；分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（C2 的安全性和隔离性），紧凑的内核表示使执行保持在 C2 的效率预算内（\S\ref{sec:eval:rq3}）。
 When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and a remediation path (closing R1's feedback loop).
-% 中：当一条规则触发时，\sys{} 返回语义反馈：规则名称、原因和补救路径（关闭 R1 的反馈循环）。
+% 当一条规则触发时，\sys{} 返回语义反馈：规则名称、原因和补救路径（关闭 R1 的反馈循环）。
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/architecture.pdf}
 \caption{\sys{} architecture: policy generation, compilation, kernel enforcement, and feedback loop.}
-% 中：\caption{\sys{} 架构：策略生成、编译、内核执行和反馈循环。}
+% \caption{\sys{} 架构：策略生成、编译、内核执行和反馈循环。}
 \Description{Three-layer diagram: agent (policies, LLM), userspace (compiler, feedback), kernel (hooks, IFC engine, authority checker).}
-% 中：\Description{三层图：智能体（策略、LLM）、用户空间（编译器、反馈）、内核（钩子、IFC 引擎、权限检查器）。}
+% \Description{三层图：智能体（策略、LLM）、用户空间（编译器、反馈）、内核（钩子、IFC 引擎、权限检查器）。}
 \label{fig:architecture}
 \end{figure}
 
 \subsection{Policy DSL}
-% 中：\subsection{策略 DSL}
+% \subsection{策略 DSL}
 \label{sec:dsl}
 
 The DSL lets agents express policy intent as enforceable system-level constraints.
-% 中：该 DSL 让智能体将策略意图表达为可执行的系统级约束。
+% 该 DSL 让智能体将策略意图表达为可执行的系统级约束。
 We observe that OS-enforceable policies from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
-% 中：我们观察到实证研究中的操作系统可执行策略共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
+% 我们观察到实证研究中的操作系统可执行策略共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
 Some policies match a single operation, while others require cross-event history.
-% 中：一些策略匹配单个操作，而其他策略需要跨事件历史。
+% 一些策略匹配单个操作，而其他策略需要跨事件历史。
 The DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.
-% 中：该 DSL 通过将每条策略映射到表示为源到目标约束的 \emph{规则}来捕获两者。
+% 该 DSL 通过将每条策略映射到表示为源到目标约束的 \emph{规则}来捕获两者。
 
 Each \emph{rule} encodes one policy with five components: a \emph{source}, a \emph{target} operation, an \emph{effect}, an optional temporal \emph{gate}, and a \emph{reason} for semantic feedback.
-% 中：每条 \emph{规则}用五个组件编码一条策略：一个 \emph{源}、一个 \emph{目标}操作、一个 \emph{效果}、一个可选的时间 \emph{门控}和用于语义反馈的 \emph{原因}。
+% 每条 \emph{规则}用五个组件编码一条策略：一个 \emph{源}、一个 \emph{目标}操作、一个 \emph{效果}、一个可选的时间 \emph{门控}和用于语义反馈的 \emph{原因}。
 
 \emph{Sources} identify which system objects a rule applies to: an \texttt{exec} source matches processes by binary name, a \texttt{file} source matches paths, and a network source matches endpoints.
-% 中：\emph{源}标识一条规则适用于哪些系统对象：一个 \texttt{exec} 源按二进制名称匹配进程，一个 \texttt{file} 源匹配路径，一个网络源匹配端点。
+% \emph{源}标识一条规则适用于哪些系统对象：一个 \texttt{exec} 源按二进制名称匹配进程，一个 \texttt{file} 源匹配路径，一个网络源匹配端点。
 When a source-tagged object performs a \emph{target} operation (e.g., \texttt{exec}, \texttt{open}, \texttt{connect}), the engine applies one of three \emph{effects}: \texttt{block} synchronously denies the syscall pre-operation (no TOCTOU gap, and the agent can retry a different action), \texttt{kill} terminates the offending process post-operation (preventing it from trying alternative channels), and \texttt{notify} only reports without preventing execution.
-% 中：当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一：\texttt{block} 在操作前同步拒绝系统调用（无 TOCTOU 间隙，智能体可以重试一个不同的行为），\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），\texttt{notify} 仅报告而不阻止执行。
+% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一：\texttt{block} 在操作前同步拒绝系统调用（无 TOCTOU 间隙，智能体可以重试一个不同的行为），\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），\texttt{notify} 仅报告而不阻止执行。
 For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
-% 中：例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
+% 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
 \texttt{block} and \texttt{kill} enforce constraints (``do not X'') while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
-% 中：\texttt{block} 和 \texttt{kill} 执行约束（"不要 X"），而 \texttt{notify} 观察指令（"做 X"）~\cite{zhang2026guardrails}。
+% \texttt{block} 和 \texttt{kill} 执行约束（"不要 X"），而 \texttt{notify} 观察指令（"做 X"）~\cite{zhang2026guardrails}。
 A rule may also specify a target allow-list to restrict which paths or endpoints it applies to.
-% 中：一条规则还可以指定一个目标允许列表，以限制它适用于哪些路径或端点。
+% 一条规则还可以指定一个目标允许列表，以限制它适用于哪些路径或端点。
 
 Some cross-event policies require temporal ordering: ``run tests before committing'' means tests must have run \emph{after} the most recent edit, not merely at some earlier point.
-% 中：一些跨事件策略需要时间顺序："提交前运行测试"意味着测试必须在最近的编辑 \emph{之后}运行，而不仅仅是在某个更早的时间点。
+% 一些跨事件策略需要时间顺序："提交前运行测试"意味着测试必须在最近的编辑 \emph{之后}运行，而不仅仅是在某个更早的时间点。
 \emph{Gates} capture this by attaching temporal conditions to rules.
-% 中：\emph{门控}通过将时间条件附加到规则来捕获这一点。
+% \emph{门控}通过将时间条件附加到规则来捕获这一点。
 A gate can check lineage (whether the subject descends from a particular source) or temporal sequence (\texttt{after~...~since~...}).
-% 中：一个门控可以检查血统（主体是否来自一个特定源）或时间顺序（\texttt{after~...~since~...}）。
+% 一个门控可以检查血统（主体是否来自一个特定源）或时间顺序（\texttt{after~...~since~...}）。
 An \texttt{exits~$N$} qualifier further requires the gating command to have terminated with exit code~$N$, distinguishing a successful run from a crashed or failing one.
-% 中：一个 \texttt{exits~$N$} 限定符进一步要求门控命令以退出码~$N$ 终止，区分成功运行与崩溃或失败的运行。
+% 一个 \texttt{exits~$N$} 限定符进一步要求门控命令以退出码~$N$ 终止，区分成功运行与崩溃或失败的运行。
 
 \begin{figure}[t]
 \begin{verbatim}
@@ -94,103 +94,103 @@ rule regen-after-schema:
   because "Re-run gqlgen after schema changes."
 \end{verbatim}
 \caption{Three \sys{} rules drawn from real projects: a per-event block, a cross-event kill gate, and a cross-event notify gate.}
-% 中：\caption{三条来自真实项目的 \sys{} 规则：一个单事件阻止、一个跨事件终止门控和一个跨事件通知门控。}
+% \caption{三条来自真实项目的 \sys{} 规则：一个单事件阻止、一个跨事件终止门控和一个跨事件通知门控。}
 \Description{Code listing of three \sys{} rules from real projects.}
-% 中：\Description{来自真实项目的三条 \sys{} 规则的代码清单。}
+% \Description{来自真实项目的三条 \sys{} 规则的代码清单。}
 \label{fig:policy-example}
 \end{figure}
 
 Figure~\ref{fig:policy-example} illustrates three rules drawn from real projects.
-% 中：图~\ref{fig:policy-example}展示了来自真实项目的三条规则。
+% 图~\ref{fig:policy-example}展示了来自真实项目的三条规则。
 \texttt{no-delete-data} is per-event: if the agent deletes any file under the data mount, the syscall is blocked immediately.
-% 中：\texttt{no-delete-data} 是单事件的：如果智能体删除数据挂载点下的任何文件，系统调用立即被阻止。
+% \texttt{no-delete-data} 是单事件的：如果智能体删除数据挂载点下的任何文件，系统调用立即被阻止。
 \texttt{tests-before-commit} adds a cross-event kill gate, so committing is allowed only if \texttt{go test} ran and exited successfully (\texttt{exits~0}) after the most recent source write.
-% 中：\texttt{tests-before-commit} 添加了一个跨事件终止门控，因此只有当 \texttt{go test} 在最近的源写入后运行并成功退出（\texttt{exits~0}）时，提交才被允许。
+% \texttt{tests-before-commit} 添加了一个跨事件终止门控，因此只有当 \texttt{go test} 在最近的源写入后运行并成功退出（\texttt{exits~0}）时，提交才被允许。
 \texttt{regen-after-schema} uses a notify effect instead, reminding the agent (without blocking) when it commits after a schema change without re-running the code generator.
-% 中：\texttt{regen-after-schema} 使用一个通知效果，当智能体在模式更改后没有重新运行代码生成器就提交时提醒它（而不阻止）。
+% \texttt{regen-after-schema} 使用一个通知效果，当智能体在模式更改后没有重新运行代码生成器就提交时提醒它（而不阻止）。
 Appendix~\ref{sec:appendix:dsl-grammar} gives the concrete grammar.
-% 中：附录~\ref{sec:appendix:dsl-grammar}给出具体语法。
+% 附录~\ref{sec:appendix:dsl-grammar}给出具体语法。
 
 \subsection{Labeled Information-Flow}
-% 中：\subsection{带标签的信息流}
+% \subsection{带标签的信息流}
 \label{sec:ifc}
 
 Information-flow control (IFC) tracks how data moves from sources to sinks by attaching labels to OS objects and propagating them at runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
-% 中：信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
+% 信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
 Enforcing the DSL's source-to-target constraints requires tracking which sources have influenced which objects across the session.
-% 中：执行 DSL 的源到目标约束需要追踪哪些源在整个会话中影响了哪些对象。
+% 执行 DSL 的源到目标约束需要追踪哪些源在整个会话中影响了哪些对象。
 \sys{} does so with a \emph{labeled information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine}: each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
-% 中：\sys{} 使用一个 \emph{带标签的信息流}模型来做这件事，遵循经典 IFC~\cite{flume,zeldovich2006histar}，作为一个 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
+% \sys{} 使用一个 \emph{带标签的信息流}模型来做这件事，遵循经典 IFC~\cite{flume,zeldovich2006histar}，作为一个 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
 
 To determine whether a subject or target has been influenced by certain sources, each process, file, and network endpoint carries a set of \emph{labels}.
-% 中：为确定一个主体或目标是否受到某些源的影响，每个进程、文件和网络端点携带一组 \emph{标签}。
+% 为确定一个主体或目标是否受到某些源的影响，每个进程、文件和网络端点携带一组 \emph{标签}。
 Each source declaration in the DSL defines a label that is added when a system object matches the source pattern.
-% 中：DSL 中的每个源声明定义一个标签，当一个系统对象匹配源模式时添加该标签。
+% DSL 中的每个源声明定义一个标签，当一个系统对象匹配源模式时添加该标签。
 At each event the engine evaluates every rule against the subject's and target's labels (required labels present, forbidden labels absent, gate satisfied) and applies matching effects.
-% 中：在每个事件时，引擎针对主体和目标的标签评估每条规则（所需标签存在、禁止标签不存在、门控满足），并应用匹配的效果。
+% 在每个事件时，引擎针对主体和目标的标签评估每条规则（所需标签存在、禁止标签不存在、门控满足），并应用匹配的效果。
 
 Because cross-event rules depend on sources from earlier events, labels must \emph{propagate} along OS data-flow edges (fork, exec, read, write, connect).
-% 中：因为跨事件规则依赖于早期事件的源，标签必须沿操作系统数据流边（fork、exec、read、write、connect）\emph{传播}。
+% 因为跨事件规则依赖于早期事件的源，标签必须沿操作系统数据流边（fork、exec、read、write、connect）\emph{传播}。
 This maintains a key \emph{invariant}: if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
-% 中：这维护一个关键 \emph{不变量}：如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
+% 这维护一个关键 \emph{不变量}：如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
 
 For example, a process that reads \texttt{.env} acquires its source label.
-% 中：例如，一个读取 \texttt{.env} 的进程获得其源标签。
+% 例如，一个读取 \texttt{.env} 的进程获得其源标签。
 If that process later connects to an external endpoint, a rule forbidding that label at network targets fires and blocks the connection.
-% 中：如果该进程稍后连接到一个外部端点，一条在网络目标上禁止该标签的规则触发并阻止连接。
+% 如果该进程稍后连接到一个外部端点，一条在网络目标上禁止该标签的规则触发并阻止连接。
 
 To ensure no history is lost and cross-event constraints remain checkable for the entire session, labels are \emph{monotonic}: propagation adds labels but never removes them, so once an object carries a label all subsequent consumers inherit it.
-% 中：为确保不丢失历史记录且跨事件约束在整个会话中保持可检查，标签是 \emph{单调的}：传播添加标签但从不移除它们，因此一旦一个对象携带一个标签，所有后续消费者都会继承它。
+% 为确保不丢失历史记录且跨事件约束在整个会话中保持可检查，标签是 \emph{单调的}：传播添加标签但从不移除它们，因此一旦一个对象携带一个标签，所有后续消费者都会继承它。
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrevocable by default, and declassification is delegated to the domain hierarchy (\S\ref{sec:authority}).
-% 中：如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密委托给域层次结构（\S\ref{sec:authority}）。
+% 如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密委托给域层次结构（\S\ref{sec:authority}）。
 
 \subsection{Threat Model}
-% 中：\subsection{威胁模型}
+% \subsection{威胁模型}
 
 \sys{} assumes the enforced agent may be unsafe or compromised.
-% 中：\sys{} 假设被执行的智能体可能是不安全的或被入侵的。
+% \sys{} 假设被执行的智能体可能是不安全的或被入侵的。
 The agent starts after \emph{higher-authority} policy is loaded and may author additional rules at runtime, following the principle of self-restriction in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
-% 中：智能体在 \emph{更高权限}策略加载后启动，并可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum}中的自我限制原则。
+% 智能体在 \emph{更高权限}策略加载后启动，并可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum}中的自我限制原则。
 Because the kernel enforcement engine and higher-authority policy are loaded by a privileged process before the agent starts and are not writable by the agent, the adversary's influence is bounded by the enforced agent's normal capabilities.
-% 中：因为内核执行引擎和更高权限策略由特权进程在智能体启动前加载，并且智能体不可写，攻击者的影响被限制在被执行智能体的正常能力范围内。
+% 因为内核执行引擎和更高权限策略由特权进程在智能体启动前加载，并且智能体不可写，攻击者的影响被限制在被执行智能体的正常能力范围内。
 The \emph{trust boundary} is temporal: any pre-defined rule loaded into the kernel before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
-% 中：\emph{信任边界}是时间性的：任何在被执行智能体启动前加载到内核的预定义规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
+% \emph{信任边界}是时间性的：任何在被执行智能体启动前加载到内核的预定义规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
 
 \sys{} provides two levels of assurance depending on policy authority.
-% 中：\sys{} 根据策略权限提供两个级别的保证。
+% \sys{} 根据策略权限提供两个级别的保证。
 Higher-authority rules carry safety and security guarantees.
-% 中：更高权限规则承载安全保证。
+% 更高权限规则承载安全保证。
 Agent-authored runtime rules provide only compliance assistance under a cooperative-but-fallible model: because enforcement is deterministic, an adversary controlling the agent at policy-generation time can only weaken its own rules, and the worst case degrades to having no self-imposed rules, but inherited ones remain intact.
-% 中：智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助：因为执行是确定性的，在策略生成时控制智能体的攻击者只能削弱自己的规则，最坏情况降级为没有自我施加的规则，但继承的规则保持完整。
+% 智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助：因为执行是确定性的，在策略生成时控制智能体的攻击者只能削弱自己的规则，最坏情况降级为没有自我施加的规则，但继承的规则保持完整。
 Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
-% 中：给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
+% 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
 Whether a violation is caught depends on \emph{policy coverage}: block effects are synchronous (no TOCTOU gap), kill effects are post-operation, and notify is observation-only.
-% 中：是否捕获违规取决于 \emph{策略覆盖}：阻止效果是同步的（无 TOCTOU 间隙），终止效果是操作后的，通知是仅观察的。
+% 是否捕获违规取决于 \emph{策略覆盖}：阻止效果是同步的（无 TOCTOU 间隙），终止效果是操作后的，通知是仅观察的。
 
 The TCB comprises the kernel enforcement engine and higher-authority blobs, while the compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
-% 中：TCB 包括内核执行引擎和更高权限 blob，而编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
+% TCB 包括内核执行引擎和更高权限 blob，而编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
 Enforcement covers the agent's entire process tree, including indirect execution paths (subprocesses, shell wrappers) that produce hooked OS events.
-% 中：执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
+% 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
 Semantically equivalent operations and file contents are not covered, and hook types are limited by implementation (e.g., a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible).
-% 中：语义等效操作和文件内容不被覆盖，钩子类型受实现限制（例如，一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见）。
+% 语义等效操作和文件内容不被覆盖，钩子类型受实现限制（例如，一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见）。
 Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and content-level checks are out of scope.
-% 中：内核入侵、\texttt{CAP\_BPF} 入侵、侧信道和内容级检查不在范围内。
+% 内核入侵、\texttt{CAP\_BPF} 入侵、侧信道和内容级检查不在范围内。
 
 \subsection{Layered Policy Domains}
-% 中：\subsection{分层策略域}
+% \subsection{分层策略域}
 \label{sec:authority}
 
 Agents need to adapt policy at runtime (e.g., a sub-agent may need a narrower scope), but doing so must not weaken constraints inherited from higher authority.
-% 中：智能体需要在运行时调整策略（例如，一个子智能体可能需要更窄的范围），但这样做不能削弱从更高权限继承的约束。
+% 智能体需要在运行时调整策略（例如，一个子智能体可能需要更窄的范围），但这样做不能削弱从更高权限继承的约束。
 
 To support this, \sys{} introduces \emph{policy domains}, organized into a \emph{domain hierarchy}.
-% 中：为支持这一点，\sys{} 引入 \emph{策略域}，组织成一个 \emph{域层次结构}。
+% 为支持这一点，\sys{} 引入 \emph{策略域}，组织成一个 \emph{域层次结构}。
 Each \emph{domain} is the runtime policy boundary for a process tree, governing which rules apply and how they may be extended.
-% 中：每个 \emph{域}是一个进程树的运行时策略边界，管理哪些规则适用以及它们如何可以被扩展。
+% 每个 \emph{域}是一个进程树的运行时策略边界，管理哪些规则适用以及它们如何可以被扩展。
 A child domain inherits all parent rules and may add local rules, labels, or gates, but cannot remove, disable, or weaken any inherited rule.
-% 中：一个子域继承所有父规则，并可以添加本地规则、标签或门控，但不能移除、禁用或削弱任何继承的规则。
+% 一个子域继承所有父规则，并可以添加本地规则、标签或门控，但不能移除、禁用或削弱任何继承的规则。
 Rules added by an agent take effect only within its domain and descendants, so multiple agents on the same system can enforce different policies:
-% 中：一个智能体添加的规则仅在其域及后代中生效，因此同一系统上的多个智能体可以执行不同的策略：
+% 一个智能体添加的规则仅在其域及后代中生效，因此同一系统上的多个智能体可以执行不同的策略：
 
 \begin{small}
 \begin{verbatim}
@@ -201,47 +201,47 @@ policy(D) = policy(parent(D)) + local(D)
 \end{small}
 
 To support runtime policy updates, \sys{} requires an \emph{authority checker} that runs entirely in the kernel.
-% 中：为支持运行时策略更新，\sys{} 需要一个完全在内核中运行的 \emph{权限检查器}。
+% 为支持运行时策略更新，\sys{} 需要一个完全在内核中运行的 \emph{权限检查器}。
 Agents submit precompiled \emph{deltas} through a userspace ring buffer, and the checker validates each delta before it takes effect.
-% 中：智能体通过用户空间环形缓冲区提交预编译的 \emph{增量}，检查器在生效前验证每个增量。
+% 智能体通过用户空间环形缓冲区提交预编译的 \emph{增量}，检查器在生效前验证每个增量。
 A delta is accepted only if it introduces fresh labels, binds new rules, or narrows scope without modifying inherited rules, labels, or effects.
-% 中：一个增量仅在它引入新标签、绑定新规则或在不修改继承规则、标签或效果的情况下缩小范围时被接受。
+% 一个增量仅在它引入新标签、绑定新规则或在不修改继承规则、标签或效果的情况下缩小范围时被接受。
 In particular, a delta cannot create labels that satisfy an inherited exception gate unless higher-authority policy explicitly defines that path.
-% 中：特别是，一个增量不能创建满足继承异常门控的标签，除非更高权限策略明确定义了该路径。
+% 特别是，一个增量不能创建满足继承异常门控的标签，除非更高权限策略明确定义了该路径。
 Accepted deltas are merged into the domain's effective policy.
-% 中：接受的增量被合并到域的有效策略中。
+% 接受的增量被合并到域的有效策略中。
 Declassification follows the domain hierarchy: the author of a rule holds the declassification privilege and can disable it and clear its labels within the authoring domain and descendants.
-% 中：解密遵循域层次结构：一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
+% 解密遵循域层次结构：一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
 Inherited safety labels and rules cannot be declassified, and the practical mitigation for the over-tainting they accumulate is process-level isolation.
-% 中：继承的安全标签和规则不能被解密，它们累积的过度标记的实际缓解措施是进程级隔离。
+% 继承的安全标签和规则不能被解密，它们累积的过度标记的实际缓解措施是进程级隔离。
 
 \section{Implementation}
-% 中：\section{实现}
+% \section{实现}
 \label{sec:implementation}
 
 \sys{} consists of a Rust userspace compiler/runner (roughly 3.2\,K\,LoC) and an eBPF enforcement engine (roughly 1.8\,K\,LoC of BPF C).
-% 中：\sys{} 由一个 Rust 用户空间编译器/运行器（约 3.2K LoC）和一个 eBPF 执行引擎（约 1.8K LoC BPF C）组成。
+% \sys{} 由一个 Rust 用户空间编译器/运行器（约 3.2K LoC）和一个 eBPF 执行引擎（约 1.8K LoC BPF C）组成。
 The compiler parses the DSL, lowers Boolean label expressions and path/network patterns, and emits a fixed-size \texttt{\#[repr(C)]} configuration blob consumed directly by the eBPF loader.
-% 中：编译器解析 DSL，降低布尔标签表达式和路径/网络模式，并发出一个由 eBPF 加载器直接消费的固定大小 \texttt{\#[repr(C)]} 配置 blob。
+% 编译器解析 DSL，降低布尔标签表达式和路径/网络模式，并发出一个由 eBPF 加载器直接消费的固定大小 \texttt{\#[repr(C)]} 配置 blob。
 Human-readable rule names and reasons stay in userspace metadata, so the kernel receives only compact rule tables and emits rule identifiers when events match.
-% 中：人类可读的规则名称和原因留在用户空间元数据中，因此内核仅接收紧凑的规则表，并在事件匹配时发出规则标识符。
+% 人类可读的规则名称和原因留在用户空间元数据中，因此内核仅接收紧凑的规则表，并在事件匹配时发出规则标识符。
 
 The eBPF engine attaches to process, file, and network hooks (exec, open, read, write, unlink, connect, fork, exit) via BPF-LSM for pre-operation enforcement (block effects) and tracepoints for observation and post-operation termination (kill effects).
-% 中：eBPF 引擎通过 BPF-LSM 附加到进程、文件和网络钩子（exec、open、read、write、unlink、connect、fork、exit）以进行操作前执行（阻止效果），通过 tracepoint 进行观察和操作后终止（终止效果）。
+% eBPF 引擎通过 BPF-LSM 附加到进程、文件和网络钩子（exec、open、read、write、unlink、connect、fork、exit）以进行操作前执行（阻止效果），通过 tracepoint 进行观察和操作后终止（终止效果）。
 Label state is stored as 64-bit bitmasks in per-object BPF maps, and propagation reduces to a single bitwise OR.
-% 中：标签状态以 64 位位掩码存储在每对象 BPF 映射中，传播简化为一个单一的按位 OR。
+% 标签状态以 64 位位掩码存储在每对象 BPF 映射中，传播简化为一个单一的按位 OR。
 A \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint reads the task exit code to arm exit-qualified gates only on normal termination with the specified status.
-% 中：一个 \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint 读取任务退出码，仅在以指定状态正常终止时激活退出限定门控。
+% 一个 \texttt{sched\_\allowbreak{}process\_\allowbreak{}exit} tracepoint 读取任务退出码，仅在以指定状态正常终止时激活退出限定门控。
 Userspace does not re-detect violations but only formats kernel-reported matches into semantic feedback.
-% 中：用户空间不重新检测违规，仅将内核报告的匹配格式化为语义反馈。
+% 用户空间不重新检测违规，仅将内核报告的匹配格式化为语义反馈。
 The engine supports up to 128 concurrent rules, sized to cover the largest observed repository (66 OS-enforceable policies) with margin for layered domain composition.
-% 中：引擎支持最多 128 条并发规则，大小足以覆盖观察到的最大仓库（66 条操作系统可执行策略），并为分层域组合留有余量。
+% 引擎支持最多 128 条并发规则，大小足以覆盖观察到的最大仓库（66 条操作系统可执行策略），并为分层域组合留有余量。
 
 The runner (\texttt{\sys{} run -- <cmd>}) compiles and loads policy before the target starts, seeds the agent label, and records kernel-reported matches in a feedback file that agent hooks relay into the model's next turn.
-% 中：运行器（\texttt{\sys{} run -- <cmd>}）在目标启动前编译并加载策略，播种智能体标签，并在反馈文件中记录内核报告的匹配，智能体钩子将其传递到模型的下一轮。
+% 运行器（\texttt{\sys{} run -- <cmd>}）在目标启动前编译并加载策略，播种智能体标签，并在反馈文件中记录内核报告的匹配，智能体钩子将其传递到模型的下一轮。
 The authority checker runs entirely in the kernel eBPF engine, where each domain is a BPF map entry storing a parent pointer, an inherited-rule mask, and an inherited-label mask, with pid-to-domain mappings in a separate map.
-% 中：权限检查器完全在内核 eBPF 引擎中运行，其中每个域是一个存储父指针、继承规则掩码和继承标签掩码的 BPF 映射条目，pid 到域的映射在一个单独的映射中。
+% 权限检查器完全在内核 eBPF 引擎中运行，其中每个域是一个存储父指针、继承规则掩码和继承标签掩码的 BPF 映射条目，pid 到域的映射在一个单独的映射中。
 When a runtime delta arrives through the ring buffer, the checker resolves the submitting domain via \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} and rejects any delta that clears an inherited-mask bit or modifies an inherited effect.
-% 中：当一个运行时增量通过环形缓冲区到达时，检查器通过 \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} 解析提交域，并拒绝任何清除继承掩码位或修改继承效果的增量。
+% 当一个运行时增量通过环形缓冲区到达时，检查器通过 \texttt{bpf\_get\_\allowbreak{}current\_\allowbreak{}pid\_tgid()} 解析提交域，并拒绝任何清除继承掩码位或修改继承效果的增量。
 Extending \texttt{op\_pattern} and temporal gates remains future work.
-% 中：扩展 \texttt{op\_pattern} 和时间门控仍是未来工作。
+% 扩展 \texttt{op\_pattern} 和时间门控仍是未来工作。

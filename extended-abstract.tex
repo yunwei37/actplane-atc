@@ -66,7 +66,7 @@ concrete \emph{system actions}.
 Our empirical study of instruction-files
  in 64~popular projects
 finds that 64\% of statements
-are behavioral directives, and 83\% of those
+are policies, and 83\% of those
  involve system-level behavior:
  commands executed, files accessed,
 and network connections made.
@@ -83,7 +83,7 @@ be in a \texttt{bash} wrapper
 created in a previous session;
 and at the repository
 level, 81\% of projects contain
-cross-event system directives that
+cross-event system policies that
 are hard to enforce with stateless
 single-call interception (e.g.,
 ``run tests before
@@ -100,7 +100,7 @@ to be resolved from the repository;
  requested'';
 ``the reviewer sub-agent only writes
  to its project directory''), making it hard for human administrators to pre-define policy for them without context.
-We find that 74\% of system-level directives
+We find that 74\% of system-level policies
 require intent-level context outside
 of low-level OS events.
 OS-level enforcement systems and sandboxes
@@ -117,7 +117,7 @@ to follow its policies.
 \includegraphics[width=\columnwidth]{figures/architecture.pdf}
 \caption{\sys{} architecture: policy generation, compilation, kernel
 enforcement, and feedback loop.}
-\Description{Three-layer diagram: agent (directives, LLM), userspace
+\Description{Three-layer diagram: agent (policies, LLM), userspace
 (compiler, feedback), kernel (hooks, IFC engine, authority checker).}
 \label{fig:architecture}
 \end{figure}
@@ -126,7 +126,7 @@ enforcement, and feedback loop.}
 \centering
 \includegraphics[width=\columnwidth]{figures/rq1_family_breakdown.pdf}
 \caption{Decision Compliance Rate (DCR, \%) by execution-path type and system. DCR is the fraction of traces where the system produces the correct enforcement outcome. Rows are path types: \emph{allowed-effect/lookalike} are compliant traces; \emph{direct} violations use a tool call; \emph{script} violations split the action across a subprocess; \emph{hidden} violations embed the action in an artifact whose entrypoint appears benign. \sys{}'s advantage concentrates on script and hidden paths invisible to tool-call baselines.}
-\Description{Heatmap of directive compliance rate by trace family and system.}
+\Description{Heatmap of policy compliance rate by trace family and system.}
 \label{fig:rq1}
 \end{figure}
 
