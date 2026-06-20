@@ -2,15 +2,13 @@
 % \section{设计}
 \label{sec:design}
 
-\sys{} is a runtime-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a key challenge:
-% \sys{} 是一个运行时无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个关键挑战：
+\sys{} is a harness-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a key challenge:
+% \sys{} 是一个 harness 无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个关键挑战：
 
 \textbf{C1: High-level yet kernel-enforceable policy specification} (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
 % \textbf{C1：高级但可内核执行的策略规范}（\S\ref{sec:dsl}、\S\ref{sec:ifc}）。
-R1 pulls in two directions, since generating policy at the intent level is too ambiguous to enforce deterministically, while generating at the syscall level is costly and error-prone for agents.
-% R1 拉向两个方向：在意图级别生成策略过于模糊而无法确定性执行，而在系统调用级别生成对智能体来说成本高且容易出错。
-The specification needs to be \emph{high-level} enough for agents to write and modify with minimal expertise and token cost, yet \emph{concrete} enough to compile to deterministic kernel checks. This balance is feasible because most real policies are structurally simple (\S\ref{sec:eval:rq1}).
-% 规范需要足够 \emph{高级}，使智能体能够以最少的专业知识和 token 成本编写和修改，同时又足够 \emph{具体}以编译为确定性内核检查。这种平衡是可行的，因为大多数真实策略结构简单（\S\ref{sec:eval:rq1}）。
+The specification must be \emph{high-level} enough for agents to write intent with minimal expertise, reducing cost and errors, yet \emph{concrete} enough to compile to deterministic kernel checks.
+% 规范必须足够 \emph{高级} 使智能体能以最少的专业知识编写意图，减少成本和出错的机会，同时又足够 \emph{具体} 以编译为确定性内核检查。
 
 \textbf{C2: Safe, isolated, and efficient agent programmability} (\S\ref{sec:authority}).
 % \textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
