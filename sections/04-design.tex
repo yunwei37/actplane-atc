@@ -7,15 +7,14 @@
 
 \textbf{C1: High-level yet kernel-enforceable policy specification} (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
 % \textbf{C1：高级但可内核执行的策略规范}（\S\ref{sec:dsl}、\S\ref{sec:ifc}）。
-R1 pulls in two directions: generating policy at the intent level is too ambiguous to enforce deterministically, while generating at the syscall level is costly and error-prone for agents.
+R1 pulls in two directions, since generating policy at the intent level is too ambiguous to enforce deterministically, while generating at the syscall level is costly and error-prone for agents.
 % R1 拉向两个方向：在意图级别生成策略过于模糊而无法确定性执行，而在系统调用级别生成对智能体来说成本高且容易出错。
 The specification needs to be \emph{high-level} enough for agents to write and modify with minimal expertise and token cost, which is feasible because most real policies are structurally simple (\S\ref{sec:eval:rq1}), yet \emph{concrete} enough to compile to deterministic kernel checks.
 % 规范需要足够 \emph{高级}，使智能体能够以最少的专业知识和 token 成本编写和修改，这是可行的因为大多数真实策略结构简单（\S\ref{sec:eval:rq1}），同时又足够 \emph{具体}以编译为确定性内核检查。
 
 \textbf{C2: Safe, isolated, and efficient agent programmability} (\S\ref{sec:authority}).
 % \textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
-R2 requires agents to adapt IFC policies at runtime without affecting other agents' policies or weakening inherited constraints.
-A sub-agent may need a narrower scope, or the current task may require a new constraint, and the added enforcement must not slow the agent's normal workload.
+R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need a narrower scope or the current task may require a new constraint, but doing so must not affect other agents' policies, weaken inherited constraints, or slow the agent's normal workload.
 % R2 要求智能体在运行时调整 IFC 策略（一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束），而不影响其他智能体的策略或削弱继承的约束，同时增加的执行不能减慢智能体的正常工作负载。
 
 
@@ -52,10 +51,9 @@ Each \emph{rule} encodes one policy with five components: a \emph{source}, a \em
 
 \emph{Sources} identify which system objects a rule applies to: an \texttt{exec} source matches processes by binary name, a \texttt{file} source matches paths, and a network source matches endpoints.
 % \emph{源}标识一条规则适用于哪些系统对象：一个 \texttt{exec} 源按二进制名称匹配进程，一个 \texttt{file} 源匹配路径，一个网络源匹配端点。
-When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}.
-\texttt{block} synchronously denies the syscall pre-operation, leaving no TOCTOU gap and letting the agent retry a different action.
-\texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels.
-\texttt{notify} only reports without preventing execution.
+When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}, ranging from observation to termination.
+At the strongest level, \texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels, while \texttt{block} offers a recoverable alternative by synchronously denying the syscall pre-operation (leaving no TOCTOU gap) so the agent can retry a different action.
+At the weakest level, \texttt{notify} reports without preventing execution.
 % 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一：\texttt{block} 在操作前同步拒绝系统调用（无 TOCTOU 间隙，智能体可以重试一个不同的行为），\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），\texttt{notify} 仅报告而不阻止执行。
 For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
 % 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
@@ -106,7 +104,7 @@ rule regen-after-schema:
 
 Figure~\ref{fig:policy-example} illustrates three rules drawn from real projects.
 % 图~\ref{fig:policy-example}展示了来自真实项目的三条规则。
-\texttt{no-delete-data} is per-event: if the agent deletes any file under the data mount, the syscall is blocked immediately.
+\texttt{no-delete-data} is per-event, so if the agent deletes any file under the data mount, the syscall is blocked immediately.
 % \texttt{no-delete-data} 是单事件的：如果智能体删除数据挂载点下的任何文件，系统调用立即被阻止。
 \texttt{tests-before-commit} adds a cross-event kill gate, so committing is allowed only if \texttt{go test} ran and exited successfully (\texttt{exits~0}) after the most recent source write.
 % \texttt{tests-before-commit} 添加了一个跨事件终止门控，因此只有当 \texttt{go test} 在最近的源写入后运行并成功退出（\texttt{exits~0}）时，提交才被允许。
@@ -123,7 +121,7 @@ Information-flow control (IFC) tracks how data moves from sources to sinks by at
 % 信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
 Enforcing the DSL's source-to-target constraints requires tracking which sources have influenced which objects across the session.
 % 执行 DSL 的源到目标约束需要追踪哪些源在整个会话中影响了哪些对象。
-\sys{} does so with a \emph{labeled information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine}: each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
+\sys{} does so with a \emph{labeled information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine} in which each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
 % \sys{} 使用一个 \emph{带标签的信息流}模型来做这件事，遵循经典 IFC~\cite{flume,zeldovich2006histar}，作为一个 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
 
 To determine whether a subject or target has been influenced by certain sources, each process, file, and network endpoint carries a set of \emph{labels}.
@@ -160,15 +158,13 @@ Because the kernel enforcement engine and higher-authority policy are loaded by 
 The \emph{trust boundary} is temporal, meaning any pre-defined rule loaded into the kernel before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
 % \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载到内核的预定义规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
 
-\sys{} provides two levels of assurance depending on policy authority.
-% \sys{} 根据策略权限提供两个级别的保证。
-Higher-authority rules carry safety and security guarantees.
-% 更高权限规则承载安全保证。
-Agent-authored runtime rules provide only compliance assistance under a cooperative-but-fallible model: because enforcement is deterministic, an adversary controlling the agent at policy-generation time can only weaken its own rules, and the worst case degrades to having no self-imposed rules, but inherited ones remain intact.
+\sys{} provides two levels of assurance depending on policy authority. Higher-authority rules carry safety and security guarantees, while agent-authored runtime rules provide only compliance assistance under a cooperative-but-fallible model.
+% \sys{} 根据策略权限提供两个级别的保证：更高权限规则承载安全保证，而智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助。
+Because enforcement is deterministic, an adversary controlling the agent at policy-generation time can only weaken its own rules, and the worst case degrades to having no self-imposed rules, but inherited ones remain intact.
 % 智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助：因为执行是确定性的，在策略生成时控制智能体的攻击者只能削弱自己的规则，最坏情况降级为没有自我施加的规则，但继承的规则保持完整。
 Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
 % 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
-Whether a violation is caught depends on \emph{policy coverage}. Block effects are synchronous (no TOCTOU gap), kill effects are post-operation, and notify is observation-only.
+Whether a violation is caught depends on \emph{policy coverage}: block effects are synchronous (no TOCTOU gap), kill effects are post-operation, and notify is observation-only.
 % 是否捕获违规取决于 \emph{策略覆盖}。阻止效果是同步的（无 TOCTOU 间隙），终止效果是操作后的，通知是仅观察的。
 
 The TCB comprises the kernel enforcement engine and higher-authority blobs, while the compiler and runner sit outside it, so their bugs weaken only the agent's own rules.

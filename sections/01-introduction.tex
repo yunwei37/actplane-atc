@@ -23,10 +23,9 @@ Our empirical study of instruction files in 64~popular projects (\S\ref{sec:empi
 Tool-call-based policy systems in agent runtimes such as Claude Code~\cite{anthropic2025claudecode}, whether LLM guardrails or regex-like checkers~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}, lose track of indirect system actions when agents spawn subprocesses: e.g., the same \texttt{git~push} can run inside a \texttt{bash} wrapper created in a previous session.
 % 智能体运行时（如 Claude Code~\cite{anthropic2025claudecode}）中现有的基于工具调用的策略系统，无论是 LLM 护栏还是类正则检查器~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}，当智能体生成子进程时会丢失对间接系统行为的追踪：例如，同样的 \texttt{git~push} 可以在前一会话中创建的 \texttt{bash} 包装器内运行。
 
-OS-level enforcement with static policy is also insufficient.
-% 使用静态策略的操作系统级执行也是不足够的。
-Most rules reference project or task context that must be resolved at runtime. For example, ``never modify upstream source'' requires knowing which paths are upstream, ``do not update dependencies unless requested'' depends on the current task, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
-Administrators cannot pre-define such policies without that context.
+OS-level enforcement with static policy is also insufficient because most rules reference project or task context that must be resolved at runtime.
+% 使用静态策略的操作系统级执行也是不足够的，因为大多数规则引用必须在运行时解析的项目或任务上下文。
+For example, ``never modify upstream source'' requires knowing which paths are upstream, ``do not update dependencies unless requested'' depends on the current task, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope, so administrators cannot pre-define such policies without that context.
 % 大多数规则引用必须在运行时解析的项目或任务上下文："永不修改上游源码"需要知道哪些路径是上游，"除非请求否则不要更新依赖"取决于当前任务，"审查子智能体只写入其项目目录"需要子智能体的分配范围。管理员在没有该上下文的情况下无法预定义此类策略。
 We find that 74\% of these policies require intent-level context outside of low-level OS events.
 % 我们发现 74\% 的这些策略需要低级操作系统事件之外的意图级上下文。
