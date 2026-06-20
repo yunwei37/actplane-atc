@@ -28,10 +28,10 @@ Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,
 OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
 % 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
-To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at OS level.
-% 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该让智能体定义策略，并在操作系统级别执行。
-While safety constraints come from higher authority, the context needed to resolve policies mainly resides with the agent closest to the task, which already reads the repository, interprets the current task, and resolves abstract references (e.g., ``upstream source'') into concrete paths.
-% 虽然安全约束来自更高权限，解析策略所需的上下文主要存在于最接近任务的智能体处，它已经读取了仓库、解释了当前任务，并将抽象引用（例如"上游源码"）解析为具体路径。
+Our key observation is that policy context resides with the agent closest to the task, while enforcement must happen at the OS to cover all execution paths.
+% 我们的关键观察是，策略上下文在最接近任务的智能体处，而执行必须在操作系统层进行以覆盖所有执行路径。
+While safety constraints come from higher authority, the agent already reads the repository, interprets the current task, and resolves abstract references (e.g., ``upstream source'') into concrete paths.
+% 虽然安全约束来自更高权限，智能体已经读取了仓库、解释了当前任务，并将抽象引用（例如"上游源码"）解析为具体路径。
 This makes agents the natural producer of concrete policy, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 % 这使得智能体成为具体策略的自然生产者，也反映了指令文件越来越多地由智能体维护的事实~\cite{anthropic2025claudecode,galster2026configuring}。
 
@@ -48,7 +48,7 @@ Second, agents must not weaken safety constraints from higher authority or affec
 % \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{block exec "rm" "-rf"} 或 \texttt{deny write "/etc" after read ".env"}。
 To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC): it attaches labels (marking which sources have influenced each object) and propagates them across process, file, and network operations.
 % 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中：它附加标签（标记哪些源影响了每个对象）并跨进程、文件和网络操作传播它们。
-Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
+Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked writing to upstream source; consider writing to your fork instead.''
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：写入上游源码；请考虑写入你的 fork。"
 \sys{} uses policy domains to isolate agents from each other and prevent them from weakening higher-authority constraints.
 % \sys{} 使用策略域将智能体相互隔离，并防止它们削弱更高权限的约束。

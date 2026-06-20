@@ -2,14 +2,6 @@
 % \section{动机}
 \label{sec:motivation}
 
-This section provides background on agent harnesses and policy, then presents an empirical study of 64~projects to characterize the gap between policy intent and enforcement and motivate the design of \sys{}.
-% 本节提供智能体 harness 和策略的背景，然后展示对 64 个项目的实证研究，以表征策略意图与执行之间的鸿沟，并推动 \sys{} 的设计。
-
-\subsection{Agent Harnesses and Policy}
-% \subsection{智能体 Harness 和策略}
-
-\textbf{AI agents and harnesses.}
-% \textbf{AI 智能体和 harness。}
 AI agents combine model reasoning with external tools, memory, and long-running environments, such as Claude Code~\cite{anthropic2025claudecode}, Codex~\cite{openai2025codex}, Devin~\cite{devin2025}, and OpenHands~\cite{wang2025openhands}.
 % AI 智能体将模型推理与外部工具、记忆和长时间运行的环境相结合，例如 Claude Code~\cite{anthropic2025claudecode}、Codex~\cite{openai2025codex}、Devin~\cite{devin2025} 和 OpenHands~\cite{wang2025openhands}。
 Agents operate through an \emph{AI agent harness}: software around the model that maintains the agent loop and session state, routes tool calls, mediates shell, file, and network access, and returns results or feedback to the model, improving agent performance while enforcing instructions and constraints~\cite{langchain-harness,fowler-harness}.
@@ -18,37 +10,13 @@ A single tool invocation can run arbitrary scripts, browse untrusted content, ca
 % 单个工具调用可以运行任意脚本、浏览不受信任的内容、调用 API，并触及许多文件~\cite{debenedetti2024agentdojo,zhan2024injecagent,chennabasappa2025llamafirewall}。
 To improve task performance, safety, and compliance, projects often encode intent-level policy in natural-language files (\texttt{CLAUDE.md}, \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,santos2025claudeconfig,lulla2026agentsmd} or deterministic policy configurations.
 % 为提高任务性能、安全性和合规性，项目通常在自然语言文件（\texttt{CLAUDE.md}、\texttt{AGENTS.md}）~\cite{chatlatanagulchai2025manifests,santos2025claudeconfig,lulla2026agentsmd}或确定性策略配置中编码意图级策略。
-The policy specifies what the agent should do (\emph{instructions}) or should not do (\emph{constraints}).
-% 策略指定智能体应该做什么（\emph{指令}）或不应该做什么（\emph{约束}）。
-We term their semantic meaning the agent's \emph{policy intent}.
-% 我们将它们的语义含义称为智能体的 \emph{策略意图}。
+A \emph{policy} specifies what the agent should do (\emph{instructions}) or should not do (\emph{constraints}); we term its semantic meaning the agent's \emph{policy intent}.
+% \emph{策略}指定智能体应该做什么（\emph{指令}）或不应该做什么（\emph{约束}）；我们将其语义含义称为智能体的 \emph{策略意图}。
+This section presents an empirical study of 64~projects to characterize the gap between policy intent and enforcement and motivate the design of \sys{}.
+% 本节展示对 64 个项目的实证研究，以表征策略意图与执行之间的鸿沟，并推动 \sys{} 的设计。
 
-\textbf{AI agent policy enforcement.}
-% \textbf{AI 智能体策略执行。}
-We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes.
-% 我们使用 \emph{运行时策略执行系统}指代 AI 智能体 harness 中在智能体执行时执行安全、安全性和合规策略的部分。
-Existing enforcement operates at three levels.
-% 现有执行在三个级别运行。
-Prompt instructions rely on the model's own compliance capabilities~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and are vulnerable to prompt injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
-% 提示词指令依赖于模型自身的遵循能力~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并且容易受到提示词注入攻击~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}。
-Separate agents or LLM guards can check prompts, responses, or action trajectories at runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall} but are inherently probabilistic.
-% 独立的智能体或 LLM 守卫可以在运行时检查提示词、响应或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}，但本质上是概率性的。
-Tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically.
-% 工具调用护栏和应用级 IFC 系统~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}在 harness 边界确定性地拦截。
-These three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing, so an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
-% 这三个级别仅观察 harness 中介的请求，而不是工具开始执行后的系统级效果，因此间接子进程、shell 调用或编译的二进制文件可以绕过工具边界。
-What remains missing is the connection between natural-language policy intent and project or task context on one side, and deterministic OS-level observation and enforcement on the other.
-% 缺失的是自然语言策略意图和项目或任务上下文一边，与确定性操作系统级观察和执行另一边之间的连接。
-The empirical study below characterizes how strongly real project instructions demand this connection.
-% 下面的实证研究表征真实项目指令对这种连接的需求有多强烈。
-
-\textbf{OS-level enforcement mechanisms.}
-% \textbf{操作系统级执行机制。}
-OS-level mechanisms (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock}, BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon}, KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain}) restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they expect statically pre-written policies and return opaque errors with no connection to policy intent.
-% 操作系统级机制（seccomp~\cite{seccomp-bpf}、AppArmor~\cite{apparmor}、Capsicum~\cite{watson2010capsicum}、Landlock~\cite{landlock}、BPF-LSM~\cite{linuxbpflsm}、Tetragon~\cite{ciliumtetragon}、KubeArmor~\cite{kubearmor} 和 BPFContain~\cite{findlay2021bpfcontain}）在工具层之下限制进程、文件和网络访问，并越来越多地被采用为智能体沙箱，但它们期望静态预写的策略，并返回与策略意图没有连接的不透明错误。
-
-\subsection{Empirical Study: Methodology}
-% \subsection{实证研究：方法论}
+\subsection{Methodology}
+% \subsection{方法论}
 \label{sec:empirical}
 
 Prior studies classify instruction-file contents at file or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}; Zhang et al.~\cite{zhang2026guardrails} further show that negative constraints and positive policies have different effects.
@@ -157,6 +125,19 @@ Architecture is mostly descriptive because directory layouts and design summarie
 \subsection{E-RQ3: Which Policies Require OS-Level Enforcement?}
 % \subsection{E-RQ3：哪些策略需要操作系统级执行？}
 
+We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes.
+% 我们使用 \emph{运行时策略执行系统}指代 AI 智能体 harness 中在智能体执行时执行安全、安全性和合规策略的部分。
+Existing enforcement operates at three levels.
+% 现有执行在三个级别运行。
+Prompt instructions rely on the model's own compliance capabilities~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and are vulnerable to prompt injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
+% 提示词指令依赖于模型自身的遵循能力~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并且容易受到提示词注入攻击~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}。
+Separate agents or LLM guards can check prompts, responses, or action trajectories at runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall} but are inherently probabilistic.
+% 独立的智能体或 LLM 守卫可以在运行时检查提示词、响应或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}，但本质上是概率性的。
+Tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically, but these three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing, so an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
+% 工具调用护栏和应用级 IFC 系统~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}在 harness 边界确定性地拦截，但这三个级别仅观察 harness 中介的请求，而不是工具开始执行后的系统级效果，因此间接子进程、shell 调用或编译的二进制文件可以绕过工具边界。
+OS-level mechanisms (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock}, BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon}, KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain}) restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they expect statically pre-written policies and return opaque errors with no connection to policy intent.
+% 操作系统级机制（seccomp~\cite{seccomp-bpf}、AppArmor~\cite{apparmor}、Capsicum~\cite{watson2010capsicum}、Landlock~\cite{landlock}、BPF-LSM~\cite{linuxbpflsm}、Tetragon~\cite{ciliumtetragon}、KubeArmor~\cite{kubearmor} 和 BPFContain~\cite{findlay2021bpfcontain}）在工具层之下限制进程、文件和网络访问，并越来越多地被采用为智能体沙箱，但它们期望静态预写的策略，并返回与策略意图没有连接的不透明错误。
+
 Each policy is classified into the first matching tier of an enforcement waterfall (Figure~\ref{fig:waterfall-enforcement}): \emph{semantic-only} (reasoning, communication, or output style), \emph{content} (predicates over file contents), \emph{per-event} (a single command, file access, or network connection), and \emph{cross-event} (history, ordering, lineage, or information flow).
 % 每条策略被分类到执行瀑布的第一个匹配层级（图~\ref{fig:waterfall-enforcement}）：\emph{仅语义}（推理、沟通或输出风格）、\emph{内容}（文件内容上的谓词）、\emph{单事件}（单个命令、文件访问或网络连接）和 \emph{跨事件}（历史、顺序、血统或信息流）。
 We call the union of content, per-event, and cross-event policies \emph{system-observable}, and the per-event and cross-event subset that \sys{} can enforce at OS hooks is \emph{OS-enforceable}.
@@ -245,16 +226,19 @@ Generic static rules can cover only the self-contained fraction, and the majorit
 \label{fig:empirical-rq4}
 \end{figure}
 
-\textbf{Summary}.
-% \textbf{总结}。
+\subsection{Design Requirements}
+% \subsection{设计要求}
+
 These findings establish two requirements for a policy engine in AI agent harnesses.
 % 这些发现为 AI 智能体 harness 中的策略引擎确立了两项要求。
+
 \emph{R1: agent-writable, OS-enforceable policy specification.}
 % \emph{R1：智能体可编写的、操作系统可执行的策略规范。}
 Most rules need project or task context that resides with the agent (E-RQ4), so the agent itself must be able to turn policies into concrete rules, and it needs semantic feedback to understand violations and recover.
 % 大多数规则需要存在于智能体处的项目或任务上下文（E-RQ4），因此智能体自身必须能够将策略转化为具体规则，并且它需要语义反馈来理解违规并恢复。
 Yet many policies constrain system actions that span multiple operations and are invisible to tool-call guardrails (E-RQ3), so the rules must be concrete enough for deterministic OS-level cross-event enforcement.
 % 然而许多策略约束跨越多个操作的系统行为，这对工具调用护栏是不可见的（E-RQ3），因此规则必须足够具体以进行确定性操作系统级跨事件执行。
+
 \emph{R2: safe, isolated, and efficient enforcement.}
 % \emph{R2：安全的、隔离的和高效的执行。}
 Enforcement must hold under probabilistic errors or prompt injection, agent-authored policy must not weaken safety constraints set by higher authority or affect other agents' policies, and enforcement must not slow the agent's normal workload.
