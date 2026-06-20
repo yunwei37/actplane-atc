@@ -39,18 +39,18 @@ Our empirical study finds that 64\% of content in CLAUDE.md,
 AGENTS.md are these \emph{policies}, e.g., 
 ``do not leak secrets'' or ``run tests before committing.''
 % 我们的实证研究发现，CLAUDE.md、AGENTS.md 配置文件中 64\% 的内容是\emph{策略}，例如"不得泄露密钥"或"提交前必须运行测试"。
-Among them, 83\% target events that change system state, and 74\% depend on project or task context.
-% 其中，83\% 针对改变系统状态的事件，74\% 依赖项目或任务上下文。
+Among the policies, 83\% target events that change system state, and 74\% depend on project or task context.
+% 其中，83\% 策略针对改变系统状态的事件，74\% 依赖项目或任务上下文。
 Enforcing these policies in the harness policy engine needs to bridge the \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}.
 % 在 harness 策略引擎中执行这些策略暴露出一个\emph{语义鸿沟}：策略意图以模糊的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
-Tool-call guardrails miss system actions that bypass the tool layer, and OS sandboxes control resource access instead of actions, returning errors that confuse the agent.
+Existing approaches, such as tool-call guardrails, miss system actions that bypass the tool layer, and OS sandboxes control resource access instead of actions, returning errors that confuse the agent.
 % 工具调用护栏会遗漏绕过工具层的系统操作，而操作系统沙箱控制资源访问而非操作行为，返回的错误令智能体困惑。
 
-Our key observation is that while safety constraints are inherited, the context required for compliance mainly resides with the agent closest to the task.
-% 我们的关键观察是，虽然安全约束是继承的，合规所需的上下文主要存在于最接近任务的智能体处。
+Our key observation is the context of the policy mainly resides with the agent closest to the task.
+% 我们的关键观察是，策略上下文主要存在于最接近任务的智能体处。
 To bridge the gap, we introduce \sys{}, a runtime-agnostic policy engine that allows agents to declare and enforce policies in the OS kernel with semantic feedback.
 % 为弥合这一鸿沟，我们引入 \sys{}，一个运行时无关的策略引擎，它允许智能体在操作系统内核中声明和执行策略，并带有语义反馈。
-81\% of projects contain cross-event policies that stateless interception cannot track, so we adopt information-flow control (IFC).
+81\% of projects contain cross-event policies that stateless interception cannot track, so we adopt information-flow control (IFC)
 % 81\% 的项目包含跨事件策略，无状态拦截无法追踪，因此我们采用信息流控制（IFC）。
 Layered policy domains isolate agent policies and prevent weakening of inherited constraints.
 % 分层策略域隔离智能体策略，并防止削弱继承的约束。
