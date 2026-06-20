@@ -9,13 +9,13 @@
 % \textbf{C1：高级但可内核执行的策略规范}（\S\ref{sec:dsl}、\S\ref{sec:ifc}）。
 R1 pulls in two directions, since generating policy at the intent level is too ambiguous to enforce deterministically, while generating at the syscall level is costly and error-prone for agents.
 % R1 拉向两个方向：在意图级别生成策略过于模糊而无法确定性执行，而在系统调用级别生成对智能体来说成本高且容易出错。
-The specification needs to be \emph{high-level} enough for agents to write and modify with minimal expertise and token cost, which is feasible because most real policies are structurally simple (\S\ref{sec:eval:rq1}), yet \emph{concrete} enough to compile to deterministic kernel checks.
-% 规范需要足够 \emph{高级}，使智能体能够以最少的专业知识和 token 成本编写和修改，这是可行的因为大多数真实策略结构简单（\S\ref{sec:eval:rq1}），同时又足够 \emph{具体}以编译为确定性内核检查。
+The specification needs to be \emph{high-level} enough for agents to write and modify with minimal expertise and token cost, yet \emph{concrete} enough to compile to deterministic kernel checks. This balance is feasible because most real policies are structurally simple (\S\ref{sec:eval:rq1}).
+% 规范需要足够 \emph{高级}，使智能体能够以最少的专业知识和 token 成本编写和修改，同时又足够 \emph{具体}以编译为确定性内核检查。这种平衡是可行的，因为大多数真实策略结构简单（\S\ref{sec:eval:rq1}）。
 
 \textbf{C2: Safe, isolated, and efficient agent programmability} (\S\ref{sec:authority}).
 % \textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
-R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need a narrower scope or the current task may require a new constraint, but doing so must not affect other agents' policies, weaken inherited constraints, or slow the agent's normal workload.
-% R2 要求智能体在运行时调整 IFC 策略（一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束），而不影响其他智能体的策略或削弱继承的约束，同时增加的执行不能减慢智能体的正常工作负载。
+R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need a narrower scope or the current task may require a new constraint. Such adaptation must not affect other agents' policies, weaken inherited constraints, or slow the agent's normal workload.
+% R2 要求智能体在运行时调整 IFC 策略，因为一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束。这种调整不能影响其他智能体的策略、削弱继承的约束或减慢智能体的正常工作负载。
 
 
 \sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): a policy DSL (\S\ref{sec:dsl}) lets agents express policy intent in a form close to natural language, which a compiler lowers into a fixed-size kernel config; a labeled information-flow model (\S\ref{sec:ifc}) tracks cross-event state at OS level (together they address C1); and layered policy domains (\S\ref{sec:authority}) let agents adapt policy at runtime without weakening inherited constraints (C2's safety and isolation), with a compact kernel representation that keeps enforcement within C2's efficiency budget (\S\ref{sec:eval:rq3}).
@@ -54,7 +54,7 @@ Each \emph{rule} encodes one policy with five components: a \emph{source}, a \em
 When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}, ranging from observation to termination.
 At the strongest level, \texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels, while \texttt{block} offers a recoverable alternative by synchronously denying the syscall pre-operation (leaving no TOCTOU gap) so the agent can retry a different action.
 At the weakest level, \texttt{notify} reports without preventing execution.
-% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一：\texttt{block} 在操作前同步拒绝系统调用（无 TOCTOU 间隙，智能体可以重试一个不同的行为），\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），\texttt{notify} 仅报告而不阻止执行。
+% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一，从观察到终止。在最强级别，\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），而 \texttt{block} 提供可恢复的替代方案，通过在操作前同步拒绝系统调用（无 TOCTOU 间隙）使智能体可以重试不同的行为。在最弱级别，\texttt{notify} 仅报告而不阻止执行。
 For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
 % 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
 \texttt{block} and \texttt{kill} enforce constraints (``do not X'') while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
@@ -104,8 +104,8 @@ rule regen-after-schema:
 
 Figure~\ref{fig:policy-example} illustrates three rules drawn from real projects.
 % 图~\ref{fig:policy-example}展示了来自真实项目的三条规则。
-\texttt{no-delete-data} is per-event, so if the agent deletes any file under the data mount, the syscall is blocked immediately.
-% \texttt{no-delete-data} 是单事件的：如果智能体删除数据挂载点下的任何文件，系统调用立即被阻止。
+\texttt{no-delete-data} is a per-event rule, so if the agent deletes any file under the data mount, the syscall is blocked immediately.
+% \texttt{no-delete-data} 是一条单事件规则，因此如果智能体删除数据挂载点下的任何文件，系统调用立即被阻止。
 \texttt{tests-before-commit} adds a cross-event kill gate, so committing is allowed only if \texttt{go test} ran and exited successfully (\texttt{exits~0}) after the most recent source write.
 % \texttt{tests-before-commit} 添加了一个跨事件终止门控，因此只有当 \texttt{go test} 在最近的源写入后运行并成功退出（\texttt{exits~0}）时，提交才被允许。
 \texttt{regen-after-schema} uses a notify effect instead, reminding the agent (without blocking) when it commits after a schema change without re-running the code generator.
@@ -149,33 +149,37 @@ As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrev
 \subsection{Threat Model}
 % \subsection{威胁模型}
 
-\sys{} assumes the enforced agent may be unsafe or compromised.
-% \sys{} 假设被执行的智能体可能是不安全的或被入侵的。
-The agent starts after \emph{higher-authority} policy is loaded and may author additional rules at runtime, following the principle of self-restriction in Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
-% 智能体在 \emph{更高权限}策略加载后启动，并可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum}中的自我限制原则。
-Because the kernel enforcement engine and higher-authority policy are loaded by a privileged process before the agent starts and are not writable by the agent, the adversary's influence is bounded by the enforced agent's normal capabilities.
-% 因为内核执行引擎和更高权限策略由特权进程在智能体启动前加载，并且智能体不可写，攻击者的影响被限制在被执行智能体的正常能力范围内。
-The \emph{trust boundary} is temporal, meaning any pre-defined rule loaded into the kernel before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
-% \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载到内核的预定义规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
+\sys{} assumes the enforced agent may be unsafe or compromised, so the design separates trusted policy from untrusted execution.
+% \sys{} 假设被执行的智能体可能是不安全的或被入侵的，因此设计将可信策略与不可信执行分离。
+A privileged process loads the kernel enforcement engine and \emph{higher-authority} policy before the agent starts. Because neither is writable by the agent, an adversary's influence is bounded by the agent's normal capabilities.
+% 一个特权进程在智能体启动前加载内核执行引擎和 \emph{更高权限}策略。因为两者对智能体都是不可写的，攻击者的影响被限制在智能体的正常能力范围内。
+The agent may then author additional rules at runtime, following the self-restriction principle of Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
+% 然后智能体可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum} 的自我限制原则。
+The \emph{trust boundary} is temporal: any rule loaded before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
+% \emph{信任边界}是时间性的：任何在被执行智能体启动前加载的规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
 
-\sys{} provides two levels of assurance depending on policy authority. Higher-authority rules carry safety and security guarantees, while agent-authored runtime rules provide only compliance assistance under a cooperative-but-fallible model.
-% \sys{} 根据策略权限提供两个级别的保证：更高权限规则承载安全保证，而智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助。
-Because enforcement is deterministic, an adversary controlling the agent at policy-generation time can only weaken its own rules, and the worst case degrades to having no self-imposed rules, but inherited ones remain intact.
-% 智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助：因为执行是确定性的，在策略生成时控制智能体的攻击者只能削弱自己的规则，最坏情况降级为没有自我施加的规则，但继承的规则保持完整。
+This separation yields two levels of assurance.
+% 这种分离产生两个级别的保证。
+Higher-authority rules carry safety guarantees: because the kernel engine is deterministic and its policy is immutable to the agent, an adversary controlling the agent at policy-generation time can only weaken its own rules, not inherited ones.
+% 更高权限规则承载安全保证：因为内核引擎是确定性的且其策略对智能体不可变，在策略生成时控制智能体的攻击者只能削弱自己的规则，而非继承的规则。
+In the worst case, the agent has no self-imposed rules, but inherited constraints remain intact.
+% 最坏情况下，智能体没有自我施加的规则，但继承的约束保持完整。
+Agent-authored runtime rules, by contrast, provide only compliance assistance under a cooperative-but-fallible model.
+% 相比之下，智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助。
+
 Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
 % 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
-Whether a violation is caught depends on \emph{policy coverage}: block effects are synchronous (no TOCTOU gap), kill effects are post-operation, and notify is observation-only.
-% 是否捕获违规取决于 \emph{策略覆盖}。阻止效果是同步的（无 TOCTOU 间隙），终止效果是操作后的，通知是仅观察的。
+Whether a violation is caught depends on the effect: block is synchronous (no TOCTOU gap), kill is post-operation, and notify is observation-only.
+% 是否捕获违规取决于效果：阻止是同步的（无 TOCTOU 间隙），终止是操作后的，通知是仅观察的。
 
-The TCB comprises the kernel enforcement engine and higher-authority blobs, while the compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
-% TCB 包括内核执行引擎和更高权限 blob，而编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
+The TCB comprises the kernel enforcement engine and higher-authority policy. The compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
+% TCB 包括内核执行引擎和更高权限策略。编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
 Enforcement covers the agent's entire process tree, including indirect execution paths (subprocesses, shell wrappers) that produce hooked OS events.
 % 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
-Semantically equivalent operations and file contents are not covered, and hook types are limited by implementation.
-For example, a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible.
-% 语义等效操作和文件内容不被覆盖，钩子类型受实现限制（例如，一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见）。
-Kernel compromise, \texttt{CAP\_BPF} compromise, side channels, and content-level checks are out of scope.
-% 内核入侵、\texttt{CAP\_BPF} 入侵、侧信道和内容级检查不在范围内。
+Semantically equivalent operations are not covered: a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible.
+% 语义等效操作不被覆盖：一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见。
+File contents, kernel compromise, \texttt{CAP\_BPF} compromise, and side channels are out of scope.
+% 文件内容、内核入侵、\texttt{CAP\_BPF} 入侵和侧信道不在范围内。
 
 \subsection{Layered Policy Domains}
 % \subsection{分层策略域}
@@ -207,14 +211,14 @@ Agents submit precompiled \emph{deltas} through a userspace ring buffer, and the
 % 智能体通过用户空间环形缓冲区提交预编译的 \emph{增量}，检查器在生效前验证每个增量。
 A delta is accepted only if it introduces fresh labels, binds new rules, or narrows scope without modifying inherited rules, labels, or effects.
 % 一个增量仅在它引入新标签、绑定新规则或在不修改继承规则、标签或效果的情况下缩小范围时被接受。
-In particular, a delta cannot create labels that satisfy an inherited exception gate unless higher-authority policy explicitly defines that path.
-% 特别是，一个增量不能创建满足继承异常门控的标签，除非更高权限策略明确定义了该路径。
+In particular, if a higher-authority rule uses an \texttt{unless} gate, a delta cannot create labels that would satisfy that gate and bypass the rule.
+% 特别是，如果一条更高权限规则使用了 \texttt{unless} 门控，增量不能创建满足该门控从而绕过规则的标签。
 Accepted deltas are merged into the domain's effective policy.
 % 接受的增量被合并到域的有效策略中。
 Declassification follows the domain hierarchy, so the author of a rule holds the declassification privilege and can disable it and clear its labels within the authoring domain and descendants.
 % 解密遵循域层次结构，因此一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
-Inherited safety labels and rules cannot be declassified, and the practical mitigation for the over-tainting they accumulate is process-level isolation.
-% 继承的安全标签和规则不能被解密，它们累积的过度标记的实际缓解措施是进程级隔离。
+Inherited safety labels and rules cannot be declassified. When monotonic labels accumulate excessively (over-tainting), process-level isolation provides a practical mitigation.
+% 继承的安全标签和规则不能被解密。当单调标签过度累积（过度标记）时，进程级隔离提供实际的缓解措施。
 
 \section{Implementation}
 % \section{实现}

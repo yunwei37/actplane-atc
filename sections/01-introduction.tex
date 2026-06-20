@@ -14,23 +14,19 @@ Projects encode many such policies in instruction files (e.g., \texttt{CLAUDE.md
 Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and may violate them because of planning errors, prompt-injection drift, and tool or script side-effects~\cite{greshake2023indirectprompt,zhan2024injecagent}, harnesses also require deterministic policy engines to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
 % 因为 LLM 概率性地遵循指令~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并可能因为规划错误、提示词注入漂移和工具或脚本副作用而违反它们~\cite{greshake2023indirectprompt,zhan2024injecagent}，harness 还需要确定性策略引擎来强制合规~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}。
 
-However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement needs to decide over concrete \emph{system actions}.
-% 然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行需要对具体的 \emph{系统行为}做出决定。
-Our empirical study of instruction files in 64~popular projects (\S\ref{sec:empirical}) finds that 64\% of statements are policies, and 83\% of those involve system actions: commands executed, files accessed, and network connections made.
-% 我们对 64 个热门项目中指令文件的实证研究（\S\ref{sec:empirical}）发现，64\% 的语句是策略，其中 83\% 涉及系统行为：执行的命令、访问的文件和建立的网络连接。
+However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement needs to decide over concrete \emph{system actions} based on project or task context.
+% 然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行需要根据项目或任务上下文对具体的 \emph{系统行为}做出决定。
+Our empirical study of instruction files in 64~popular projects (\S\ref{sec:empirical}) finds that 64\% of statements are policies, 83\% of those involve system actions, and 74\% depend on project or task context that must be resolved at runtime.
+% 我们对 64 个热门项目中指令文件的实证研究（\S\ref{sec:empirical}）发现，64\% 的语句是策略，其中 83\% 涉及系统行为，74\% 依赖必须在运行时解析的项目或任务上下文。
+For example, ``never modify upstream source'' requires knowing which paths are upstream, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
+% 例如，"永不修改上游源码"需要知道哪些路径是上游，"审查子智能体只写入其项目目录"需要子智能体的分配范围。
 
-
-Tool-call-based policy systems in agent runtimes such as Claude Code~\cite{anthropic2025claudecode}, whether LLM guardrails or regex-like checkers~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}, lose track of indirect system actions when agents spawn subprocesses: e.g., the same \texttt{git~push} can run inside a \texttt{bash} wrapper created in a previous session.
-% 智能体运行时（如 Claude Code~\cite{anthropic2025claudecode}）中现有的基于工具调用的策略系统，无论是 LLM 护栏还是类正则检查器~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}，当智能体生成子进程时会丢失对间接系统行为的追踪：例如，同样的 \texttt{git~push} 可以在前一会话中创建的 \texttt{bash} 包装器内运行。
-
-OS-level enforcement with static policy is also insufficient because most rules reference project or task context that must be resolved at runtime.
-% 使用静态策略的操作系统级执行也是不足够的，因为大多数规则引用必须在运行时解析的项目或任务上下文。
-For example, ``never modify upstream source'' requires knowing which paths are upstream, ``do not update dependencies unless requested'' depends on the current task, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope, so administrators cannot pre-define such policies without that context.
-% 大多数规则引用必须在运行时解析的项目或任务上下文："永不修改上游源码"需要知道哪些路径是上游，"除非请求否则不要更新依赖"取决于当前任务，"审查子智能体只写入其项目目录"需要子智能体的分配范围。管理员在没有该上下文的情况下无法预定义此类策略。
-We find that 74\% of these policies require intent-level context outside of low-level OS events.
-% 我们发现 74\% 的这些策略需要低级操作系统事件之外的意图级上下文。
-OS-level enforcement systems and sandboxes for traditional software~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor} can observe system actions but expect pre-defined static policy and return only system events without semantic context, leaving the agent unlikely to comply with its policies.
-% 传统软件的操作系统级执行系统和沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}可以观察系统行为，但期望预定义的静态策略，并仅返回没有语义上下文的系统事件，使智能体不太可能遵守其策略。
+Existing approaches fall short.
+% 现有方法存在不足。
+Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss system actions that bypass the tool layer, such as a \texttt{git~push} inside a script the agent wrote earlier.
+% 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的系统操作，例如智能体之前编写的脚本中的 \texttt{git~push}。
+OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
+% 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
 % ¶5: Insight — programmable policy engine below the tool layer
 % % ¶5: 洞察——工具层之下的可编程策略引擎
