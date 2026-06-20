@@ -50,8 +50,8 @@ To track policies that span multiple events, \sys{} compiles DSL rules into an e
 % 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中：它附加标签（标记哪些源影响了每个对象）并跨进程、文件和网络操作传播它们。
 Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：写入上游源码；请考虑写入你的 fork。"
-Layered policy domains isolate each agent's policy and prevent weakening of inherited constraints.
-% 分层策略域隔离每个智能体的策略，并防止削弱继承的约束。
+\sys{} uses policy domains to isolate agents from each other and prevent them from weakening higher-authority constraints.
+% \sys{} 使用策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
 
 On a decision-compliance benchmark, \sys{} resolves 2.0$\times$ more violations than FIDES~\cite{costa2025fides} (tool-level IFC) by covering indirect execution paths that tool-call interception cannot observe, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
 % 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 FIDES~\cite{costa2025fides}（工具级 IFC）多 2.0 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
