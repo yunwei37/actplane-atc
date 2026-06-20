@@ -37,33 +37,37 @@ The DSL lets agents express policy intent as enforceable system-level constraint
 % 该 DSL 让智能体将策略意图表达为可执行的系统级约束。
 OS-enforceable policies from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
 % 实证研究中的操作系统可执行策略共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
-Some policies match a single operation, while others require cross-event history.
-% 一些策略匹配单个操作，而其他策略需要跨事件历史。
-The DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.
-% 该 DSL 通过将每条策略映射到表示为源到目标约束的 \emph{规则}来捕获两者。
+Some policies match a single operation while others require cross-event history, so the DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.
+% 一些策略匹配单个操作而其他策略需要跨事件历史，因此 DSL 通过将每条策略映射到表示为源到目标约束的 \emph{规则}来捕获两者。
 
 Each \emph{rule} encodes one policy with five components: a \emph{source}, a \emph{target} operation, an \emph{effect}, an optional temporal \emph{gate}, and a \emph{reason} for semantic feedback.
 % 每条 \emph{规则}用五个组件编码一条策略：一个 \emph{源}、一个 \emph{目标}操作、一个 \emph{效果}、一个可选的时间 \emph{门控}和用于语义反馈的 \emph{原因}。
 
 \emph{Sources} identify which system objects a rule applies to: an \texttt{exec} source matches processes by binary name, a \texttt{file} source matches paths, and a network source matches endpoints.
 % \emph{源}标识一条规则适用于哪些系统对象：一个 \texttt{exec} 源按二进制名称匹配进程，一个 \texttt{file} 源匹配路径，一个网络源匹配端点。
-When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}, ranging from observation to termination.
-At the strongest level, \texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels, while \texttt{block} offers a recoverable alternative by synchronously denying the syscall pre-operation (leaving no TOCTOU gap) so the agent can retry a different action.
-At the weakest level, \texttt{notify} guides the agent without preventing execution.
-% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一，从观察到终止。在最强级别，\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），而 \texttt{block} 提供可恢复的替代方案，通过在操作前同步拒绝系统调用（无 TOCTOU 间隙）使智能体可以重试不同的行为。在最弱级别，\texttt{notify} 指导智能体而不阻止执行。
-For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
-% 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
-\texttt{block} and \texttt{kill} enforce constraints (``do not X'') while \texttt{notify} guides the agent toward instructions (``do X'')~\cite{zhang2026guardrails}.
-% \texttt{block} 和 \texttt{kill} 执行约束（"不要 X"），而 \texttt{notify} 指导智能体遵循指令（"做 X"）~\cite{zhang2026guardrails}。
 A rule may also specify a target allow-list to restrict which paths or endpoints it applies to.
 % 一条规则还可以指定一个目标允许列表，以限制它适用于哪些路径或端点。
+When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}, ranging from observation to termination.
+% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一，从观察到终止。
+\texttt{block} and \texttt{kill} enforce constraints (``do not X'') while \texttt{notify} guides the agent toward instructions (``do X'')~\cite{zhang2026guardrails}.
+% \texttt{block} 和 \texttt{kill} 执行约束（"不要 X"），而 \texttt{notify} 指导智能体遵循指令（"做 X"）~\cite{zhang2026guardrails}。
+At the strongest level, \texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels, while \texttt{block} offers a recoverable alternative by synchronously denying the syscall pre-operation (leaving no TOCTOU gap) so the agent can retry a different action.
+% 在最强级别，\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），而 \texttt{block} 提供可恢复的替代方案，通过在操作前同步拒绝系统调用（无 TOCTOU 间隙）使智能体可以重试不同的行为。
+At the weakest level, \texttt{notify} guides the agent without preventing execution.
+% 在最弱级别，\texttt{notify} 指导智能体而不阻止执行。
+For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
+% 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
 
-Some cross-event policies require temporal ordering: ``run tests before committing'' means tests must have run \emph{after} the most recent edit, not merely at some earlier point.
-% 一些跨事件策略需要时间顺序："提交前运行测试"意味着测试必须在最近的编辑 \emph{之后}运行，而不仅仅是在某个更早的时间点。
-\emph{Gates} capture this by attaching temporal conditions to rules.
-% \emph{门控}通过将时间条件附加到规则来捕获这一点。
-A gate can check lineage (whether the subject descends from a particular source) or temporal sequence (\texttt{after~...~since~...}).
-% 一个门控可以检查血统（主体是否来自一个特定源）或时间顺序（\texttt{after~...~since~...}）。
+Some cross-event policies require temporal ordering or lineage checks.
+% 一些跨事件策略需要时间顺序或血统检查。
+For example, ``run tests before committing'' means tests must have run \emph{after} the most recent edit, not merely at some earlier point.
+% 例如，"提交前运行测试"意味着测试必须在最近的编辑 \emph{之后}运行，而不仅仅是在某个更早的时间点。
+Similarly, ``sub-agents may only write to their assigned directory'' requires verifying the process was spawned by a specific parent.
+% 类似地，"子智能体只能写入其分配的目录"需要验证进程是由特定父进程生成的。
+\emph{Gates} capture such conditions by attaching them to rules.
+% \emph{门控}通过将这些条件附加到规则来捕获它们。
+A lineage gate checks whether the subject descends from a particular process, while a temporal gate uses \texttt{after~...~since~...} to enforce ordering.
+% 血统门控检查主体是否来自一个特定进程，而时间门控使用 \texttt{after~...~since~...} 来强制顺序。
 An \texttt{exits~$N$} qualifier further requires the gating command to have terminated with exit code~$N$, distinguishing a successful run from a crashed or failing one.
 % 一个 \texttt{exits~$N$} 限定符进一步要求门控命令以退出码~$N$ 终止，区分成功运行与崩溃或失败的运行。
 
@@ -151,13 +155,13 @@ A privileged process loads the kernel enforcement engine and \emph{higher-author
 % 一个特权进程在智能体启动前加载内核执行引擎和 \emph{更高权限}策略。因为两者对智能体都是不可写的，攻击者的影响被限制在智能体的正常能力范围内。
 The agent may then author additional rules at runtime, following the self-restriction principle of Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
 % 然后智能体可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum} 的自我限制原则。
-The \emph{trust boundary} is temporal: any rule loaded before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
-% \emph{信任边界}是时间性的：任何在被执行智能体启动前加载的规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
+The \emph{trust boundary} is temporal, meaning any rule loaded before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
+% \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载的规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
 
 This separation yields two levels of assurance.
 % 这种分离产生两个级别的保证。
-Higher-authority rules carry safety guarantees: because the kernel engine is deterministic and its policy is immutable to the agent, an adversary controlling the agent at policy-generation time can only weaken its own rules, not inherited ones.
-% 更高权限规则承载安全保证：因为内核引擎是确定性的且其策略对智能体不可变，在策略生成时控制智能体的攻击者只能削弱自己的规则，而非继承的规则。
+Higher-authority rules carry safety guarantees because the kernel engine is deterministic and its policy is immutable to the agent, so an adversary controlling the agent at policy-generation time can only weaken its own rules, not inherited ones.
+% 更高权限规则承载安全保证，因为内核引擎是确定性的且其策略对智能体不可变，因此在策略生成时控制智能体的攻击者只能削弱自己的规则，而非继承的规则。
 In the worst case, the agent has no self-imposed rules, but inherited constraints remain intact.
 % 最坏情况下，智能体没有自我施加的规则，但继承的约束保持完整。
 Agent-authored runtime rules, by contrast, provide only compliance assistance under a cooperative-but-fallible model.
