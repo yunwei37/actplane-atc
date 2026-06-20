@@ -23,8 +23,8 @@ For example, ``never modify upstream source'' requires knowing which paths are u
 
 Existing approaches fall short.
 % 现有方法存在不足。
-Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss system actions that bypass the tool layer, such as a \texttt{git~push} inside a script the agent wrote earlier.
-% 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的系统操作，例如智能体之前编写的脚本中的 \texttt{git~push}。
+Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss indirect system actions that bypass the tool layer, such as a \texttt{git~push} inside a script the agent wrote earlier.
+% 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的间接系统操作，例如智能体之前编写的脚本中的 \texttt{git~push}。
 OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
 % 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
@@ -35,21 +35,19 @@ While safety constraints come from higher authority, the context needed to resol
 This makes agents the natural producer of concrete policy, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 % 这使得智能体成为具体策略的自然生产者，也反映了指令文件越来越多地由智能体维护的事实~\cite{anthropic2025claudecode,galster2026configuring}。
 
-Realizing this design requires addressing three challenges.
-% 实现这一设计需要解决三个挑战。
-First, policy specification must be high-level enough for agents to generate reliably from natural language, yet concrete enough to compile to deterministic kernel checks.
-% 首先，策略规范必须足够高级，使智能体能够从自然语言可靠地生成，同时又足够具体以编译为确定性内核检查。
-Second, since 81\% of projects contain policies that span multiple system events, enforcement must track state across operations.
-% 其次，由于 81\% 的项目包含跨越多个系统事件的策略，执行必须跨操作追踪状态。
-Third, programmability must not become an authority bypass, so agents cannot weaken inherited constraints set by trusted administrators.
-% 第三，可编程性不能成为权限绕过，因此智能体不能削弱由可信管理员设置的继承约束。
+This approach has two design requirements.
+% 这一方法有两个设计要求。
+First, policy specification must be high-level enough for agents to generate reliably, yet concrete enough to compile to deterministic kernel checks, and since 81\% of projects contain policies that span multiple system events, it must also track state across operations.
+% 首先，策略规范必须足够高级使智能体能够可靠生成，同时又足够具体以编译为确定性内核检查，并且由于 81\% 的项目包含跨越多个系统事件的策略，还必须跨操作追踪状态。
+Second, agents must not weaken safety constraints from higher authority or affect other agents' policies.
+% 其次，智能体不能削弱来自更高权限的安全约束或影响其他智能体的策略。
 
 \sys{} is a programmable OS-level policy enforcement system for AI agent harnesses.
 % \sys{} 是一个可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
-To express complex policies, agents use a simple DSL that maps policy patterns to deterministic kernel checks, such as \texttt{block exec "rm" "-rf"} or \texttt{deny write "/etc" after read ".env"}.
-% 为了表达复杂策略，智能体使用一个简单的 DSL，该 DSL 将策略模式映射到确定性内核检查，例如 \texttt{block exec "rm" "-rf"} 或 \texttt{deny write "/etc" after read ".env"}。
-To track policies that span multiple events, \sys{} compiles DSL rules into information-flow control (IFC) and loads them into an eBPF engine with process, file, and network kernel hooks.
-% 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译为信息流控制（IFC），并加载到带有进程、文件和网络内核钩子的 eBPF 引擎中。
+\sys{} provides a simple DSL for agents to express policies as deterministic kernel checks, such as \texttt{block exec "rm" "-rf"} or \texttt{deny write "/etc" after read ".env"}.
+% \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{block exec "rm" "-rf"} 或 \texttt{deny write "/etc" after read ".env"}。
+To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC): it attaches labels (marking which sources have influenced each object) and propagates them across process, file, and network operations.
+% 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中：它附加标签（标记哪些源影响了每个对象）并跨进程、文件和网络操作传播它们。
 Each rule has one of three effects: notify, block, or kill.
 % 每条规则有三种效果之一：notify、block 或 kill。
 On violation, \sys{} returns semantic feedback to the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
