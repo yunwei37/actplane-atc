@@ -40,8 +40,8 @@ The translator compiled rules for all 607 policies on the first or second attemp
 To validate correctness, we apply the same methodology as the empirical study (\S\ref{sec:empirical}): two independent LLM agents cross-check all policies, and human annotators review 100 randomly selected ones.
 % 为验证正确性，我们采用与实证研究（\S\ref{sec:empirical}）相同的方法论：两个独立的 LLM 智能体交叉检查所有策略，人工标注者审查 100 条随机选择的策略。
 
-Agent-based translation is orders of magnitude cheaper than manual authoring: the full 607-policy corpus cost \$0.028 per policy (1.7M input tokens, 177k output), compared with roughly \$11 per rule at typical US software-engineer rates.
-% 基于智能体的翻译比人工编写便宜几个数量级：全部 607 条策略语料库每条成本 \$0.028（1.7M 输入 token，177k 输出），而按典型美国软件工程师费率约每条规则 \$11。
+Agent-based translation is orders of magnitude cheaper than manual authoring. The full 607-policy corpus cost \$0.028 per policy (1.7M input tokens, 177k output), compared with roughly \$11 per rule at typical US software-engineer rates.
+% 基于智能体的翻译比人工编写便宜几个数量级。全部 607 条策略语料库每条成本 \$0.028（1.7M 输入 token，177k 输出），而按典型美国软件工程师费率约每条规则 \$11。
 The translation completed in 34 minutes using 7 subagents (4 parallel), expanding 607 policies into 1{,}283 rule lines.
 % 翻译使用 7 个子智能体（4 个并行）在 34 分钟内完成，将 607 条策略扩展为 1,283 条规则行。
 
@@ -54,8 +54,8 @@ Cross-event policies are slightly longer (mean 86 tokens) than per-event ones (6
 
 \noindent\textbf{The corpus exercises most DSL features, validating the language's expressiveness.}
 % \noindent\textbf{该语料库运用了大多数 DSL 特性，验证了语言的表达力。}
-Effects skew toward observation: 66\% of clauses are notify, 29\% block, and only 5\% kill, reflecting that most policies monitor rather than prevent.
-% 效果偏向观察：66\% 的子句是通知，29\% 阻止，仅 5\% 终止，反映出大多数策略监控而非阻止。
+Effects skew toward observation, with 66\% of clauses being notify, 29\% block, and only 5\% kill, reflecting that most policies monitor rather than prevent.
+% 效果偏向观察，66\% 的子句是通知，29\% 阻止，仅 5\% 终止，反映出大多数策略监控而非阻止。
 Hooks concentrate on code execution (60\% exec) and file mutation (37\% write), with network and cleanup operations under 1\% each.
 % 钩子集中在代码执行（60\% exec）和文件变更（37\% write），网络和清理操作各占不到 1\%。
 
@@ -106,13 +106,13 @@ A Codex CLI agent~\cite{openai2025codex} under GPT-5.5~\cite{openai2026gpt55} ge
 % 一个 Codex CLI 智能体~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}通过读取规则文本和仓库为每条规则生成五条轨迹。
 The policy DSL and all enforcement systems remain invisible to the generator to prevent information leakage.
 % 策略 DSL 和所有执行系统对生成器保持不可见，以防止信息泄露。
-Each trace simulates realistic coding-agent work: user prompts, file I/O, shell commands, and build/test invocations on a real repository.
-% 每条轨迹模拟真实的编码智能体工作：用户提示、文件 I/O、shell 命令以及在真实仓库上的构建/测试调用。
+Each trace simulates realistic coding-agent work, including user prompts, file I/O, shell commands, and build/test invocations on a real repository.
+% 每条轨迹模拟真实的编码智能体工作，包括用户提示、文件 I/O、shell 命令以及在真实仓库上的构建/测试调用。
 
 For each rule, the agent produces two compliant traces and three violation traces.
 % 对于每条规则，智能体生成两条合规轨迹和三条违规轨迹。
-The compliant traces stress false-positive detection: allowed-effect traces exercise permitted actions close to the boundary, and lookalike traces perform technically compliant operations that resemble violations.
-% 合规轨迹强调误报检测：允许效果轨迹演练接近边界的允许操作，相似轨迹执行技术上合规但类似违规的操作。
+The compliant traces stress false-positive detection, with allowed-effect traces exercising permitted actions close to the boundary and lookalike traces performing technically compliant operations that resemble violations.
+% 合规轨迹强调误报检测，允许效果轨迹演练接近边界的允许操作，相似轨迹执行技术上合规但类似违规的操作。
 The three violation families reflect execution-path categories observed in deployed coding agents~\cite{anthropic2026containment,maloyan2026sok}: \emph{direct} traces trigger the prohibited operation via a tool call, \emph{script} traces move the side effect into a subprocess by splitting authoring and execution~\cite{maloyan2026sok}, and \emph{hidden} traces embed the side effect in an auxiliary artifact whose entrypoint appears benign~\cite{wu2026skillject}.
 % 三个违规族反映了部署的编码智能体中观察到的执行路径类别~\cite{anthropic2026containment,maloyan2026sok}：\emph{直接}轨迹通过工具调用触发禁止操作，\emph{脚本}轨迹通过拆分编写和执行将副作用移入子进程~\cite{maloyan2026sok}，\emph{隐藏}轨迹将副作用嵌入入口点看起来无害的辅助工件中~\cite{wu2026skillject}。
 This design yields 190 traces (38 rules $\times$ 5).
@@ -141,13 +141,13 @@ Following prior benchmarks~\cite{zheng2023judging,debenedetti2024agentdojo,li202
 % 遵循先前基准~\cite{zheng2023judging,debenedetti2024agentdojo,li2025shieldagent,chen2026toolsafe}，我们使用 LLM 轨迹判断器为每条轨迹分配 TP、TN、FP 或 FN。
 The judge sees the ground-truth label, whether enforcement triggered, the feedback delivered, and the agent's subsequent actions.
 % 判断器看到真实标签、执行是否触发、传递的反馈以及智能体的后续行动。
-We define outcomes relative to policy compliance: TP and TN are correct outcomes (violation recovered or compliant trace completed without wrongful intervention), while FP and FN are errors (compliant trace blocked or violation missed).
-% 我们相对于策略合规定义结果：TP 和 TN 是正确结果（违规恢复或合规轨迹无错误干预完成），而 FP 和 FN 是错误（合规轨迹被阻止或违规被遗漏）。
+We define outcomes relative to policy compliance. TP and TN are correct outcomes (violation recovered or compliant trace completed without wrongful intervention), while FP and FN are errors (compliant trace blocked or violation missed).
+% 我们相对于策略合规定义结果。TP 和 TN 是正确结果（违规恢复或合规轨迹无错误干预完成），而 FP 和 FN 是错误（合规轨迹被阻止或违规被遗漏）。
 
 We report \emph{Decision Compliance Rate} (DCR), defined as $(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{FN})$.
 % 我们报告 \emph{决策合规率}（DCR），定义为 $(\mathrm{TP}+\mathrm{TN})/(\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{FN})$。
-DCR is end-to-end: it captures policy translation, runtime enforcement, feedback delivery, and agent recovery.
-% DCR 是端到端的：它捕获策略翻译、运行时执行、反馈传递和智能体恢复。
+DCR is end-to-end, capturing policy translation, runtime enforcement, feedback delivery, and agent recovery.
+% DCR 是端到端的，捕获策略翻译、运行时执行、反馈传递和智能体恢复。
 We manually reviewed the samples the judge flagged for double-checking, plus 50 random judgments, all of which agreed with our assessment.
 % 我们手动更正了判断器标记为需要复查的样本，并额外随机审查了 50 个判断，全部与我们的手动评估一致。
 
@@ -184,10 +184,10 @@ System & DCR & TP & TN & FP & FN & Judged \\
 
 \noindent\textbf{\sys{} achieves 75.8\% DCR, 22--31 percentage points above all baselines (Table~\ref{tab:rq2-confusion}).}
 % \noindent\textbf{\sys{} 达到 75.8\% DCR，比所有基线高 22--31 个百分点（表~\ref{tab:rq2-confusion}）。}
-The gap concentrates on violation traces: \sys{} correctly resolves 86 of 114 (75.4\%), compared with 27--44 for baselines (2.0--3.2$\times$).
-% 差距集中在违规轨迹上：\sys{} 正确解决 114 条中的 86 条（75.4\%），而基线为 27--44 条（2.0--3.2 倍）。
-This advantage stems from detection rate: \sys{} detects 77.2\% of violations, while prompt-filter, tool-regex, and FIDES detect only 34--40\%.
-% 这一优势源于检测率：\sys{} 检测到 77.2\% 的违规，而提示过滤、工具正则和 FIDES 仅检测到 34--40\%。
+The gap concentrates on violation traces, where \sys{} correctly resolves 86 of 114 (75.4\%), compared with 27--44 for baselines (2.0--3.2$\times$).
+% 差距集中在违规轨迹上，\sys{} 正确解决 114 条中的 86 条（75.4\%），而基线为 27--44 条（2.0--3.2 倍）。
+This advantage stems from detection rate, with \sys{} detecting 77.2\% of violations while prompt-filter, tool-regex, and FIDES detect only 34--40\%.
+% 这一优势源于检测率，\sys{} 检测到 77.2\% 的违规，而提示过滤、工具正则和 FIDES 仅检测到 34--40\%。
 
 \begin{figure}[tb]
 \centering
@@ -363,8 +363,8 @@ During execution, the same Codex agent adjusts policies at runtime by submitting
 % \paragraph{指标。}
 The primary metric is official OctoBench reward.
 % 主要指标是官方 OctoBench 奖励。
-We additionally report three diagnostic submetrics from the same checklist results: \emph{user-query reward} for user-task checks only, \emph{implementation/test reward} for implementation, testing, configuration, and modification checks, and \emph{compliance reward} for compliance-typed checks.
-% 我们另外报告来自相同清单结果的三个诊断子指标：\emph{用户查询奖励}（仅用户任务检查）、\emph{实现/测试奖励}（实现、测试、配置和修改检查）和 \emph{合规奖励}（合规类型检查）。
+We additionally report three diagnostic submetrics from the same checklist results, namely \emph{user-query reward} for user-task checks only, \emph{implementation/test reward} for implementation, testing, configuration, and modification checks, and \emph{compliance reward} for compliance-typed checks.
+% 我们另外报告来自相同清单结果的三个诊断子指标，即 \emph{用户查询奖励}（仅用户任务检查）、\emph{实现/测试奖励}（实现、测试、配置和修改检查）和 \emph{合规奖励}（合规类型检查）。
 All submetrics use the official LLM-based checklist judge.
 % 所有子指标使用官方 LLM 基础清单判断器。
 
@@ -401,10 +401,10 @@ OpenAgentSafety~\cite{openagentsafety} contains 361 safety tasks that instruct a
 % OpenAgentSafety~\cite{openagentsafety}包含 361 个安全任务，指示智能体执行工作场所或个人助理行为，其完成需要不安全的副作用：泄露凭证、植入监控工件、清除系统配置、篡改财务记录或将有害内容物化到文件中。
 Each task runs inside a Docker-isolated OpenHands~\cite{wang2025openhands} runtime with service dependencies (GitLab, ownCloud) and an independent evaluator that scores the final workspace state.
 % 每个任务在 Docker 隔离的 OpenHands~\cite{wang2025openhands}运行时中运行，带有服务依赖（GitLab、ownCloud）和对最终工作空间状态评分的独立评估器。
-We run every task under two conditions: \emph{baseline} (OpenHands with no enforcement) and \emph{\sys{}} (OpenHands with an OS-level \sys{} watcher loading a per-task policy).
-% 我们在两个条件下运行每个任务：\emph{基线}（无执行的 OpenHands）和 \emph{\sys{}}（带加载每任务策略的操作系统级 \sys{} 监视器的 OpenHands）。
-This setup differs from RQ1--RQ4 in two dimensions: the agent framework is OpenHands rather than Codex CLI, and the workload is workplace safety tasks rather than repository coding tasks.
-% 此设置在两个维度上与 RQ1--RQ4 不同：智能体框架（OpenHands，而非 Codex CLI）和工作负载（工作场所安全任务，而非仓库编码任务）。
+We run every task under two conditions, namely \emph{baseline} (OpenHands with no enforcement) and \emph{\sys{}} (OpenHands with an OS-level \sys{} watcher loading a per-task policy).
+% 我们在两个条件下运行每个任务，即 \emph{基线}（无执行的 OpenHands）和 \emph{\sys{}}（带加载每任务策略的操作系统级 \sys{} 监视器的 OpenHands）。
+This setup differs from RQ1--RQ4 in two dimensions. The agent framework is OpenHands rather than Codex CLI, and the workload is workplace safety tasks rather than repository coding tasks.
+% 此设置在两个维度上与 RQ1--RQ4 不同。智能体框架是 OpenHands 而非 Codex CLI，工作负载是工作场所安全任务而非仓库编码任务。
 
 \paragraph{Policy generation.}
 % \paragraph{策略生成。}
@@ -457,8 +457,8 @@ The 28~unblocked baseline-unsafe cases fall into three categories.
 % \emph{不安全文件内容}：智能体产生不安全的文件内容，这不是 \sys{} 的主要目标。
 \emph{Service-side artifact}: the effect is a WebDAV upload or database mutation inside a service container.
 % \emph{服务端工件}：效果是服务容器内的 WebDAV 上传或数据库变更。
-These are hook-coverage gaps, not policy errors: the generator produced a matching rule for the intended sink, but the agent reached the same effect through a path the current hook set does not observe.
-% 这些是钩子覆盖差距，而非策略错误：生成器为预期汇生成了匹配规则，但智能体通过当前钩子集未观察的路径达到相同效果。
+These are hook-coverage gaps, not policy errors. The generator produced a matching rule for the intended sink, but the agent reached the same effect through a path the current hook set does not observe.
+% 这些是钩子覆盖差距，而非策略错误。生成器为预期汇生成了匹配规则，但智能体通过当前钩子集未观察的路径达到相同效果。
 Chat and content harms are outside \sys{}'s scope by design, and service-side artifacts require protocol-level hook extensions.
 % 聊天和内容危害按设计不在 \sys{} 范围内，服务端工件需要协议级钩子扩展。
 

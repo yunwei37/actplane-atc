@@ -135,8 +135,8 @@ At each event the engine evaluates every rule against the subject's and target's
 
 Because cross-event rules depend on sources from earlier events, labels must \emph{propagate} along OS data-flow edges (fork, exec, read, write, connect).
 % 因为跨事件规则依赖于早期事件的源，标签必须沿操作系统数据流边（fork、exec、read、write、connect）\emph{传播}。
-This maintains a key \emph{invariant}: if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
-% 这维护一个关键 \emph{不变量}：如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
+This maintains a key \emph{invariant}, namely that if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
+% 这维护一个关键 \emph{不变量}，即如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
 
 For example, a process that reads \texttt{.env} acquires its source label.
 % 例如，一个读取 \texttt{.env} 的进程获得其源标签。
@@ -157,8 +157,8 @@ The agent starts after \emph{higher-authority} policy is loaded and may author a
 % 智能体在 \emph{更高权限}策略加载后启动，并可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum}中的自我限制原则。
 Because the kernel enforcement engine and higher-authority policy are loaded by a privileged process before the agent starts and are not writable by the agent, the adversary's influence is bounded by the enforced agent's normal capabilities.
 % 因为内核执行引擎和更高权限策略由特权进程在智能体启动前加载，并且智能体不可写，攻击者的影响被限制在被执行智能体的正常能力范围内。
-The \emph{trust boundary} is temporal: any pre-defined rule loaded into the kernel before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
-% \emph{信任边界}是时间性的：任何在被执行智能体启动前加载到内核的预定义规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
+The \emph{trust boundary} is temporal, meaning any pre-defined rule loaded into the kernel before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
+% \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载到内核的预定义规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
 
 \sys{} provides two levels of assurance depending on policy authority.
 % \sys{} 根据策略权限提供两个级别的保证。
@@ -168,8 +168,8 @@ Agent-authored runtime rules provide only compliance assistance under a cooperat
 % 智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助：因为执行是确定性的，在策略生成时控制智能体的攻击者只能削弱自己的规则，最坏情况降级为没有自我施加的规则，但继承的规则保持完整。
 Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
 % 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
-Whether a violation is caught depends on \emph{policy coverage}: block effects are synchronous (no TOCTOU gap), kill effects are post-operation, and notify is observation-only.
-% 是否捕获违规取决于 \emph{策略覆盖}：阻止效果是同步的（无 TOCTOU 间隙），终止效果是操作后的，通知是仅观察的。
+Whether a violation is caught depends on \emph{policy coverage}. Block effects are synchronous (no TOCTOU gap), kill effects are post-operation, and notify is observation-only.
+% 是否捕获违规取决于 \emph{策略覆盖}。阻止效果是同步的（无 TOCTOU 间隙），终止效果是操作后的，通知是仅观察的。
 
 The TCB comprises the kernel enforcement engine and higher-authority blobs, while the compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
 % TCB 包括内核执行引擎和更高权限 blob，而编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
@@ -215,8 +215,8 @@ In particular, a delta cannot create labels that satisfy an inherited exception 
 % 特别是，一个增量不能创建满足继承异常门控的标签，除非更高权限策略明确定义了该路径。
 Accepted deltas are merged into the domain's effective policy.
 % 接受的增量被合并到域的有效策略中。
-Declassification follows the domain hierarchy: the author of a rule holds the declassification privilege and can disable it and clear its labels within the authoring domain and descendants.
-% 解密遵循域层次结构：一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
+Declassification follows the domain hierarchy, so the author of a rule holds the declassification privilege and can disable it and clear its labels within the authoring domain and descendants.
+% 解密遵循域层次结构，因此一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
 Inherited safety labels and rules cannot be declassified, and the practical mitigation for the over-tainting they accumulate is process-level isolation.
 % 继承的安全标签和规则不能被解密，它们累积的过度标记的实际缓解措施是进程级隔离。
 
