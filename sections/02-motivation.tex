@@ -99,18 +99,13 @@ This majority is invisible at line level because policies average 3.6 lines per 
 \label{fig:empirical-rq1}
 \end{figure}
 
-\subsection{Which Topics Contain Policies?}
-% \subsection{哪些主题包含策略？}
-
-Each statement is assigned to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}).
-% 每条语句被分配到 12 个主题类别之一，这些类别改编自先前的指令文件研究~\cite{chatlatanagulchai2025agentreadmes}，应用于语句粒度而非文件粒度（图~\ref{fig:empirical-rq2}）。
+To understand how policies distribute across topics, we assign each statement to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}).
+% 为了理解策略如何分布在各主题上，我们将每条语句分配到 12 个主题类别之一，这些类别改编自先前的指令文件研究~\cite{chatlatanagulchai2025agentreadmes}，应用于语句粒度而非文件粒度（图~\ref{fig:empirical-rq2}）。
 
 \noindent\textbf{Policy density ranges from 0\% (System Overview) to 87\% (Development Process).}
 % \noindent\textbf{策略密度从 0\%（系统概述）到 87\%（开发流程）不等。}
-Development Process and Implementation Details are policy-heavy (86.7\% and 85.2\%, respectively).
-% 开发流程和实现细节是策略密集的（分别为 86.7\% 和 85.2\%）。
-Architecture is mostly descriptive because directory layouts and design summaries make it one of the largest topics by line count, yet only 23.0\% of its statements are policies.
-% 架构主要是描述性的，因为目录布局和设计摘要使其按行数成为最大的主题之一，然而只有 23.0\% 的语句是策略。
+Development Process and Implementation Details are policy-heavy (86.7\% and 85.2\%, respectively), while Architecture is mostly descriptive (23.0\% policies) because directory layouts and design summaries dominate by line count.
+% 开发流程和实现细节是策略密集的（分别为 86.7\% 和 85.2\%），而架构主要是描述性的（23.0\% 策略），因为目录布局和设计摘要在行数上占主导。
 
 \begin{figure}[t]
 \centering
@@ -152,8 +147,8 @@ Content inspection alone covers 55.4\% of policies, adding per-event matching re
 
 \noindent\textbf{Cross-event policies concentrate in Development Process, which accounts for 39.5\% of all cross-event policies (Figure~\ref{fig:enforcement-by-topic}).}
 % \noindent\textbf{跨事件策略集中在开发流程，占所有跨事件策略的 39.5\%（图~\ref{fig:enforcement-by-topic}）。}
-Four recurring patterns emerge, including temporal ordering (``run tests before committing''), cross-file consistency (``update docs when behavior changes''), multi-step workflows (release checklists with verification steps), and conditional triggers (``if you change specs, also update SDK'').
-% 出现四种反复模式，包括时间顺序（"提交前运行测试"）、跨文件一致性（"行为变化时更新文档"）、多步骤工作流（带有验证步骤的发布清单）和条件触发器（"如果你更改规范，也要更新 SDK"）。
+Four recurring patterns emerge: temporal ordering (``run tests before committing''), cross-file consistency (``update docs when behavior changes''), multi-step workflows (release checklists with verification steps), and conditional triggers (``if you change specs, also update SDK'').
+% 出现四种反复模式：时间顺序（"提交前运行测试"）、跨文件一致性（"行为变化时更新文档"）、多步骤工作流（带有验证步骤的发布清单）和条件触发器（"如果你更改规范，也要更新 SDK"）。
 All four require state that spans multiple operations, tracking what ran, in what order, and what has changed since.
 % 所有四种都需要跨越多个操作的状态，追踪运行了什么、以什么顺序、以及从那时起发生了什么变化。
 Most of the operations involve files, processes, and network connections.
