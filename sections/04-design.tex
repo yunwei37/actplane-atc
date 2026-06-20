@@ -16,8 +16,8 @@ R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need 
 % R2 要求智能体在运行时调整 IFC 策略，因为一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束。这种调整不能影响其他智能体的策略、削弱继承的约束或减慢智能体的正常工作负载。
 
 
-\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): a policy DSL (\S\ref{sec:dsl}) lets agents express policy intent in a form close to natural language, which a compiler lowers into a fixed-size kernel config; a labeled information-flow model (\S\ref{sec:ifc}) tracks cross-event state at OS level (together they address C1); and layered policy domains (\S\ref{sec:authority}) let agents adapt policy at runtime without weakening inherited constraints (C2's safety and isolation), with a compact kernel representation that keeps enforcement within C2's efficiency budget (\S\ref{sec:eval:rq3}).
-% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：一个策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，一个编译器将其降低为固定大小的内核配置；一个带标签的信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态（两者共同解决 C1）；分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（C2 的安全性和隔离性），紧凑的内核表示使执行保持在 C2 的效率预算内（\S\ref{sec:eval:rq3}）。
+\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address C1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, which a compiler lowers into config for kernel enforcement in an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address C2's safety, efficiency, and isolation, \sys{} uses layered policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
+% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：为解决 C1，\sys{} 使用策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，编译器将其降低为内核执行的配置，在信息流模型（\S\ref{sec:ifc}）中追踪操作系统级别的跨事件状态；为解决 C2 的安全性、效率和隔离性，\sys{} 使用分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（\S\ref{sec:eval:rq3}）。
 When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and a remediation path (closing R1's feedback loop).
 % 当一条规则触发时，\sys{} 返回语义反馈：规则名称、原因和补救路径（关闭 R1 的反馈循环）。
 
@@ -111,16 +111,16 @@ Figure~\ref{fig:policy-example} illustrates three rules drawn from real projects
 Appendix~\ref{sec:appendix:dsl-grammar} gives the concrete grammar.
 % 附录~\ref{sec:appendix:dsl-grammar}给出具体语法。
 
-\subsection{Labeled Information-Flow}
-% \subsection{带标签的信息流}
+\subsection{Information-Flow Control}
+% \subsection{信息流控制}
 \label{sec:ifc}
 
 Information-flow control (IFC) tracks how data moves from sources to sinks by attaching labels to OS objects and propagating them at runtime~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}.
 % 信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
 Enforcing the DSL's source-to-target constraints requires tracking which sources have influenced which objects across the session.
 % 执行 DSL 的源到目标约束需要追踪哪些源在整个会话中影响了哪些对象。
-\sys{} does so with a \emph{labeled information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine} in which each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
-% \sys{} 使用一个 \emph{带标签的信息流}模型来做这件事，遵循经典 IFC~\cite{flume,zeldovich2006histar}，作为一个 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
+\sys{} does so with an \emph{information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine} in which each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
+% \sys{} 使用一个 \emph{信息流}模型来做这件事，遵循经典 IFC~\cite{flume,zeldovich2006histar}，作为一个 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
 
 To determine whether a subject or target has been influenced by certain sources, each process, file, and network endpoint carries a set of \emph{labels}.
 % 为确定一个主体或目标是否受到某些源的影响，每个进程、文件和网络端点携带一组 \emph{标签}。
