@@ -32,11 +32,10 @@ A \emph{statement} is a coherent unit expressing one claim or constraint.
 % 一条 \emph{语句}是表达一个主张或约束的连贯单元。
 A two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels (content type, topic, enforcement level, context requirement).
 % 一个两遍 LLM 智能体辅助流水线提取了带有源行范围和四个标签（内容类型、主题、执行级别、上下文要求）的语句。
-A validation script verified full source coverage and verbatim span matching,  with cross-checked by independent Claude and Codex agents.
-% 一个验证脚本验证了完整的源覆盖和逐字跨度匹配, 并由独立的 Claude 和 Codex 智能体交叉检查。
-A stratified sample of 100~statements was independently reviewed by human annotators and verified
-the labels are correct.
-% 100 条语句的分层样本由人工标注者独立审查并验证标签正确.
+A validation script verified full source coverage and verbatim span matching, and cross-checked by independent Claude and Codex agents.
+% 一个验证脚本验证了完整的源覆盖和逐字跨度匹配，并由独立的 Claude 和 Codex 智能体交叉检查。
+A stratified sample of 100~statements was independently reviewed by human annotators and verified the labels are correct.
+% 100 条语句的分层样本由人工标注者独立审查并验证标签正确。
 Table~\ref{tab:examples} collects representative statements that illustrate all four axes, and the labels \textbf{S1}--\textbf{S8} are referenced throughout.
 % 表~\ref{tab:examples}收集了说明所有四个轴的代表性语句，标签 \textbf{S1}--\textbf{S8} 在全文中被引用。
 
@@ -73,8 +72,8 @@ S8 & ``Do not update dependencies without approval.'' & Dir & Maint. & Per-event
 % \Description{语料库中八条代表性语句的表格，每条按类型、主题、执行级别和上下文要求分类。}
 \end{table*}
 
-\subsection{E-RQ1: Are Instruction Files Behavioral Policies?}
-% \subsection{E-RQ1：指令文件是行为策略吗？}
+\subsection{Are Instruction Files Behavioral Policies?}
+% \subsection{指令文件是行为策略吗？}
 
 A statement is a \emph{policy} if it asks the agent to perform, avoid, or condition an action, and is otherwise descriptive context.
 % 如果一条语句要求智能体执行、避免或条件化一个行为，它就是一条 \emph{策略}，否则是描述性上下文。
@@ -100,8 +99,8 @@ This majority is invisible at line level because policies average 3.6 lines per 
 \label{fig:empirical-rq1}
 \end{figure}
 
-\subsection{E-RQ2: Which Topics Contain Policies?}
-% \subsection{E-RQ2：哪些主题包含策略？}
+\subsection{Which Topics Contain Policies?}
+% \subsection{哪些主题包含策略？}
 
 Each statement is assigned to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}).
 % 每条语句被分配到 12 个主题类别之一，这些类别改编自先前的指令文件研究~\cite{chatlatanagulchai2025agentreadmes}，应用于语句粒度而非文件粒度（图~\ref{fig:empirical-rq2}）。
@@ -123,8 +122,8 @@ Architecture is mostly descriptive because directory layouts and design summarie
 \label{fig:empirical-rq2}
 \end{figure}
 
-\subsection{E-RQ3: Which Policies Require OS-Level Enforcement?}
-% \subsection{E-RQ3：哪些策略需要操作系统级执行？}
+\subsection{Which Policies Require OS-Level Enforcement?}
+% \subsection{哪些策略需要操作系统级执行？}
 
 We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes.
 % 我们使用 \emph{运行时策略执行系统}指代 AI 智能体 harness 中在智能体执行时执行安全、安全性和合规策略的部分。
@@ -183,8 +182,8 @@ Most of the operations involve files, processes, and network connections.
 \label{fig:enforcement-by-topic}
 \end{figure}
 
-\subsection{E-RQ4: What Context Is Needed to Instantiate Rules?}
-% \subsection{E-RQ4：实例化规则需要什么上下文？}
+\subsection{What Context Is Needed to Instantiate Rules?}
+% \subsection{实例化规则需要什么上下文？}
 
 Each system-observable policy is classified by what additional context an enforcement mechanism needs beyond the policy text itself (Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all commands, paths, and patterns are explicit; \emph{project context} if it references an unresolved repository-specific concept (``the full test suite,'' ``the migration tool''); or \emph{task context} if it depends on the current user request or a per-session grant (``unless explicitly requested,'' ``without approval'').
 % 每条系统可观察的策略按执行机制除了策略文本本身还需要什么额外上下文来分类（图~\ref{fig:waterfall-context}）：如果所有命令、路径和模式都是显式的，则为 \emph{自包含}；如果它引用一个未解析的仓库特定概念（"完整测试套件"、"迁移工具"），则为 \emph{项目上下文}；如果它依赖于当前用户请求或每会话授权（"除非明确请求"、"未经批准"），则为 \emph{任务上下文}。
