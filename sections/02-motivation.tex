@@ -120,15 +120,15 @@ Development Process and Implementation Details are policy-heavy at 87\% and 85\%
 \subsection{Which Policies Require OS-Level Enforcement?}
 % \subsection{哪些策略需要操作系统级执行？}
 
-We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes.
-% 我们使用 \emph{运行时策略执行系统}指代 AI 智能体 harness 中在智能体执行时执行安全、安全性和合规策略的部分。
-Existing enforcement operates at three levels.
-% 现有执行在三个级别运行。
-Prompt instructions rely on the model's own compliance capabilities~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and are vulnerable to prompt injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
-% 提示词指令依赖于模型自身的遵循能力~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并且容易受到提示词注入攻击~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}。
-Separate agents or LLM guards can check prompts, responses, or action trajectories at runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall} but are inherently probabilistic.
-% 独立的智能体或 LLM 守卫可以在运行时检查提示词、响应或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}，但本质上是概率性的。
-Tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically, but these three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing, so an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
+Given that most instruction-file content is policy, the next question is where enforcement should happen.
+% 鉴于大多数指令文件内容是策略，下一个问题是执行应该在哪里发生。
+We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes. Existing enforcement operates at three levels, each with limitations.
+% 我们使用 \emph{运行时策略执行系统}指代 AI 智能体 harness 中在智能体执行时执行安全、安全性和合规策略的部分。现有执行在三个级别运行，每个都有局限性。
+At the first level, prompt instructions rely on the model's own compliance capabilities~\cite{liu2024lost,jiang2024followbench,qi2025agentif} but are vulnerable to prompt injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
+% 第一级，提示词指令依赖于模型自身的遵循能力~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，但容易受到提示词注入攻击~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}。
+At the second level, separate agents or LLM guards can check prompts, responses, or action trajectories at runtime~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}, but these are inherently probabilistic.
+% 第二级，独立的智能体或 LLM 守卫可以在运行时检查提示词、响应或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}，但本质上是概率性的。
+At the third level, tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically, but all three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing, so an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
 % 工具调用护栏和应用级 IFC 系统~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}在 harness 边界确定性地拦截，但这三个级别仅观察 harness 中介的请求，而不是工具开始执行后的系统级效果，因此间接子进程、shell 调用或编译的二进制文件可以绕过工具边界。
 OS-level mechanisms (seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Capsicum~\cite{watson2010capsicum}, Landlock~\cite{landlock}, BPF-LSM~\cite{linuxbpflsm}, Tetragon~\cite{ciliumtetragon}, KubeArmor~\cite{kubearmor}, and BPFContain~\cite{findlay2021bpfcontain}) restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they expect statically pre-written policies and return opaque errors with no connection to policy intent.
 % 操作系统级机制（seccomp~\cite{seccomp-bpf}、AppArmor~\cite{apparmor}、Capsicum~\cite{watson2010capsicum}、Landlock~\cite{landlock}、BPF-LSM~\cite{linuxbpflsm}、Tetragon~\cite{ciliumtetragon}、KubeArmor~\cite{kubearmor} 和 BPFContain~\cite{findlay2021bpfcontain}）在工具层之下限制进程、文件和网络访问，并越来越多地被采用为智能体沙箱，但它们期望静态预写的策略，并返回与策略意图没有连接的不透明错误。
@@ -147,12 +147,8 @@ Content inspection alone covers 55.4\% of policies, adding per-event matching re
 
 \noindent\textbf{Cross-event policies concentrate in Development Process, which accounts for 39.5\% of all cross-event policies (Figure~\ref{fig:enforcement-by-topic}).}
 % \noindent\textbf{跨事件策略集中在开发流程，占所有跨事件策略的 39.5\%（图~\ref{fig:enforcement-by-topic}）。}
-Four recurring patterns emerge: temporal ordering such as ``run tests before committing,'' cross-file consistency such as ``update docs when behavior changes,'' multi-step workflows like release checklists with verification steps, and conditional triggers such as ``if you change specs, also update SDK.''
-% 出现四种反复模式：时间顺序如"提交前运行测试"，跨文件一致性如"行为变化时更新文档"，多步骤工作流如带有验证步骤的发布清单，以及条件触发器如"如果你更改规范，也要更新 SDK"。
-All four require state that spans multiple operations, tracking what ran, in what order, and what has changed since.
-% 所有四种都需要跨越多个操作的状态，追踪运行了什么、以什么顺序、以及从那时起发生了什么变化。
-Most of the operations involve files, processes, and network connections.
-% 大多数操作涉及文件、进程和网络连接。
+Four recurring patterns emerge. Temporal ordering requires sequencing constraints such as ``run tests before committing.'' Cross-file consistency links changes across artifacts, for example ``update docs when behavior changes.'' Multi-step workflows enforce release checklists with verification gates. Conditional triggers couple operations, as in ``if you change specs, also update SDK.'' All four patterns require state that spans multiple operations because the engine must track what ran, in what order, and what has changed since, and most of these operations involve files, processes, and network connections.
+% 出现四种反复模式。时间顺序要求排序约束如"提交前运行测试"。跨文件一致性链接跨工件的变更，例如"行为变化时更新文档"。多步骤工作流执行带有验证门的发布清单。条件触发器耦合操作，如"如果你更改规范，也要更新 SDK"。所有四种模式都需要跨越多个操作的状态，因为引擎必须追踪运行了什么、以什么顺序、以及从那时起发生了什么变化，而且大多数操作涉及文件、进程和网络连接。
 
 \noindent\textbf{At the repository level, 81\% of repositories contain at least one cross-event policy, and 43\% require all four enforcement layers.}
 % \noindent\textbf{在仓库级别，81\% 的仓库包含至少一条跨事件策略，43\% 需要所有四个执行层级。}
@@ -180,7 +176,9 @@ Most of the operations involve files, processes, and network connections.
 \subsection{What Context Is Needed to Instantiate Rules?}
 % \subsection{实例化规则需要什么上下文？}
 
-Each system-observable policy is classified by what additional context an enforcement mechanism needs beyond the policy text itself (Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all commands, paths, and patterns are explicit; \emph{project context} if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context} if it depends on the current user request or a per-session grant such as ``unless explicitly requested'' or ``without approval.''
+Even policies that target OS events cannot be enforced until abstract references are resolved into concrete paths and commands.
+% 即使针对操作系统事件的策略，在抽象引用被解析为具体路径和命令之前也无法执行。
+Each system-observable policy is therefore classified by what additional context an enforcement mechanism needs beyond the policy text itself (Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all commands, paths, and patterns are explicit; \emph{project context} if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context} if it depends on the current user request or a per-session grant such as ``unless explicitly requested'' or ``without approval.''
 % 每条系统可观察的策略按执行机制除了策略文本本身还需要什么额外上下文来分类（图~\ref{fig:waterfall-context}）：如果所有命令、路径和模式都是显式的，则为 \emph{自包含}；如果它引用一个未解析的仓库特定概念如"完整测试套件"或"迁移工具"，则为 \emph{项目上下文}；如果它依赖于当前用户请求或每会话授权如"除非明确请求"或"未经批准"，则为 \emph{任务上下文}。
 
 \noindent\textbf{74\% of system-observable policies require project or task context to instantiate as concrete rules.}

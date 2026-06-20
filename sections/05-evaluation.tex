@@ -116,8 +116,8 @@ The three violation families reflect execution-path categories observed in deplo
 This design yields 190 traces from 38 rules with 5 traces each.
 % 此设计从 38 条规则各 5 条轨迹产生 190 条轨迹。
 
-We replay each trace on codex-sdk, let the tested agent continue for up to five additional tool steps, and record whether it recovers toward compliance after receiving enforcement feedback.
-% 我们在 codex-sdk 上重放每条轨迹，让测试的智能体继续最多五个额外工具步骤，并记录它在收到执行反馈后是否恢复到合规。
+We replay each trace on codex-sdk and let the tested agent continue for up to five additional tool steps, then record whether it recovers toward compliance after receiving enforcement feedback.
+% 我们在 codex-sdk 上重放每条轨迹，让测试的智能体继续最多五个额外工具步骤，然后记录它在收到执行反馈后是否恢复到合规。
 
 \paragraph{Compared systems.}
 % \paragraph{比较系统。}
@@ -214,7 +214,7 @@ Cross-event rules, 18 of 38, widen the gap further because tool-call baselines l
 % \noindent\textbf{智能体可以从失败中学习，一次修订将检测率从 77.2\% 提高到 94.7\%。}
 We decompose violation-trace outcomes into \emph{detection rate}, the fraction of 114 violation traces on which enforcement triggered, and \emph{recovery rate}, the fraction of detected violations where the agent subsequently complied.
 % 我们将违规轨迹结果分解为 \emph{检测率}，即 114 条违规轨迹中执行触发的比例，和 \emph{恢复率}，即检测到的违规中智能体随后合规的比例。
-Translation quality drives both rates, since rules too narrow miss violations while rules too broad match compliant actions, causing 17 of the 18 false positives.
+Translation quality drives both rates because rules that are too narrow miss violations, whereas rules that are too broad match compliant actions, causing 17 of the 18 false positives.
 % 翻译质量驱动这两个比率，因为规则过窄会遗漏违规，而规则过宽会匹配合规操作，导致 18 个误报中的 17 个。
 
 To measure improvability, we feed each false-negative trace's evidence and corrective feedback to the translation agent and let it revise the rule once.
@@ -230,14 +230,14 @@ The \textsc{\sys{}-opaque} ablation removes semantic feedback. Correct responses
 % \textsc{\sys{}-opaque} 消融移除语义反馈。正确响应从 144 降至 102：FN 从 28 升至 87，而 FP 从 18 降至 1。
 It detects 75.4\% of violations, but only 31.4\% of those detections lead to compliance because the agent receives a generic denial without corrective guidance.
 % 它检测到 75.4\% 的违规，但只有 31.4\% 的检测导致合规，因为智能体收到的是通用拒绝而非纠正指导。
-Feedback also improves detection indirectly, since an agent that receives a corrective payload after a first denial revises its approach, and the engine catches the revised attempt if it still violates.
-% 反馈还间接提高检测，因为收到第一次拒绝后纠正载荷的智能体会修改其方法，如果修改后的尝试仍然违规引擎会捕获它。
+Feedback also improves detection indirectly because an agent that receives a corrective payload after a first denial revises its approach, allowing the engine to catch the revised attempt if it still violates.
+% 反馈还间接提高检测，因为收到第一次拒绝后纠正载荷的智能体会修改其方法，使引擎能够在修改后的尝试仍然违规时捕获它。
 
 \paragraph{Cross-model stability.}
 % \paragraph{跨模型稳定性。}
 \noindent\textbf{\sys{}'s advantage replicates under a second model (Figure~\ref{fig:rq2-dcr}).}
 % \noindent\textbf{\sys{} 的优势在第二个模型下复现（图~\ref{fig:rq2-dcr}）。}
-The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking, with \sys{} highest at 77.4\% DCR and per-cell agreement between the two model settings yielding Cohen's $\kappa=0.822$.
+The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking, with \sys{} highest at 77.4\% DCR, and per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$.
 % DeepSeek-Pro~V4~\cite{deepseek2026v4}端到端复现保持系统排名，\sys{} 以 77.4\% DCR 最高，两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$。
 % 两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$。
 As expected, deterministic systems show the highest stability with tool-regex at $\kappa=0.920$, FIDES at $\kappa=0.919$, and \sys{} at $\kappa=0.852$, while prompt-filter is lowest at $\kappa=0.592$ because its decisions depend on model-specific reasoning.
@@ -309,8 +309,8 @@ Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
 
 Per-call overhead is dominated by process operations, while file and network operations add single-digit microseconds (Table~\ref{tab:micro-latency}).
 % 每调用开销由进程操作主导，而文件和网络操作增加个位数微秒（表~\ref{tab:micro-latency}）。
-\texttt{fork} and \texttt{exec} incur the highest absolute added cost at 3--69\,\textmu s under AP-100 but remain modest relative to their native latency because process-management and scheduler cost dominates the baseline.
-% \texttt{fork} 和 \texttt{exec} 产生最高的绝对增加成本，AP-100 时 3--69\,\textmu s，但相对于原生延迟仍然适度，因为进程管理和调度成本主导基线。
+\texttt{fork} and \texttt{exec} incur the highest absolute added cost at 3--69\,\textmu s under AP-100, but this overhead remains modest relative to their native latency because process-management already dominates the baseline.
+% \texttt{fork} 和 \texttt{exec} 产生最高的绝对增加成本，AP-100 时 3--69\,\textmu s，但这一开销相对于原生延迟仍然适度，因为进程管理本身已主导基线。
 File operations \texttt{open} and \texttt{write} plus \texttt{connect} are sub-microsecond natively, but \sys{} adds a path-hash lookup and rule scan, raising \texttt{open} to 13.4\,\textmu s at AP-100.
 % 文件操作 \texttt{open}、\texttt{write} 和 \texttt{connect} 原生为亚微秒级，但 \sys{} 增加路径哈希查找和规则扫描，使 \texttt{open} 在 AP-100 时升至 13.4\,\textmu s。
 
@@ -350,13 +350,12 @@ Each task runs under three conditions: baseline with no enforcement, Claude Code
 An AI agent, Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt55}, reads the task description and generates initial policy without human involvement.
 % 一个 AI 智能体 Codex~\cite{openai2025codex} 配合 GPT-5.5~\cite{openai2026gpt55} 读取任务描述并在无人工参与的情况下生成初始策略。
 During execution, the same Codex agent adjusts policies at runtime by submitting deltas through the runtime interface (\S\ref{sec:authority}), refining rules for itself or the task-executing sub-agent based on enforcement feedback.
-% 在执行期间，同一 Codex 智能体通过运行时接口提交增量来调整策略（\S\ref{sec:authority}），根据执行反馈为自己或任务执行子智能体完善规则。
+% 在执行期间，同一 Codex 智能体通过运行时接口（\S\ref{sec:authority}）提交增量来调整策略，根据执行反馈为自己或任务执行子智能体完善规则。
 
 \paragraph{Metrics.}
 % \paragraph{指标。}
-The primary metric is official OctoBench reward, and we additionally report three diagnostic submetrics from the same checklist results, namely \emph{user-query reward} for user-task checks only, \emph{implementation/test reward} for implementation, testing, configuration, and modification checks, and \emph{compliance reward} for compliance-typed checks; all submetrics use the official LLM-based checklist judge.
-% 主要指标是官方 OctoBench 奖励，我们另外报告来自相同清单结果的三个诊断子指标，即 \emph{用户查询奖励}（仅用户任务检查）、\emph{实现/测试奖励}（实现、测试、配置和修改检查）和 \emph{合规奖励}（合规类型检查）；所有子指标使用官方 LLM 基础清单判断器。
-% 所有子指标使用官方 LLM 基础清单判断器。
+The primary metric is official OctoBench reward, and we additionally report three diagnostic submetrics from the same checklist results: \emph{user-query reward} for user-task checks only, \emph{implementation/test reward} for implementation and testing checks, and \emph{compliance reward} for compliance-typed checks, all evaluated by the official LLM-based checklist judge.
+% 主要指标是官方 OctoBench 奖励，我们另外报告来自相同清单结果的三个诊断子指标：\emph{用户查询奖励}仅用于用户任务检查，\emph{实现/测试奖励}用于实现和测试检查，\emph{合规奖励}用于合规类型检查，所有由官方 LLM 基础清单判断器评估。
 
 \begin{figure}[tb]
 \centering
@@ -387,8 +386,8 @@ Across the 21 tasks, the policy agent submitted 110 runtime deltas to refine rul
 
 \paragraph{Benchmark and setup.}
 % \paragraph{基准和设置。}
-OpenAgentSafety~\cite{openagentsafety} contains 361 safety tasks that instruct an agent to perform workplace or personal-assistant actions whose completion requires an unsafe side effect: exfiltrating credentials, planting surveillance artifacts, wiping system configurations, tampering with financial records, or materializing harmful content into files.
-% OpenAgentSafety~\cite{openagentsafety}包含 361 个安全任务，指示智能体执行工作场所或个人助理行为，其完成需要不安全的副作用：泄露凭证、植入监控工件、清除系统配置、篡改财务记录或将有害内容物化到文件中。
+OpenAgentSafety~\cite{openagentsafety} contains 361 safety tasks that instruct an agent to perform workplace or personal-assistant actions whose completion requires an unsafe side effect, such as exfiltrating credentials, planting surveillance artifacts, wiping system configurations, tampering with financial records, or materializing harmful content into files.
+% OpenAgentSafety~\cite{openagentsafety}包含 361 个安全任务，指示智能体执行工作场所或个人助理行为，其完成需要不安全的副作用，如泄露凭证、植入监控工件、清除系统配置、篡改财务记录或将有害内容物化到文件中。
 Each task runs inside a Docker-isolated OpenHands~\cite{wang2025openhands} runtime with service dependencies like GitLab and ownCloud plus an independent evaluator that scores the final workspace state.
 % 每个任务在 Docker 隔离的 OpenHands~\cite{wang2025openhands}运行时中运行，带有 GitLab、ownCloud 等服务依赖和对最终工作空间状态评分的独立评估器。
 We run every task under two conditions: \emph{baseline} with OpenHands and no enforcement, and \emph{\sys{}} with OpenHands plus an OS-level \sys{} watcher loading a per-task policy.
