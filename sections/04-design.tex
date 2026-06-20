@@ -16,10 +16,8 @@ R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need 
 % R2 要求智能体在运行时调整 IFC 策略，因为一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束。这种调整不能影响其他智能体的策略、削弱继承的约束或减慢智能体的正常工作负载。
 
 
-\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address C1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, which a compiler lowers into config for kernel enforcement in an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address C2's safety, efficiency, and isolation, \sys{} uses layered policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
-% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：为解决 C1，\sys{} 使用策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，编译器将其降低为内核执行的配置，在信息流模型（\S\ref{sec:ifc}）中追踪操作系统级别的跨事件状态；为解决 C2 的安全性、效率和隔离性，\sys{} 使用分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（\S\ref{sec:eval:rq3}）。
-When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and a remediation path (closing R1's feedback loop).
-% 当一条规则触发时，\sys{} 返回语义反馈：规则名称、原因和补救路径（关闭 R1 的反馈循环）。
+\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address C1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, and an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address C2's safety, efficiency, and isolation, \sys{} compiles rules into config and uses layered policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
+% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：为解决 C1，\sys{} 使用策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，以及信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态；为解决 C2 的安全性、效率和隔离性，\sys{} 将规则编译为配置，并使用分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（\S\ref{sec:eval:rq3}）。
 
 \begin{figure}[t]
 \centering
@@ -37,8 +35,8 @@ When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and 
 
 The DSL lets agents express policy intent as enforceable system-level constraints.
 % 该 DSL 让智能体将策略意图表达为可执行的系统级约束。
-We observe that OS-enforceable policies from the empirical study share a common structure in which each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
-% 我们观察到实证研究中的操作系统可执行策略共享一个共同结构，其中每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
+OS-enforceable policies from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
+% 实证研究中的操作系统可执行策略共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
 Some policies match a single operation, while others require cross-event history.
 % 一些策略匹配单个操作，而其他策略需要跨事件历史。
 The DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.
@@ -119,8 +117,8 @@ Information-flow control (IFC) tracks how data moves from sources to sinks by at
 % 信息流控制（IFC）通过将标签附加到操作系统对象并在运行时传播它们，来追踪数据如何从源移动到汇~\cite{myers1999jflow,flume,zeldovich2006histar,pasquier2017camflow}。
 Enforcing the DSL's source-to-target constraints requires tracking which sources have influenced which objects across the session.
 % 执行 DSL 的源到目标约束需要追踪哪些源在整个会话中影响了哪些对象。
-\sys{} does so with an \emph{information-flow} model that, following classical IFC~\cite{flume,zeldovich2006histar}, operates as a \emph{state machine} in which each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
-% \sys{} 使用一个 \emph{信息流}模型来做这件事，遵循经典 IFC~\cite{flume,zeldovich2006histar}，作为一个 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
+Following classical IFC~\cite{flume,zeldovich2006histar}, \sys{} uses an \emph{information-flow} model that operates as a \emph{state machine}: each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
+% 遵循经典 IFC~\cite{flume,zeldovich2006histar}，\sys{} 使用一个 \emph{信息流}模型作为 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
 
 To determine whether a subject or target has been influenced by certain sources, each process, file, and network endpoint carries a set of \emph{labels}.
 % 为确定一个主体或目标是否受到某些源的影响，每个进程、文件和网络端点携带一组 \emph{标签}。
@@ -131,8 +129,8 @@ At each event the engine evaluates every rule against the subject's and target's
 
 Because cross-event rules depend on sources from earlier events, labels must \emph{propagate} along OS data-flow edges (fork, exec, read, write, connect).
 % 因为跨事件规则依赖于早期事件的源，标签必须沿操作系统数据流边（fork、exec、read、write、connect）\emph{传播}。
-This maintains a key \emph{invariant}, namely that if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
-% 这维护一个关键 \emph{不变量}，即如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
+This maintains a key \emph{invariant}: if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
+% 这维护一个关键 \emph{不变量}：如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
 
 For example, a process that reads \texttt{.env} acquires its source label.
 % 例如，一个读取 \texttt{.env} 的进程获得其源标签。
@@ -215,8 +213,12 @@ Accepted deltas are merged into the domain's effective policy.
 % 接受的增量被合并到域的有效策略中。
 Declassification follows the domain hierarchy, so the author of a rule holds the declassification privilege and can disable it and clear its labels within the authoring domain and descendants.
 % 解密遵循域层次结构，因此一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
-Inherited safety labels and rules cannot be declassified. When monotonic labels accumulate excessively (over-tainting), process-level isolation provides a practical mitigation.
-% 继承的安全标签和规则不能被解密。当单调标签过度累积（过度标记）时，进程级隔离提供实际的缓解措施。
+Inherited safety labels and rules cannot be declassified.
+
+When monotonic labels accumulate excessively (over-tainting), process-level isolation provides a practical mitigation.
+% 继承的安全标签和规则不能被解密。
+
+% 当单调标签过度累积（过度标记）时，进程级隔离提供实际的缓解措施。
 
 \section{Implementation}
 % \section{实现}
