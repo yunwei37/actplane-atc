@@ -28,10 +28,8 @@ Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,
 OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
 % 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
-% ¶5: Insight — programmable policy engine below the tool layer
-% % ¶5: 洞察——工具层之下的可编程策略引擎
-To bridge the gap, we argue that an agent-harness policy engine should be programmable by agents and take effect at OS level.
-% 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该可由智能体编程，并在操作系统级别生效。
+To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at OS level.
+% 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该让智能体定义策略，并在操作系统级别执行。
 While safety constraints come from higher authority, the context needed to resolve policies mainly resides with the agent closest to the task, which already reads the repository, interprets the current task, and resolves abstract references (e.g., ``upstream source'') into concrete paths.
 % 虽然安全约束来自更高权限，解析策略所需的上下文主要存在于最接近任务的智能体处，它已经读取了仓库、解释了当前任务，并将抽象引用（例如"上游源码"）解析为具体路径。
 This makes agents the natural producer of concrete policy, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
@@ -46,8 +44,6 @@ Second, since 81\% of projects contain policies that span multiple system events
 Third, programmability must not become an authority bypass, so agents cannot weaken inherited constraints set by trusted administrators.
 % 第三，可编程性不能成为权限绕过，因此智能体不能削弱由可信管理员设置的继承约束。
 
-% ¶6: System — \sys{}
-% % ¶6: 系统——\sys{}
 \sys{} is a programmable OS-level policy enforcement system for AI agent harnesses.
 % \sys{} 是一个可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
 To express complex policies, agents use a simple DSL that maps policy patterns to deterministic kernel checks, such as \texttt{block exec "rm" "-rf"} or \texttt{deny write "/etc" after read ".env"}.
