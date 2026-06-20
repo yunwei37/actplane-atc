@@ -53,12 +53,12 @@ Each \emph{rule} encodes one policy with five components: a \emph{source}, a \em
 % \emph{源}标识一条规则适用于哪些系统对象：一个 \texttt{exec} 源按二进制名称匹配进程，一个 \texttt{file} 源匹配路径，一个网络源匹配端点。
 When a source-tagged object performs a \emph{target} operation such as \texttt{exec}, \texttt{open}, or \texttt{connect}, the engine applies one of three \emph{effects}, ranging from observation to termination.
 At the strongest level, \texttt{kill} terminates the offending process post-operation, preventing it from trying alternative channels, while \texttt{block} offers a recoverable alternative by synchronously denying the syscall pre-operation (leaving no TOCTOU gap) so the agent can retry a different action.
-At the weakest level, \texttt{notify} reports without preventing execution.
-% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一，从观察到终止。在最强级别，\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），而 \texttt{block} 提供可恢复的替代方案，通过在操作前同步拒绝系统调用（无 TOCTOU 间隙）使智能体可以重试不同的行为。在最弱级别，\texttt{notify} 仅报告而不阻止执行。
+At the weakest level, \texttt{notify} guides the agent without preventing execution.
+% 当一个源标记的对象执行一个 \emph{目标}操作（例如 \texttt{exec}、\texttt{open}、\texttt{connect}）时，引擎应用三种 \emph{效果}之一，从观察到终止。在最强级别，\texttt{kill} 在操作后终止违规进程（阻止它尝试替代通道），而 \texttt{block} 提供可恢复的替代方案，通过在操作前同步拒绝系统调用（无 TOCTOU 间隙）使智能体可以重试不同的行为。在最弱级别，\texttt{notify} 指导智能体而不阻止执行。
 For example, \texttt{block write} suits an agent writing to a wrong directory, while \texttt{kill write} suits a compromised agent writing outside its sandbox that should not continue.
 % 例如，\texttt{block write} 适合一个写入错误目录的智能体，而 \texttt{kill write} 适合一个写入其沙箱之外且不应继续的被入侵智能体。
-\texttt{block} and \texttt{kill} enforce constraints (``do not X'') while \texttt{notify} observes instructions (``do X'')~\cite{zhang2026guardrails}.
-% \texttt{block} 和 \texttt{kill} 执行约束（"不要 X"），而 \texttt{notify} 观察指令（"做 X"）~\cite{zhang2026guardrails}。
+\texttt{block} and \texttt{kill} enforce constraints (``do not X'') while \texttt{notify} guides the agent toward instructions (``do X'')~\cite{zhang2026guardrails}.
+% \texttt{block} 和 \texttt{kill} 执行约束（"不要 X"），而 \texttt{notify} 指导智能体遵循指令（"做 X"）~\cite{zhang2026guardrails}。
 A rule may also specify a target allow-list to restrict which paths or endpoints it applies to.
 % 一条规则还可以指定一个目标允许列表，以限制它适用于哪些路径或端点。
 
@@ -108,8 +108,8 @@ Figure~\ref{fig:policy-example} illustrates three rules drawn from real projects
 % \texttt{no-delete-data} 是一条单事件规则，因此如果智能体删除数据挂载点下的任何文件，系统调用立即被阻止。
 \texttt{tests-before-commit} adds a cross-event kill gate, so committing is allowed only if \texttt{go test} ran and exited successfully (\texttt{exits~0}) after the most recent source write.
 % \texttt{tests-before-commit} 添加了一个跨事件终止门控，因此只有当 \texttt{go test} 在最近的源写入后运行并成功退出（\texttt{exits~0}）时，提交才被允许。
-\texttt{regen-after-schema} uses a notify effect instead, reminding the agent (without blocking) when it commits after a schema change without re-running the code generator.
-% \texttt{regen-after-schema} 使用一个通知效果，当智能体在模式更改后没有重新运行代码生成器就提交时提醒它（而不阻止）。
+\texttt{regen-after-schema} uses a notify effect instead, guiding the agent to re-run the code generator before committing after a schema change.
+% \texttt{regen-after-schema} 使用一个通知效果，指导智能体在模式更改后提交前重新运行代码生成器。
 Appendix~\ref{sec:appendix:dsl-grammar} gives the concrete grammar.
 % 附录~\ref{sec:appendix:dsl-grammar}给出具体语法。
 

@@ -48,10 +48,8 @@ Second, agents must not weaken safety constraints from higher authority or affec
 % \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{block exec "rm" "-rf"} 或 \texttt{deny write "/etc" after read ".env"}。
 To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC): it attaches labels (marking which sources have influenced each object) and propagates them across process, file, and network operations.
 % 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中：它附加标签（标记哪些源影响了每个对象）并跨进程、文件和网络操作传播它们。
-Each rule has one of three effects: notify, block, or kill.
-% 每条规则有三种效果之一：notify、block 或 kill。
-On violation, \sys{} returns semantic feedback to the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
-% 当发生违规时，\sys{} 向智能体返回语义反馈，例如"已阻止：写入上游源码；请考虑写入你的 fork。"
+Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
+% 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：写入上游源码；请考虑写入你的 fork。"
 Layered policy domains isolate each agent's policy and prevent weakening of inherited constraints.
 % 分层策略域隔离每个智能体的策略，并防止削弱继承的约束。
 
