@@ -32,28 +32,29 @@
 \renewcommand{\authorsaddresses}{}
 
 \begin{abstract}
-AI agents increasingly run in production through \emph{harnesses}, the software around the LLM, 
+AI agents increasingly run in production through \emph{harnesses}, the software around the LLM,
 including an engine that enforces safety and effectiveness \emph{policies}.
-% AI 智能体越来越多地通过 \emph{harness}（围绕 LLM 的软件层，包含执行安全与有效性策略的引擎）运行于生产环境。
+% AI 智能体越来越多地通过 \emph{harness} 运行于生产环境，harness 是围绕 LLM 的软件层，包含执行安全与有效性\emph{策略}的引擎。
 Our empirical study finds that 64\% of content in CLAUDE.md and AGENTS.md files is policy, e.g., ``do not leak secrets'' or ``run tests before committing.''
-% 我们的实证研究发现，CLAUDE.md 和 AGENTS.md 配置文件中 64\% 的内容是策略，例如"不得泄露密钥"或"提交前必须运行测试"。
+% 我们的实证研究发现，CLAUDE.md 和 AGENTS.md 文件中 64\% 的内容是策略，例如"不得泄露密钥"或"提交前必须运行测试"。
 Among the policies, 83\% target events that change system state, and 74\% depend on project or task context.
-% 其中，83\% 策略针对改变系统状态的事件，74\% 依赖项目或任务上下文。
+% 在这些策略中，83\% 针对改变系统状态的事件，74\% 依赖项目或任务上下文。
 Enforcing these policies in the harness policy engine needs to bridge the \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}.
-% 在 harness 策略引擎中执行这些策略暴露出一个\emph{语义鸿沟}：策略意图以模糊的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
+% 在 harness 策略引擎中执行这些策略需要弥合\emph{语义鸿沟}：策略意图以模糊的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
 Existing approaches fall short. Tool-call guardrails miss system actions that bypass the tool layer, while OS sandboxes control resource access instead of actions, returning errors that confuse the agent.
-% 现有方法存在不足。工具调用护栏会遗漏绕过工具层的系统操作，而操作系统沙箱控制资源访问而非操作行为，返回的错误令智能体困惑。
+% 现有方法存在不足。工具调用护栏会遗漏绕过工具层的系统操作，而操作系统沙箱控制资源访问而非操作，返回的错误令智能体困惑。
 Our key observation is the context of the policy mainly resides with the agent closest to the task.
-% 我们的关键观察是，策略上下文主要存在于最接近任务的智能体处。
+% 我们的关键观察是，策略的上下文主要在最接近任务的智能体处。
 To bridge the gap, we introduce \sys{}, a runtime-agnostic policy engine that allows agents to declare and enforce policies in the OS kernel with semantic feedback.
 % 为弥合这一鸿沟，我们引入 \sys{}，一个运行时无关的策略引擎，它允许智能体在操作系统内核中声明和执行策略，并带有语义反馈。
 Since 81\% of projects contain policies that span multiple system events, we allow agents to express policies in a simple information-flow control (IFC) DSL.
 % 由于 81\% 的项目包含跨越多个系统事件的策略，我们允许智能体使用简单的信息流控制（IFC）DSL 来表达策略。
 We use policy domains to isolate policies for multi-agents and prevent weakening of inherited safety constraints.
-% 分层策略域隔离智能体策略，并防止削弱继承的约束。
+% 我们使用策略域来隔离多智能体的策略，并防止削弱继承的安全约束。
 We implement \sys{} with eBPF and evaluate it on policies from the empirical study, coding-task benchmarks, and safety benchmarks.
+% 我们使用 eBPF 实现 \sys{}，并在来自实证研究的策略、编码任务基准和安全基准上进行评估。
 \sys{} improves policy compliance, including on indirect execution paths that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
-% 我们使用 eBPF 实现 \sys{}，并在来自实证研究的策略、编码任务基准和安全基准上进行评估。\sys{} 提升了策略合规性，包括在工具调用拦截无法观察的间接执行路径上，开销为 1.9\%--8.4\%。
+% \sys{} 提升了策略合规性，包括在工具调用拦截无法观察的间接执行路径上，开销为 1.9\%--8.4\%。
 \sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
 % \sys{} 已在 \url{https://github.com/eunomia-bpf/ActPlane} 开源。
 \end{abstract}
