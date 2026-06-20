@@ -47,9 +47,9 @@ Our key observation is the context of the policy mainly resides with the agent c
 % 我们的关键观察是，策略上下文主要存在于最接近任务的智能体处。
 To bridge the gap, we introduce \sys{}, a runtime-agnostic policy engine that allows agents to declare and enforce policies in the OS kernel with semantic feedback.
 % 为弥合这一鸿沟，我们引入 \sys{}，一个运行时无关的策略引擎，它允许智能体在操作系统内核中声明和执行策略，并带有语义反馈。
-Since 81\% of projects contain cross-event policies that stateless interception cannot track, we allow agents to express policies in a simple information-flow control (IFC) DSL.
-% 由于 81\% 的项目包含跨事件策略，而无状态拦截无法追踪，我们采用信息流控制（IFC）。
-We use layered policy domains to isolate policies for multi-agents and prevent weakening of inherited safety constraints.
+Since 81\% of projects contain policies that span multiple system events, we allow agents to express policies in a simple information-flow control (IFC) DSL.
+% 由于 81\% 的项目包含跨越多个系统事件的策略，我们允许智能体使用简单的信息流控制（IFC）DSL 来表达策略。
+We use policy domains to isolate policies for multi-agents and prevent weakening of inherited safety constraints.
 % 分层策略域隔离智能体策略，并防止削弱继承的约束。
 We implement \sys{} with eBPF and evaluate it on policies from the empirical study, coding-task benchmarks, and safety benchmarks.
 \sys{} improves policy compliance, including on indirect execution paths that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
