@@ -40,8 +40,8 @@ When a rule fires, \sys{} returns semantic feedback: the rule name, reason, and 
 
 The DSL lets agents express policy intent as enforceable system-level constraints.
 % 该 DSL 让智能体将策略意图表达为可执行的系统级约束。
-We observe that OS-enforceable policies from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
-% 我们观察到实证研究中的操作系统可执行策略共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
+We observe that OS-enforceable policies from the empirical study share a common structure in which each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
+% 我们观察到实证研究中的操作系统可执行策略共享一个共同结构，其中每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
 Some policies match a single operation, while others require cross-event history.
 % 一些策略匹配单个操作，而其他策略需要跨事件历史。
 The DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.

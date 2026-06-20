@@ -35,8 +35,8 @@ Separate agents or LLM guards can check prompts, responses, or action trajectori
 % 独立的智能体或 LLM 守卫可以在运行时检查提示词、响应或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}，但本质上是概率性的。
 Tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically.
 % 工具调用护栏和应用级 IFC 系统~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}在 harness 边界确定性地拦截。
-These three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing: an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
-% 这三个级别仅观察 harness 中介的请求，而不是工具开始执行后的系统级效果：一个间接子进程、一个 shell 调用或一个编译的二进制文件可以绕过工具边界。
+These three levels observe only harness-mediated requests, not the system-level effects once a tool starts executing, so an indirect subprocess, a shell-out, or a compiled binary can bypass the tool boundary.
+% 这三个级别仅观察 harness 中介的请求，而不是工具开始执行后的系统级效果，因此间接子进程、shell 调用或编译的二进制文件可以绕过工具边界。
 What remains missing is the connection between natural-language policy intent and project or task context on one side, and deterministic OS-level observation and enforcement on the other.
 % 缺失的是自然语言策略意图和项目或任务上下文一边，与确定性操作系统级观察和执行另一边之间的连接。
 The empirical study below characterizes how strongly real project instructions demand this connection.
@@ -112,14 +112,14 @@ A statement is a \emph{policy} if it asks the agent to perform, avoid, or condit
 Of the 2{,}116~statements, 1{,}361 (64.3\%) are policies and 755 (35.7\%) are descriptions (Figure~\ref{fig:empirical-rq1}).
 % 在 2,116 条语句中，1,361 条（64.3\%）是策略，755 条（35.7\%）是描述（图~\ref{fig:empirical-rq1}）。
 
-\noindent\textbf{Instruction files are mainly policies: the median repository has 71\% policies.}
-% \noindent\textbf{指令文件主要是策略：中位数仓库有 71\% 策略。}
+\noindent\textbf{Instruction files are mainly policies, with the median repository at 71\%.}
+% \noindent\textbf{指令文件主要是策略，中位数仓库达到 71\%。}
 75\% of repositories have a policy fraction above 50\%.
 % 75\% 的仓库有超过 50\% 的策略比例。
 At the extremes, one repository is entirely descriptive (0\% policies) while another is 97\% policies.
 % 在极端情况下，一个仓库完全是描述性的（0\% 策略），而另一个是 97\% 策略。
-This majority is invisible at line level: policies average 3.6~lines per statement while descriptions average 6.8~lines, so the same files appear balanced (49\% policies) when measured by lines.
-% 这个多数在行级别是不可见的：策略平均每条语句 3.6 行，而描述平均 6.8 行，因此同样的文件在按行测量时显得平衡（49\% 策略）。
+This majority is invisible at line level because policies average 3.6 lines per statement while descriptions average 6.8 lines, so the same files appear balanced (49\% policies) when measured by lines.
+% 这个多数在行级别是不可见的，因为策略平均每条语句 3.6 行而描述平均 6.8 行，所以同样的文件在按行测量时显得平衡（49\% 策略）。
 
 \begin{figure}[t]
 \centering
@@ -141,8 +141,8 @@ Each statement is assigned to one of 12~topic categories adapted from prior inst
 % \noindent\textbf{策略密度从 0\%（系统概述）到 87\%（开发流程）不等。}
 Development Process and Implementation Details are policy-heavy (86.7\% and 85.2\%, respectively).
 % 开发流程和实现细节是策略密集的（分别为 86.7\% 和 85.2\%）。
-Architecture is mostly descriptive: directory layouts and design summaries make it one of the largest topics by line count, yet only 23.0\% of its statements are policies.
-% 架构主要是描述性的：目录布局和设计摘要使其按行数成为最大的主题之一，然而只有 23.0\% 的语句是策略。
+Architecture is mostly descriptive because directory layouts and design summaries make it one of the largest topics by line count, yet only 23.0\% of its statements are policies.
+% 架构主要是描述性的，因为目录布局和设计摘要使其按行数成为最大的主题之一，然而只有 23.0\% 的语句是策略。
 
 \begin{figure}[t]
 \centering
@@ -171,10 +171,10 @@ Content inspection alone covers 55.4\% of policies, adding per-event matching re
 
 \noindent\textbf{Cross-event policies concentrate in Development Process, which accounts for 39.5\% of all cross-event policies (Figure~\ref{fig:enforcement-by-topic}).}
 % \noindent\textbf{跨事件策略集中在开发流程，占所有跨事件策略的 39.5\%（图~\ref{fig:enforcement-by-topic}）。}
-Four recurring patterns emerge: temporal ordering (``run tests before committing''), cross-file consistency (``update docs when behavior changes''), multi-step workflows (release checklists with verification steps), and conditional triggers (``if you change specs, also update SDK'').
-% 出现四种反复模式：时间顺序（"提交前运行测试"）、跨文件一致性（"行为变化时更新文档"）、多步骤工作流（带有验证步骤的发布清单）和条件触发器（"如果你更改规范，也要更新 SDK"）。
-All four require state that spans multiple operations: what ran, in what order, and what has changed since.
-% 所有四种都需要跨越多个操作的状态：运行了什么，以什么顺序，以及从那时起发生了什么变化。
+Four recurring patterns emerge, including temporal ordering (``run tests before committing''), cross-file consistency (``update docs when behavior changes''), multi-step workflows (release checklists with verification steps), and conditional triggers (``if you change specs, also update SDK'').
+% 出现四种反复模式，包括时间顺序（"提交前运行测试"）、跨文件一致性（"行为变化时更新文档"）、多步骤工作流（带有验证步骤的发布清单）和条件触发器（"如果你更改规范，也要更新 SDK"）。
+All four require state that spans multiple operations, tracking what ran, in what order, and what has changed since.
+% 所有四种都需要跨越多个操作的状态，追踪运行了什么、以什么顺序、以及从那时起发生了什么变化。
 Most of the operations involve files, processes, and network connections.
 % 大多数操作涉及文件、进程和网络连接。
 
@@ -211,8 +211,8 @@ Each system-observable policy is classified by what additional context an enforc
 % \noindent\textbf{74\% 的系统可观察策略需要项目或任务上下文才能实例化为具体规则。}
 Of the 1{,}127~system-observable policies, only 26.4\% are self-contained.
 % 在 1,127 条系统可观察的策略中，只有 26.4\% 是自包含的。
-Another 64.2\% require project context: the policy mentions ``the test suite,'' ``the linter,'' or ``upstream source,'' whose concrete command or path needs to be resolved from the repository.
-% 另外 64.2\% 需要项目上下文：策略提到"测试套件"、"代码检查器"或"上游源码"，其具体命令或路径需要从仓库中解析。
+Another 64.2\% require project context because the policy mentions ``the test suite,'' ``the linter,'' or ``upstream source,'' whose concrete command or path needs to be resolved from the repository.
+% 另外 64.2\% 需要项目上下文，因为策略提到"测试套件"、"代码检查器"或"上游源码"，其具体命令或路径需要从仓库中解析。
 The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}; Table~\ref{tab:examples}: S4 is self-contained; S5--S7 require project context; S8 requires task context).
 % 剩余 9.4\% 需要任务上下文（图~\ref{fig:empirical-rq4}；表~\ref{tab:examples}：S4 是自包含的；S5--S7 需要项目上下文；S8 需要任务上下文）。
 
@@ -220,8 +220,8 @@ The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}; Table~
 % \noindent\textbf{跨事件策略 95\% 依赖上下文，相比之下内容策略为 58\%。}
 Of cross-event policies, 76.7\% require project context and 18.6\% task context (95.3\% total), while content policies are only 57.5\% context-dependent.
 % 在跨事件策略中，76.7\% 需要项目上下文，18.6\% 需要任务上下文（共 95.3\%），而内容策略只有 57.5\% 依赖上下文。
-This compounds the enforcement challenge: policies that require cross-event IFC rarely specify the concrete commands and paths needed to write the rule.
-% 这加剧了执行挑战：需要跨事件 IFC 的策略很少指定编写规则所需的具体命令和路径。
+This compounds the enforcement challenge because policies that require cross-event IFC rarely specify the concrete commands and paths needed to write the rule.
+% 这加剧了执行挑战，因为需要跨事件 IFC 的策略很少指定编写规则所需的具体命令和路径。
 Generic static rules can cover only the self-contained fraction, and the majority require the agent itself to read the repository, interpret the current task, and produce a concrete policy before enforcement begins.
 % 通用静态规则只能覆盖自包含的部分，大多数需要智能体自己读取仓库、解释当前任务，并在执行开始前生成具体策略。
 
