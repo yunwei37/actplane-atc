@@ -25,8 +25,8 @@ Existing approaches fall short.
 % 现有方法存在不足。
 Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss indirect system actions that bypass the tool layer, such as a \texttt{git~commit} inside a script the agent wrote earlier.
 % 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的间接系统操作，例如智能体之前编写的脚本中的 \texttt{git~commit}。
-OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
-% 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
+OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) expect static pre-defined policy, control resource access instead of actions, and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
+% 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）需要静态预定义的策略，控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
 To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at the OS level, where all execution paths are visible including subprocesses and shell-outs that bypass tool-call interception.
 % 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该让智能体定义策略，并在操作系统级别执行，该层级可见所有执行路径，包括绕过工具调用拦截的子进程和 shell 调用。
@@ -55,8 +55,8 @@ Policies that express constraints use \texttt{block} or \texttt{kill} to deny vi
 \sys{} uses policy domains bound to process subtrees to isolate agents from each other and prevent them from weakening higher-authority constraints.
 % \sys{} 使用绑定到进程子树的策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
 
-On a decision-compliance benchmark, \sys{} resolves 2.0$\times$ more violations than FIDES~\cite{costa2025fides} (tool-level IFC) by covering indirect execution paths that tool-call interception cannot observe, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
-% 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 FIDES~\cite{costa2025fides}（工具级 IFC）多 2.0 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
+On a decision-compliance benchmark, \sys{} resolves 2.0--3.2$\times$ more violations than prompt-filter, tool-regex, FIDES~\cite{costa2025fides} (tool-level IFC), and feedback-free kernel IFC by covering indirect execution paths that tool-call interception cannot observe, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
+% 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}（工具级 IFC）和无反馈内核 IFC 多 2.0--3.2 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
 On a safety benchmark of 361 personal-assistant tasks, \sys{} prevents 74\% of baseline-unsafe behaviors by loading agent-generated safety policies as higher-authority rules before task execution.
 % 在一个包含 361 个个人助理任务的安全基准上，\sys{} 通过在任务执行前将智能体生成的安全策略作为更高权限规则加载，阻止了 74\% 的基线不安全行为。
 \sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
