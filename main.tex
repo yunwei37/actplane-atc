@@ -37,8 +37,8 @@ including an engine that enforces safety and effectiveness \emph{policies}, e.g.
 % AI 智能体越来越多地通过 \emph{harness} 运行于生产环境，harness 是围绕 LLM 的软件层，包含执行安全与有效性\emph{策略}的引擎，例如"提交前运行测试"。
 Enforcing these policies requires bridging a \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}, e.g., which test to run.
 % 执行这些策略需要弥合\emph{语义鸿沟}：策略意图以欠规范的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断，例如运行哪个测试。
-Many policies also span multiple system events.
-% 许多策略还跨越多个系统事件。
+Many policies also define event ordering or data flow actions.
+% 许多策略还定义了事件顺序或数据流操作。
 Yet existing approaches fall short. Tool-call guardrails miss system actions that bypass the tool layer, while OS sandboxes control resource access instead of actions, returning opaque errors that confuse the agent.
 % 但是现有方法存在不足。工具调用护栏会遗漏绕过工具层的系统操作，而操作系统沙箱控制资源访问而非操作，返回的不透明错误令智能体困惑。
 Our key insight is that policy context lives within the agent closest to the task, while enforcement must happen at the OS to cover all execution paths.

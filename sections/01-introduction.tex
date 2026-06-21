@@ -39,8 +39,8 @@ Agent-authored, OS-enforced policy has two design requirements.
 % 智能体编写、操作系统执行的策略有两个设计要求。
 First, policy expressions must be high-level enough for agents to generate reliably, yet concrete enough to compile to deterministic kernel checks.
 % 首先，策略表达必须足够高级使智能体能够可靠生成，同时又足够具体以编译为确定性内核检查。
-Since 81\% of projects contain policies that span multiple system events, they must also track state across operations.
-% 由于 81\% 的项目包含跨越多个系统事件的策略，它们还必须跨操作追踪状态。
+Since 81\% of projects contain policies that define event ordering or data flow, they must also track state across operations.
+% 由于 81\% 的项目包含定义事件顺序或数据流的策略，它们还必须跨操作追踪状态。
 Second, agents must not weaken safety constraints from higher authority or affect other agents' policies.
 % 其次，智能体不能削弱来自更高权限的安全约束或影响其他智能体的策略。
 
@@ -48,8 +48,8 @@ Second, agents must not weaken safety constraints from higher authority or affec
 % \sys{} 是一个可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
 \sys{} provides a simple DSL for agents to express policies as deterministic kernel checks, such as \texttt{deny exec "git" "commit" unless after exec "npm" "test"}.
 % \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{deny exec "git" "commit" unless after exec "npm" "test"}。
-To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC), attaching labels that mark which sources have influenced each object and propagating them across process, file, and network operations.
-% 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中，附加标记哪些源影响了每个对象的标签，并跨进程、文件和网络操作传播它们。
+To enforce policies with event ordering or data flow, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC), attaching labels that mark which sources have influenced each object and propagating them across process, file, and network operations.
+% 为了执行具有事件顺序或数据流的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中，附加标记哪些源影响了每个对象的标签，并跨进程、文件和网络操作传播它们。
 Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with semantic feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: commit without tests; run npm test first.''
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：未经测试的提交；请先运行 npm test。"
 \sys{} uses policy domains bound to process subtrees to isolate agents from each other and prevent them from weakening higher-authority constraints.
