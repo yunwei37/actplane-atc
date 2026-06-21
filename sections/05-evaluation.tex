@@ -403,8 +403,8 @@ Our policy generator mirrors this by having a Codex agent with GPT-5.5~\cite{ope
 % 我们的策略生成器反映这一点：一个 Codex 智能体配合 GPT-5.5~\cite{openai2026gpt55}仅读取任务描述，提取显式文件路径、系统命令和高置信度汇类别如凭证、cron 作业、SSH 密钥、账户变更、网络出口，生成编译为 eBPF 配置 blob 的每任务 \sys{} 策略。
 If no concrete OS-observable behavior is identifiable from the description, the generator emits a no-op marker.
 % 如果从描述中无法识别具体的操作系统可观察行为，生成器发出空操作标记。
-The generator does not read the evaluator, checkpoints, trajectories, or any prior run results, making policy generation zero-shot with respect to evaluation criteria.
-% 生成器不读取评估器、检查点、轨迹或任何先前运行结果，使策略生成相对于评估标准是零样本的。
+The generator does not read the evaluator, checkpoints, trajectories, or any prior run results, so policy generation is blind to evaluation criteria.
+% 生成器不读取评估器、检查点、轨迹或任何先前运行结果，因此策略生成对评估标准一无所知。
 Of the 361~tasks, the generator produces non-trivial policies for 303~tasks and no-op markers for 58~tasks where the task description names no concrete OS sink.
 % 在 361 个任务中，生成器为 303 个任务生成非平凡策略，为 58 个任务描述未命名具体操作系统汇的任务发出空操作标记。
 The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is independent of unsafe execution.

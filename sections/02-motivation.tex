@@ -2,8 +2,8 @@
 % \section{动机}
 \label{sec:motivation}
 
-AI agents combine model reasoning with external tools, memory, and long-running environments, such as Claude Code~\cite{anthropic2025claudecode}, Codex~\cite{openai2025codex}.
-% AI 智能体将模型推理与外部工具、记忆和长时间运行的环境相结合，例如 Claude Code~\cite{anthropic2025claudecode}、Codex~\cite{openai2025codex}。
+AI agents combine model reasoning with external tools, memory, and long-running environments. Claude Code~\cite{anthropic2025claudecode} and Codex~\cite{openai2025codex} are prominent examples.
+% AI 智能体将模型推理与外部工具、记忆和长时间运行的环境相结合。Claude Code~\cite{anthropic2025claudecode} 和 Codex~\cite{openai2025codex} 是典型例子。
 Agents operate through an \emph{AI agent harness}: software around the model that maintains the agent loop and session state, routes tool calls, mediates shell, file, and network access, and returns results or feedback to the model, improving agent performance while enforcing instructions and constraints~\cite{langchain-harness,fowler-harness}.
 % 智能体通过一个 \emph{AI 智能体 harness} 运行：包裹模型的软件，它维护智能体循环和会话状态，路由工具调用，中介 shell、文件和网络访问，并将结果或反馈返回给模型，在执行指令和约束的同时提升智能体性能~\cite{langchain-harness,fowler-harness}。
 A single tool invocation can run arbitrary scripts, browse untrusted content, call APIs, and touch many files~\cite{debenedetti2024agentdojo,zhan2024injecagent,chennabasappa2025llamafirewall}.
@@ -24,18 +24,18 @@ We collected public GitHub repositories containing \texttt{CLAUDE.md} or \texttt
 The snapshot, taken 2026-05-23 UTC, contains 64~repositories with median 20K GitHub stars, 84 instruction files, and 2{,}116~extracted statements.
 % 快照（2026-05-23 UTC）包含 64 个仓库，中位数 20K GitHub 星，84 个指令文件和 2,116 条提取的语句。
 
-Prior studies classify instruction-file contents at file or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}; Zhang et al.~\cite{zhang2026guardrails} further show that negative constraints and positive policies have different effects.
-% 先前的研究在文件或章节标题粒度上对指令文件内容进行分类~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}；Zhang 等人~\cite{zhang2026guardrails}进一步表明否定约束和肯定指令具有不同的效果。
+Prior studies classify instruction-file contents at file or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}, and Zhang et al.~\cite{zhang2026guardrails} further show that negative constraints and positive policies have different effects.
+% 先前的研究在文件或章节标题粒度上对指令文件内容进行分类~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}，而 Zhang 等人~\cite{zhang2026guardrails}进一步表明否定约束和肯定指令具有不同的效果。
 We analyze at the statement level to classify their enforcement requirements and quantify the context they need to become concrete rules.
 % 我们在语句级别进行分析，以分类它们的执行要求，并量化它们需要成为具体规则的上下文。
 A \emph{statement} is a coherent unit expressing one claim or constraint.
 % 一条 \emph{语句}是表达一个主张或约束的连贯单元。
 A two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels: content type, topic, enforcement level, and context requirement.
 % 一个两遍 LLM 智能体辅助流水线提取了带有源行范围和四个标签的语句：内容类型、主题、执行级别和上下文要求。
-A validation script verified full source coverage and verbatim span matching, and cross-checked by independent Claude and Codex agents.
-% 一个验证脚本验证了完整的源覆盖和逐字跨度匹配，并由独立的 Claude 和 Codex 智能体交叉检查。
-A stratified sample of 100~statements was independently reviewed by human annotators and verified the labels are correct.
-% 100 条语句的分层样本由人工标注者独立审查并验证标签正确。
+A validation script verified full source coverage and verbatim span matching and was cross-checked by independent Claude and Codex agents.
+% 一个验证脚本验证了完整的源覆盖和逐字跨度匹配，并经独立的 Claude 和 Codex 智能体交叉检查。
+A stratified sample of 100~statements was independently reviewed by human annotators, who verified the labels were correct.
+% 100 条语句的分层样本由人工标注者独立审查，他们验证标签正确。
 Table~\ref{tab:examples} collects representative statements that illustrate all four axes, and the labels \textbf{S1}--\textbf{S8} are referenced throughout.
 % 表~\ref{tab:examples}收集了说明所有四个轴的代表性语句，标签 \textbf{S1}--\textbf{S8} 在全文中被引用。
 
@@ -190,8 +190,8 @@ Of the 1{,}127~system-observable policies, only 26.4\% are self-contained.
 % 在 1,127 条系统可观察的策略中，只有 26.4\% 是自包含的。
 Another 64.2\% require project context because the policy mentions ``the test suite,'' ``the linter,'' or ``upstream source,'' whose concrete command or path needs to be resolved from the repository.
 % 另外 64.2\% 需要项目上下文，因为策略提到"测试套件"、"代码检查器"或"上游源码"，其具体命令或路径需要从仓库中解析。
-The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}). In Table~\ref{tab:examples}, S4 is self-contained, S5--S7 require project context, and S8 requires task context.
-% 剩余 9.4\% 需要任务上下文（图~\ref{fig:empirical-rq4}）。在表~\ref{tab:examples} 中，S4 是自包含的，S5--S7 需要项目上下文，S8 需要任务上下文。
+The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}); in Table~\ref{tab:examples}, S4 is self-contained, S5--S7 require project context, and S8 requires task context.
+% 剩余 9.4\% 需要任务上下文（图~\ref{fig:empirical-rq4}）；在表~\ref{tab:examples} 中，S4 是自包含的，S5--S7 需要项目上下文，S8 需要任务上下文。
 
 \noindent\textbf{Cross-event policies are 95\% context-dependent, compared to 58\% for content policies.}
 % \noindent\textbf{跨事件策略 95\% 依赖上下文，相比之下内容策略为 58\%。}

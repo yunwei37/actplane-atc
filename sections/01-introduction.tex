@@ -3,16 +3,16 @@
 
 AI agents are widely used for coding, DevOps, and enterprise workflows\cite{yang2024sweagent,wang2025openhands,debenedetti2024agentdojo,zhan2024injecagent,agentsight}.
 % AI 智能体被广泛用于编码、DevOps 和企业工作流\cite{yang2024sweagent,wang2025openhands,debenedetti2024agentdojo,zhan2024injecagent,agentsight}。
-Besides the LLM, agents require \emph{harnesses}: software around the model that improves agent performance while enforcing instructions and constraints for safety and compliance~\cite{fowler-harness}.
-% 除了 LLM，智能体还需要 \emph{harness}：包裹模型的软件，它在执行指令和约束以确保安全和合规的同时提升智能体性能~\cite{fowler-harness, langchain-harness}。
+Besides the LLM, agents require \emph{harnesses}, software layers around the model that improve agent performance while enforcing instructions and constraints for safety and compliance~\cite{fowler-harness}.
+% 除了 LLM，智能体还需要 \emph{harness}，即包裹模型的软件层，它在执行指令和约束以确保安全和合规的同时提升智能体性能~\cite{fowler-harness}。
 
 
 A major component of the harness is a \emph{policy engine}, which observes and enforces instructions and constraints over the agent's concrete actions.
 % harness 的一个主要组件是 \emph{策略引擎}，它观察并对智能体的具体行为执行指令和约束。
 Projects encode many such policies in instruction files (e.g., \texttt{CLAUDE.md}, \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}, so harnesses can provide them to the model directly.
 % 项目在指令文件（例如 \texttt{CLAUDE.md}、\texttt{AGENTS.md}）中编码许多此类策略~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}，因此 harness 可以直接将它们提供给模型。
-Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and may violate them because of planning errors, prompt-injection drift, and tool or script side-effects~\cite{greshake2023indirectprompt,zhan2024injecagent}, harnesses also require deterministic policy engines to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
-% 因为 LLM 概率性地遵循指令~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并可能因为规划错误、提示词注入漂移和工具或脚本副作用而违反它们~\cite{greshake2023indirectprompt,zhan2024injecagent}，harness 还需要确定性策略引擎来强制合规~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}。
+Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and may violate them due to planning errors, prompt-injection drift, and tool or script side-effects~\cite{greshake2023indirectprompt,zhan2024injecagent}, harnesses also require deterministic policy engines to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
+% 因为 LLM 概率性地遵循指令~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并可能由于规划错误、提示词注入漂移和工具或脚本副作用而违反它们~\cite{greshake2023indirectprompt,zhan2024injecagent}，harness 还需要确定性策略引擎来强制合规~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}。
 
 However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement must act on concrete \emph{system actions} based on project or task context.
 % 然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行必须根据项目或任务上下文对具体的 \emph{系统行为}做出判断。
@@ -28,19 +28,19 @@ Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,
 OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
 % 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
-To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at OS level.
+To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at the OS level.
 % 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该让智能体定义策略，并在操作系统级别执行。
-While safety constraints come from higher authority such as the user, platform operator, or parent agent, the context needed to resolve policies mainly resides with the agent closest to the task, which already reads the repository, interprets the current task, and resolves abstract references (e.g., ``upstream source'') into concrete paths.
-% 虽然安全约束来自更高权限如用户、平台运营者或父智能体，解析策略所需的上下文主要存在于最接近任务的智能体处，它已经读取了仓库、解释了当前任务，并将抽象引用（例如"上游源码"）解析为具体路径。
+While safety constraints come from higher authority such as the user, platform operator, or parent agent, the context needed to resolve policies mainly resides with the agent closest to the task. This agent already reads the repository, interprets the current task, and resolves abstract references (e.g., ``upstream source'') into concrete paths.
+% 虽然安全约束来自更高权限如用户、平台运营者或父智能体，解析策略所需的上下文主要存在于最接近任务的智能体处。该智能体已经读取了仓库、解释了当前任务，并将抽象引用（例如"上游源码"）解析为具体路径。
 This makes agents the natural producer of concrete policy, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 % 这使得智能体成为具体策略的自然生产者，也反映了指令文件越来越多地由智能体维护的事实~\cite{anthropic2025claudecode,galster2026configuring}。
 
-This approach has two design requirements.
-% 这一方法有两个设计要求。
-First, policy specification must be high-level enough for agents to generate reliably, yet concrete enough to compile to deterministic kernel checks.
-% 首先，策略规范必须足够高级使智能体能够可靠生成，同时又足够具体以编译为确定性内核检查。
-Since 81\% of projects contain policies that span multiple system events, it must also track state across operations.
-% 由于 81\% 的项目包含跨越多个系统事件的策略，还必须跨操作追踪状态。
+Agent-authored, OS-enforced policy has two design requirements.
+% 智能体编写、操作系统执行的策略有两个设计要求。
+First, policy expressions must be high-level enough for agents to generate reliably, yet concrete enough to compile to deterministic kernel checks.
+% 首先，策略表达必须足够高级使智能体能够可靠生成，同时又足够具体以编译为确定性内核检查。
+Since 81\% of projects contain policies that span multiple system events, they must also track state across operations.
+% 由于 81\% 的项目包含跨越多个系统事件的策略，它们还必须跨操作追踪状态。
 Second, agents must not weaken safety constraints from higher authority or affect other agents' policies.
 % 其次，智能体不能削弱来自更高权限的安全约束或影响其他智能体的策略。
 
@@ -48,8 +48,8 @@ Second, agents must not weaken safety constraints from higher authority or affec
 % \sys{} 是一个可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
 \sys{} provides a simple DSL for agents to express policies as deterministic kernel checks, such as \texttt{block exec "rm" "-rf"} or \texttt{deny write "/etc" after read ".env"}.
 % \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{block exec "rm" "-rf"} 或 \texttt{deny write "/etc" after read ".env"}。
-To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC): it attaches labels (marking which sources have influenced each object) and propagates them across process, file, and network operations.
-% 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中：它附加标签（标记哪些源影响了每个对象）并跨进程、文件和网络操作传播它们。
+To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC), attaching labels that mark which sources have influenced each object and propagating them across process, file, and network operations.
+% 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中，附加标记哪些源影响了每个对象的标签，并跨进程、文件和网络操作传播它们。
 Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with semantic feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：写入上游源码；请考虑写入你的 fork。"
 \sys{} uses policy domains to isolate agents from each other and prevent them from weakening higher-authority constraints.
