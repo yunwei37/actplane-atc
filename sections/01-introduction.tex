@@ -17,21 +17,21 @@ Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2
 However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement must act on concrete \emph{system actions} based on project or task context.
 % 然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行必须根据项目或任务上下文对具体的 \emph{系统行为}做出判断。
 Our empirical study of CLAUDE.md and AGENTS.md instruction files in 64~popular projects (\S\ref{sec:empirical}) shows that enforcement must handle context-dependent system actions, with 64\% of statements being policies, 83\% involving system actions, and 74\% depending on context that cannot be pre-defined statically.
-% 我们对 64 个热门项目中指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 64\% 的语句是策略，83\% 涉及系统行为，74\% 依赖无法静态预定义的上下文。
-For example, ``never modify upstream source'' requires knowing which paths are upstream, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
-% 例如，"永不修改上游源码"需要知道哪些路径是上游，"审查子智能体只写入其项目目录"需要子智能体的分配范围。
+% 我们对 64 个热门项目中 CLAUDE.md 和 AGENTS.md 指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 64\% 的语句是策略，83\% 涉及系统行为，74\% 依赖无法静态预定义的上下文。
+For example, ``run tests before committing'' requires knowing which test command to run, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
+% 例如，"提交前运行测试"需要知道运行哪个测试命令，"审查子智能体只写入其项目目录"需要子智能体的分配范围。
 
 Existing approaches fall short.
 % 现有方法存在不足。
-Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss indirect system actions that bypass the tool layer, such as a \texttt{git~push} inside a script the agent wrote earlier.
-% 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的间接系统操作，例如智能体之前编写的脚本中的 \texttt{git~push}。
+Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss indirect system actions that bypass the tool layer, such as a \texttt{git~commit} inside a script the agent wrote earlier.
+% 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的间接系统操作，例如智能体之前编写的脚本中的 \texttt{git~commit}。
 OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) control resource access instead of actions and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
 % 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
 To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at the OS level, where all execution paths are visible including subprocesses and shell-outs that bypass tool-call interception.
 % 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该让智能体定义策略，并在操作系统级别执行，该层级可见所有执行路径，包括绕过工具调用拦截的子进程和 shell 调用。
-While safety constraints come from higher authority such as the user, platform operator, or parent agent, the context needed to resolve policies resides with the agent closest to the task, which already reads the repository, interprets the current task, and resolves abstract references (e.g., ``upstream source'') into concrete paths.
-% 虽然安全约束来自更高权限如用户、平台运营者或父智能体，解析策略所需的上下文存在于最接近任务的智能体处，该智能体已经读取了仓库、解释了当前任务，并将抽象引用（例如"上游源码"）解析为具体路径。
+While safety constraints such as ``never expose API keys'' come from higher authority such as the user, platform operator, or parent agent, the context needed to resolve policies resides with the agent closest to the task, which already reads the repository, interprets the current task, and resolves abstract references such as ``run tests'' into concrete commands.
+% 虽然安全约束如"永不泄露 API 密钥"来自更高权限如用户、平台运营者或父智能体，解析策略所需的上下文存在于最接近任务的智能体处，该智能体已经读取了仓库、解释了当前任务，并将抽象引用如"运行测试"解析为具体命令。
 This makes agents the natural producer of concrete policy, also reflecting the fact that instruction files are increasingly maintained by agents~\cite{anthropic2025claudecode,galster2026configuring}.
 % 这使得智能体成为具体策略的自然生产者，也反映了指令文件越来越多地由智能体维护的事实~\cite{anthropic2025claudecode,galster2026configuring}。
 
@@ -46,12 +46,12 @@ Second, agents must not weaken safety constraints from higher authority or affec
 
 \sys{} is a programmable OS-level policy enforcement system for AI agent harnesses.
 % \sys{} 是一个可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
-\sys{} provides a simple DSL for agents to express policies as deterministic kernel checks, such as \texttt{block exec "rm" "-rf"} or \texttt{deny write "/etc" after read ".env"}.
-% \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{block exec "rm" "-rf"} 或 \texttt{deny write "/etc" after read ".env"}。
+\sys{} provides a simple DSL for agents to express policies as deterministic kernel checks, such as \texttt{deny exec "git" "commit" unless after exec "npm" "test"}.
+% \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{deny exec "git" "commit" unless after exec "npm" "test"}。
 To track policies that span multiple events, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC), attaching labels that mark which sources have influenced each object and propagating them across process, file, and network operations.
 % 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中，附加标记哪些源影响了每个对象的标签，并跨进程、文件和网络操作传播它们。
-Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with semantic feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: write to upstream source; consider writing to your fork instead.''
-% 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：写入上游源码；请考虑写入你的 fork。"
+Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with semantic feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: commit without tests; run npm test first.''
+% 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：未经测试的提交；请先运行 npm test。"
 \sys{} uses policy domains to isolate agents from each other and prevent them from weakening higher-authority constraints.
 % \sys{} 使用策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
 
