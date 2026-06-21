@@ -37,10 +37,10 @@ including an engine that enforces safety and effectiveness \emph{policies}.
 % AI 智能体越来越多地通过 \emph{harness} 运行于生产环境，harness 是围绕 LLM 的软件层，包含执行安全与有效性\emph{策略}的引擎。
 Our empirical study finds that 64\% of content in CLAUDE.md and AGENTS.md files is policy, e.g., ``do not leak secrets'' or ``run tests before committing.''
 % 我们的实证研究发现，CLAUDE.md 和 AGENTS.md 文件中 64\% 的内容是策略，例如"不得泄露密钥"或"提交前必须运行测试"。
-Among the policies, 83\% target events that change system state, and 74\% depend on project or task context.
-% 在这些策略中，83\% 针对改变系统状态的事件，74\% 依赖项目或任务上下文。
-Enforcing these policies needs to bridge the \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}.
-% 执行这些策略需要弥合\emph{语义鸿沟}：策略意图以模糊的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
+Among the policies, 83\% target events that change system state, and 74\% depend on project or task context that must be resolved before enforcement.
+% 在这些策略中，83\% 针对改变系统状态的事件，74\% 依赖必须在执行前解析的项目或任务上下文。
+Enforcing these policies requires bridging a \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}, e.g., which test command, which commit binary.
+% 执行这些策略需要弥合\emph{语义鸿沟}：策略意图以欠规范的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断。
 Yet existing approaches fall short. Tool-call guardrails miss system actions that bypass the tool layer, while OS sandboxes control resource access instead of actions, returning opaque errors that confuse the agent.
 % 但是现有方法存在不足。工具调用护栏会遗漏绕过工具层的系统操作，而操作系统沙箱控制资源访问而非操作，返回的不透明错误令智能体困惑。
 Our key insight is that policy context resides with the agent closest to the task, while enforcement must happen at the OS to cover all execution paths.
