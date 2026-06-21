@@ -2,6 +2,11 @@
 % \section{动机}
 \label{sec:motivation}
 
+This section presents an empirical study of 64~projects to characterize the gap between policy intent and enforcement and motivate the design of \sys{}.
+
+\subsection{Agent Harnesses and Policies}
+\label{sec:background}
+
 AI agents combine model reasoning with external tools, memory, and long-running environments. Claude Code~\cite{anthropic2025claudecode} and Codex~\cite{openai2025codex} are prominent examples.
 % AI 智能体将模型推理与外部工具、记忆和长时间运行的环境相结合。Claude Code~\cite{anthropic2025claudecode} 和 Codex~\cite{openai2025codex} 是典型例子。
 Agents operate through an \emph{AI agent harness}: software around the model that maintains the agent loop and session state, routes tool calls, mediates shell, file, and network access, and returns results or feedback to the model, improving agent performance while enforcing instructions and constraints~\cite{langchain-harness,fowler-harness}.
@@ -12,11 +17,9 @@ To improve task performance, safety, and compliance, projects often encode inten
 % 为提高任务性能、安全性和合规性，项目通常在自然语言文件（\texttt{CLAUDE.md}、\texttt{AGENTS.md}）~\cite{chatlatanagulchai2025manifests,santos2025claudeconfig,lulla2026agentsmd}或确定性策略配置中编码意图级策略。
 A \emph{policy} specifies what the agent should do (\emph{instructions}) or should not do (\emph{constraints}); we term its semantic meaning the agent's \emph{policy intent}.
 % \emph{策略}指定智能体应该做什么（\emph{指令}）或不应该做什么（\emph{约束}）；我们将其语义含义称为智能体的 \emph{策略意图}。
-This section presents an empirical study of 64~projects to characterize the gap between policy intent and enforcement and motivate the design of \sys{}.
-% 本节展示对 64 个项目的实证研究，以表征策略意图与执行之间的鸿沟，并推动 \sys{} 的设计。
 
-\subsection{Methodology}
-% \subsection{方法论}
+\subsection{Empirical Study Methodology}
+% \subsection{实证研究方法论}
 \label{sec:empirical}
 
 We collected public GitHub repositories containing \texttt{CLAUDE.md} or \texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025 and excluding non-code, inactive, fake-star, and stub repositories.
