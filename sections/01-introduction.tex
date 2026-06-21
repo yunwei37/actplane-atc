@@ -16,10 +16,10 @@ Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2
 
 However, existing policy engines leave a \emph{semantic gap}: \emph{policy intent} is expressed in underspecified natural language, but enforcement must act on concrete \emph{system actions} based on project or task context.
 % 然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行必须根据项目或任务上下文对具体的 \emph{系统行为}做出判断。
-Our empirical study of CLAUDE.md and AGENTS.md instruction files in 64~popular projects (\S\ref{sec:empirical}) shows that enforcement must handle context-dependent system actions, with 64\% of statements being policies, 83\% involving system actions, and 74\% depending on context that cannot be pre-defined statically.
-% 我们对 64 个热门项目中 CLAUDE.md 和 AGENTS.md 指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 64\% 的语句是策略，83\% 涉及系统行为，74\% 依赖无法静态预定义的上下文。
 For example, ``run tests before committing'' requires knowing which test command to run, and ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
 % 例如，"提交前运行测试"需要知道运行哪个测试命令，"审查子智能体只写入其项目目录"需要子智能体的分配范围。
+Our empirical study of CLAUDE.md and AGENTS.md instruction files in 64~popular projects (\S\ref{sec:empirical}) shows that enforcement must handle context-dependent system actions, with 64\% of statements being policies, 83\% involving system actions, and 74\% depending on context that cannot be pre-defined statically.
+% 我们对 64 个热门项目中 CLAUDE.md 和 AGENTS.md 指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 64\% 的语句是策略，83\% 涉及系统行为，74\% 依赖无法静态预定义的上下文。
 
 Existing approaches fall short.
 % 现有方法存在不足。
@@ -52,8 +52,8 @@ To track policies that span multiple events, \sys{} compiles DSL rules into an e
 % 为了追踪跨越多个事件的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中，附加标记哪些源影响了每个对象的标签，并跨进程、文件和网络操作传播它们。
 Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with semantic feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: commit without tests; run npm test first.''
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：未经测试的提交；请先运行 npm test。"
-\sys{} uses policy domains to isolate agents from each other and prevent them from weakening higher-authority constraints.
-% \sys{} 使用策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
+\sys{} uses policy domains bound to process subtrees to isolate agents from each other and prevent them from weakening higher-authority constraints.
+% \sys{} 使用绑定到进程子树的策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
 
 On a decision-compliance benchmark, \sys{} resolves 2.0$\times$ more violations than FIDES~\cite{costa2025fides} (tool-level IFC) by covering indirect execution paths that tool-call interception cannot observe, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
 % 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 FIDES~\cite{costa2025fides}（工具级 IFC）多 2.0 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
