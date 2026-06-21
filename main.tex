@@ -34,15 +34,15 @@
 \begin{abstract}
 AI agents increasingly run in production through \emph{harnesses}, the software around the LLM,
 including an engine that enforces safety and effectiveness \emph{policies}, e.g., ``run tests before committing.''
-Enforcing these policies requires bridging a \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}, e.g., which test command to run.
+Enforcing these policies requires bridging a \emph{semantic gap}: policy intent is expressed in underspecified natural language, while enforcement must act on concrete \emph{system actions}, e.g., which test to run.
 % 执行这些策略需要弥合\emph{语义鸿沟}：策略意图以欠规范的自然语言表达，而执行层必须对具体的\emph{系统操作}做出判断，例如运行哪个测试命令。
 Yet existing approaches fall short. Tool-call guardrails miss system actions that bypass the tool layer, while OS sandboxes control resource access instead of actions, returning opaque errors that confuse the agent.
 % 但是现有方法存在不足。工具调用护栏会遗漏绕过工具层的系统操作，而操作系统沙箱控制资源访问而非操作，返回的不透明错误令智能体困惑。
-Our key insight is that policy context resides with the agent closest to the task, while enforcement must happen at the OS to cover all execution paths.
+Our key insight is that policy context in the agent closest to the task, while enforcement must happen at the OS to cover all execution paths.
 % 我们的关键洞察是，策略上下文在最接近任务的智能体处，而执行必须在操作系统层进行以覆盖所有执行路径。
 We introduce \sys{}, a policy engine that lets agents declare policies and enforces them in the OS kernel with semantic feedback.
 % 我们引入 \sys{}，一个让智能体声明策略并在操作系统内核中执行并带有语义反馈的策略引擎。
-Since policies often span multiple system events, \sys{} tracks events to enforce such ordering by defining policy as a simple information-flow control (IFC) DSL.
+Since policies often span multiple system events, \sys{} tracks events by defining policy as a simple information-flow control (IFC) DSL.
 % 由于 81\% 的项目包含跨越多个系统事件的策略，\sys{} 通过将策略定义为简单的信息流控制（IFC）DSL 来追踪事件并执行此类顺序约束。
 \sys{} isolates policies for multi-agent settings and prevents weakening of safety constraints.
 % \sys{} 在\emph{策略域}中隔离多智能体场景下的策略，并防止削弱安全约束。
