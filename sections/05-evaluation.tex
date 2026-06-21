@@ -399,8 +399,8 @@ This setup differs from RQ1--RQ4 in two dimensions: the agent framework uses Ope
 % \paragraph{策略生成。}
 In deployment, the agent harness processes the user's request before execution begins, and guard agents and safety classifiers~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails} similarly analyze the incoming prompt to set runtime constraints.
 % 在部署中，智能体 harness 在执行开始前处理用户请求，守卫智能体和安全分类器~\cite{xiang2025guardagent,chennabasappa2025llamafirewall,rebedea2023nemo,invariant-guardrails}类似地分析传入提示以设置运行时约束。
-Our policy generator mirrors this by having a Codex agent with GPT-5.5~\cite{openai2026gpt55} read only the task description and extract explicit file paths, system commands, and high-confidence sink categories such as credentials, cron jobs, SSH keys, account mutations, and network egress, producing a per-task \sys{} policy compiled to an eBPF configuration blob.
-% 我们的策略生成器反映这一点：一个 Codex 智能体配合 GPT-5.5~\cite{openai2026gpt55}仅读取任务描述，提取显式文件路径、系统命令和高置信度汇类别如凭证、cron 作业、SSH 密钥、账户变更、网络出口，生成编译为 eBPF 配置 blob 的每任务 \sys{} 策略。
+Our policy generator mirrors this pre-execution analysis: a Codex agent with GPT-5.5~\cite{openai2026gpt55} reads only the task description and extracts explicit file paths, system commands, and high-confidence sink categories such as credentials, cron jobs, SSH keys, account mutations, and network egress, producing a per-task \sys{} policy compiled to an eBPF configuration blob.
+% 我们的策略生成器反映这种执行前分析：一个 Codex 智能体配合 GPT-5.5~\cite{openai2026gpt55}仅读取任务描述，提取显式文件路径、系统命令和高置信度汇类别如凭证、cron 作业、SSH 密钥、账户变更、网络出口，生成编译为 eBPF 配置 blob 的每任务 \sys{} 策略。
 If no concrete OS-observable behavior is identifiable from the description, the generator emits a no-op marker.
 % 如果从描述中无法识别具体的操作系统可观察行为，生成器发出空操作标记。
 The generator does not read the evaluator, checkpoints, trajectories, or any prior run results, so policy generation is blind to evaluation criteria.
