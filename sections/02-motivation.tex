@@ -46,8 +46,8 @@ Table~\ref{tab:examples} collects representative statements that illustrate all 
 % 表~\ref{tab:examples}收集了说明所有四个标签的代表性语句，\textbf{S1}--\textbf{S8} 在全文中被引用。
 
 \begin{table*}[t]
-\caption{Representative corpus statements illustrating all four classification axes. Enforcement level and context requirement apply only to policies (---\,=\,not applicable).}
-% \caption{说明所有四个分类轴的代表性语料库语句。执行级别和上下文要求仅适用于策略（---\,=\,不适用）。}
+\caption{Representative statements illustrating all four labels. Enforcement level and context requirement apply only to policies (---\,=\,not applicable).}
+% \caption{说明所有四个标签的代表性语句。执行级别和上下文要求仅适用于策略（---\,=\,不适用）。}
 \label{tab:examples}
 \centering
 \small
@@ -74,12 +74,12 @@ S8 & ``Do not update dependencies without approval.'' & Dir & Maint. & Per-event
 % S8 & "未经批准不要更新依赖。" & 策略 & 维护 & 单事件 & 任务 \\
 \bottomrule
 \end{tabular}
-\Description{Table of eight representative statements from the corpus, each classified by type, topic, enforcement level, and context requirement.}
-% \Description{语料库中八条代表性语句的表格，每条按类型、主题、执行级别和上下文要求分类。}
+\Description{Table of eight representative statements from the study, each classified by type, topic, enforcement level, and context requirement.}
+% \Description{研究中八条代表性语句的表格，每条按类型、主题、执行级别和上下文要求分类。}
 \end{table*}
 
-\paragraph{Are Instruction Files Behavioral Policies?}
-% \paragraph{指令文件是行为策略吗？}
+\subsubsection{Are Instruction Files Behavioral Policies?}
+% \subsubsection{指令文件是行为策略吗？}
 
 A statement is a \emph{policy} if it asks the agent to perform, avoid, or condition an action, and is otherwise descriptive context.
 % 如果一条语句要求智能体执行、避免或条件化一个行为，它就是一条 \emph{策略}，否则是描述性上下文。
@@ -123,13 +123,13 @@ Development Process and Implementation Details are policy-heavy at 87\% and 85\%
 \label{fig:empirical-rq2}
 \end{figure}
 
-\paragraph{Which Policies Require OS-Level Enforcement?}
-% \paragraph{哪些策略需要操作系统级执行？}
+\subsubsection{Which Policies Require OS-Level Enforcement?}
+% \subsubsection{哪些策略需要操作系统级执行？}
 
-Given that most instruction-file content is policy, the next question is where enforcement should happen.
-% 鉴于大多数指令文件内容是策略，下一个问题是执行应该在哪里发生。
-We use \emph{runtime policy enforcement system} for the part of an AI agent harness that enforces safety, security, and compliance policies while the agent executes.
-% 我们使用 \emph{运行时策略执行系统}指代 AI 智能体 harness 中在智能体执行时执行安全、安全性和合规策略的部分。
+Intuitively, some policies in instruction files are semantic-only requirements (e.g., ``please write comments for each function''), while others require OS-level enforcement (e.g., ``don't delete data'').
+% 直观地说，指令文件中的一些策略是仅语义的要求（例如，"请为每个函数写注释"），而另一些则需要操作系统级执行（例如，"不要删除数据"）。
+A natural question is how to categorize them and identify which require OS-level enforcement.
+% 一个自然的问题是如何对它们进行分类，并识别哪些需要操作系统级执行。
 
 Each policy is classified into the first matching tier of an enforcement waterfall (Figure~\ref{fig:waterfall-enforcement}): \emph{semantic-only} covers reasoning, communication, or output style; \emph{content} covers predicates over file contents; \emph{per-event} covers a single command, file access, or network connection; and \emph{cross-event} covers policies that depend on temporal ordering or data lineage across operations.
 % 每条策略被分类到执行瀑布的第一个匹配层级（图~\ref{fig:waterfall-enforcement}）：\emph{仅语义}涵盖推理、沟通或输出风格；\emph{内容}涵盖文件内容上的谓词；\emph{单事件}涵盖单个命令、文件访问或网络连接；\emph{跨事件}涵盖依赖于跨操作的时间顺序或数据来源的策略。
@@ -171,8 +171,8 @@ Four recurring patterns emerge from these cross-event policies: temporal orderin
 \label{fig:enforcement-by-topic}
 \end{figure}
 
-\paragraph{What Context Is Needed to Instantiate Rules?}
-% \paragraph{实例化规则需要什么上下文？}
+\subsubsection{What Context Is Needed to Instantiate Rules?}
+% \subsubsection{实例化规则需要什么上下文？}
 
 Even policies that target OS events cannot be enforced until abstract references are resolved into concrete paths and commands.
 % 即使针对操作系统事件的策略，在抽象引用被解析为具体路径和命令之前也无法执行。
