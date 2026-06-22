@@ -29,6 +29,41 @@ R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need 
 \label{fig:architecture}
 \end{figure}
 
+\subsection{Threat Model}
+% \subsection{威胁模型}
+
+\sys{} assumes the enforced agent may be unsafe or compromised, so the design separates trusted policy from untrusted execution.
+% \sys{} 假设被执行的智能体可能是不安全的或被入侵的，因此设计将可信策略与不可信执行分离。
+A privileged process loads the kernel enforcement engine and \emph{higher-authority} policy before the agent starts. Because neither is writable by the agent, an adversary's influence is bounded by the agent's normal capabilities.
+% 一个特权进程在智能体启动前加载内核执行引擎和 \emph{更高权限}策略。因为两者对智能体都是不可写的，攻击者的影响被限制在智能体的正常能力范围内。
+The agent may then author additional rules at runtime, following the self-restriction principle of Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
+% 然后智能体可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum} 的自我限制原则。
+The \emph{trust boundary} is temporal, meaning any rule loaded before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
+% \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载的规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
+
+This separation yields two levels of assurance.
+% 这种分离产生两个级别的保证。
+Higher-authority rules carry safety guarantees because the kernel engine is deterministic and its policy is immutable to the agent, so an adversary controlling the agent at policy-generation time can only weaken its own rules, not inherited ones.
+% 更高权限规则承载安全保证，因为内核引擎是确定性的且其策略对智能体不可变，因此在策略生成时控制智能体的攻击者只能削弱自己的规则，而非继承的规则。
+In the worst case, the agent has no self-imposed rules, but inherited constraints remain intact.
+% 最坏情况下，智能体没有自我施加的规则，但继承的约束保持完整。
+Agent-authored runtime rules, by contrast, provide only compliance assistance under a cooperative-but-fallible model.
+% 相比之下，智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助。
+
+Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
+% 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
+Whether a violation is caught depends on the effect: block is synchronous (no TOCTOU gap), kill is post-operation, and notify is observation-only.
+% 是否捕获违规取决于效果：阻止是同步的（无 TOCTOU 间隙），终止是操作后的，通知是仅观察的。
+
+The TCB comprises the kernel enforcement engine and higher-authority policy. The compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
+% TCB 包括内核执行引擎和更高权限策略。编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
+Enforcement covers the agent's entire process tree, including indirect execution paths (subprocesses, shell wrappers) that produce hooked OS events.
+% 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
+Semantically equivalent operations are not covered: a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible.
+% 语义等效操作不被覆盖：一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见。
+File contents, kernel compromise, \texttt{CAP\_BPF} compromise, and side channels are out of scope.
+% 文件内容、内核入侵、\texttt{CAP\_BPF} 入侵和侧信道不在范围内。
+
 \subsection{Policy DSL}
 % \subsection{策略 DSL}
 \label{sec:dsl}
@@ -145,41 +180,6 @@ To ensure no history is lost and cross-event constraints remain checkable for th
 % 为确保不丢失历史记录且跨事件约束在整个会话中保持可检查，标签是 \emph{单调的}：传播添加标签但从不移除它们，因此一旦一个对象携带一个标签，所有后续消费者都会继承它。
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrevocable by default, and declassification is delegated to the domain hierarchy (\S\ref{sec:authority}).
 % 如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密委托给域层次结构（\S\ref{sec:authority}）。
-
-\subsection{Threat Model}
-% \subsection{威胁模型}
-
-\sys{} assumes the enforced agent may be unsafe or compromised, so the design separates trusted policy from untrusted execution.
-% \sys{} 假设被执行的智能体可能是不安全的或被入侵的，因此设计将可信策略与不可信执行分离。
-A privileged process loads the kernel enforcement engine and \emph{higher-authority} policy before the agent starts. Because neither is writable by the agent, an adversary's influence is bounded by the agent's normal capabilities.
-% 一个特权进程在智能体启动前加载内核执行引擎和 \emph{更高权限}策略。因为两者对智能体都是不可写的，攻击者的影响被限制在智能体的正常能力范围内。
-The agent may then author additional rules at runtime, following the self-restriction principle of Landlock~\cite{landlock} and Capsicum~\cite{watson2010capsicum}.
-% 然后智能体可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum} 的自我限制原则。
-The \emph{trust boundary} is temporal, meaning any rule loaded before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
-% \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载的规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
-
-This separation yields two levels of assurance.
-% 这种分离产生两个级别的保证。
-Higher-authority rules carry safety guarantees because the kernel engine is deterministic and its policy is immutable to the agent, so an adversary controlling the agent at policy-generation time can only weaken its own rules, not inherited ones.
-% 更高权限规则承载安全保证，因为内核引擎是确定性的且其策略对智能体不可变，因此在策略生成时控制智能体的攻击者只能削弱自己的规则，而非继承的规则。
-In the worst case, the agent has no self-imposed rules, but inherited constraints remain intact.
-% 最坏情况下，智能体没有自我施加的规则，但继承的约束保持完整。
-Agent-authored runtime rules, by contrast, provide only compliance assistance under a cooperative-but-fallible model.
-% 相比之下，智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助。
-
-Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
-% 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
-Whether a violation is caught depends on the effect: block is synchronous (no TOCTOU gap), kill is post-operation, and notify is observation-only.
-% 是否捕获违规取决于效果：阻止是同步的（无 TOCTOU 间隙），终止是操作后的，通知是仅观察的。
-
-The TCB comprises the kernel enforcement engine and higher-authority policy. The compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
-% TCB 包括内核执行引擎和更高权限策略。编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
-Enforcement covers the agent's entire process tree, including indirect execution paths (subprocesses, shell wrappers) that produce hooked OS events.
-% 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
-Semantically equivalent operations are not covered: a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible.
-% 语义等效操作不被覆盖：一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见。
-File contents, kernel compromise, \texttt{CAP\_BPF} compromise, and side channels are out of scope.
-% 文件内容、内核入侵、\texttt{CAP\_BPF} 入侵和侧信道不在范围内。
 
 \subsection{Layered Policy Domains}
 % \subsection{分层策略域}
