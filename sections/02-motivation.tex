@@ -37,11 +37,11 @@ The snapshot, taken 2026-05-23 UTC, contains 64~repositories with median 20K Git
 
 
 % 一条 \emph{语句}是表达一个主张或约束的连贯单元。
-We extract and validate statements from raw instruction files in three steps. First, a two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels: content type, topic, enforcement level, and context requirement.
+We extract and validate statements from raw instruction files in three steps. (1) A two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels: content type, topic, enforcement level, and context requirement.
 % 一个两遍 LLM 智能体辅助流水线提取了带有源行范围和四个标签的语句：内容类型、主题、执行级别和上下文要求。
-Then, an agent-assisted validation script verified full source coverage and verbatim span matching and was cross-checked by independent Claude and Codex agents.
+(2) A validation script verified full source coverage and verbatim span matching and was cross-checked by independent Claude and Codex agents.
 % 一个验证脚本验证了完整的源覆盖和逐字跨度匹配，并经独立的 Claude 和 Codex 智能体交叉检查。
-A stratified sample of 100~statements was independently reviewed by human annotators, who verified the labels were correct.
+(3) A stratified sample of 100~statements was independently reviewed by human annotators, who verified the labels were correct.
 % 100 条语句的分层样本由人工标注者独立审查，他们验证标签正确。
 Table~\ref{tab:examples} collects representative statements that illustrate all four labels, and \textbf{S1}--\textbf{S8} are referenced throughout.
 % 表~\ref{tab:examples}收集了说明所有四个标签的代表性语句，\textbf{S1}--\textbf{S8} 在全文中被引用。
