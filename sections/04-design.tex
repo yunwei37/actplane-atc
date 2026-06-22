@@ -67,8 +67,14 @@ File contents, kernel compromise, \texttt{CAP\_BPF} compromise, and side channel
 
 The DSL lets agents express policy intent as enforceable system-level constraints.
 % 该 DSL 让智能体将策略意图表达为可执行的系统级约束。
-OS-enforceable policies from the empirical study share a common structure: each constrains how a \emph{source} (a process, a file, or an endpoint) may affect a \emph{target} (a file write, a network connection, or a command execution).
-% 实证研究中的操作系统可执行策略共享一个共同结构：每条约束一个 \emph{源}（一个进程、一个文件或一个端点）如何影响一个 \emph{目标}（一个文件写入、一个网络连接或一个命令执行）。
+OS-enforceable policies from the empirical study share a common structure: each constrains how some system object may affect some operation.
+% 实证研究中的操作系统可执行策略共享一个共同结构：每条约束某个系统对象如何影响某个操作。
+We model this as a source-to-target constraint.
+% 我们将其建模为源到目标的约束。
+A \emph{source} is an object that originates information, such as a process, a file, or a network endpoint.
+% \emph{源}是产生信息的对象，如进程、文件或网络端点。
+A \emph{target} is an operation that consumes or propagates it, such as a file write, a network connection, or a command execution.
+% \emph{目标}是消费或传播信息的操作，如文件写入、网络连接或命令执行。
 Some policies match a single operation while others require cross-event history, so the DSL captures both by mapping each policy to a \emph{rule} expressed as a source-to-target constraint.
 % 一些策略匹配单个操作而其他策略需要跨事件历史，因此 DSL 通过将每条策略映射到表示为源到目标约束的 \emph{规则}来捕获两者。
 
