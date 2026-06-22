@@ -40,8 +40,8 @@ The translator compiled rules for all 607 policies on the first or second attemp
 To validate correctness, we apply the same methodology as the empirical study (\S\ref{sec:empirical}), where two independent LLM agents cross-check all policies and human annotators review 100 randomly selected ones.
 % 为验证正确性，我们采用与实证研究（\S\ref{sec:empirical}）相同的方法论：两个独立的 LLM 智能体交叉检查所有策略，人工标注者审查 100 条随机选择的策略。
 
-Agent-based translation is orders of magnitude cheaper than manual authoring. The full 607-policy corpus cost \$0.028 per policy using 1.7M input tokens and 177k output, compared with roughly \$11 per rule at typical US software-engineer rates.
-% 基于智能体的翻译比人工编写便宜几个数量级。全部 607 条策略语料库每条成本 \$0.028，使用 1.7M 输入 token 和 177k 输出，而按典型美国软件工程师费率约每条规则 \$11。
+Agent-based translation is orders of magnitude cheaper than manual authoring. The full 607-policy dataset cost \$0.028 per policy using 1.7M input tokens and 177k output, compared with roughly \$11 per rule at typical US software-engineer rates.
+% 基于智能体的翻译比人工编写便宜几个数量级。全部 607 条策略数据集每条成本 \$0.028，使用 1.7M 输入 token 和 177k 输出，而按典型美国软件工程师费率约每条规则 \$11。
 The translation completed in 34 minutes using 7 subagents with 4 running in parallel, expanding 607 policies into 1{,}283 rule lines.
 % 翻译使用 7 个子智能体（4 个并行）在 34 分钟内完成，将 607 条策略扩展为 1,283 条规则行。
 
@@ -52,8 +52,8 @@ The translation completed in 34 minutes using 7 subagents with 4 running in para
 Cross-event policies are slightly longer at mean 86 tokens than per-event ones at 62, but both remain well within single-prompt context limits.
 % 跨事件策略略长，均值 86 token，而单事件策略为 62，但两者都在单提示上下文限制范围内。
 
-\noindent\textbf{The corpus exercises most DSL features, validating the language's expressiveness.}
-% \noindent\textbf{该语料库运用了大多数 DSL 特性，验证了语言的表达力。}
+\noindent\textbf{The dataset exercises most DSL features, validating the language's expressiveness.}
+% \noindent\textbf{该数据集运用了大多数 DSL 特性，验证了语言的表达力。}
 Effects skew toward observation, with 66\% of clauses being notify, 29\% block, and only 5\% kill, reflecting that most policies monitor rather than prevent.
 % 效果偏向观察，66\% 的子句是通知，29\% 阻止，仅 5\% 终止，反映出大多数策略监控而非阻止。
 Hooks concentrate on code execution at 60\% exec and file mutation at 37\% write, with network and cleanup operations under 1\% each.
@@ -61,8 +61,8 @@ Hooks concentrate on code execution at 60\% exec and file mutation at 37\% write
 
 Cross-event features see substantial use, with 28\% of policies using an \texttt{after/since} temporal gate and 214 using \texttt{unless} to encode exceptions, while the 95 policies that define file sources demonstrate information-flow tracking beyond simple agent provenance.
 % 跨事件特性使用广泛，28\% 的策略使用 \texttt{after/since} 时间门控，214 条使用 \texttt{unless} 编码例外，而定义文件源的 95 条策略展示了超越简单智能体来源的信息流追踪。
-Only \texttt{declassify}/\texttt{endorse} transforms are unused, as expected, because they address over-tainting in long-running sessions, a scenario absent from this task-oriented corpus.
-% 仅 \texttt{declassify}/\texttt{endorse} 变换未使用，这在预期内，因为它们解决长会话中的过度标记问题，而这种场景在面向任务的语料库中不存在。
+Only \texttt{declassify}/\texttt{endorse} transforms are unused, as expected, because they address over-tainting in long-running sessions, a scenario absent from this task-oriented dataset.
+% 仅 \texttt{declassify}/\texttt{endorse} 变换未使用，这在预期内，因为它们解决长会话中的过度标记问题，而这种场景在面向任务的数据集中不存在。
 
 %% ----------------------------------------------------------------
 \subsection{RQ2: \sys{} Effectiveness for Policy Compliance}
@@ -485,7 +485,7 @@ We introduce \sys{}, which enforces agent intent-level policies at the OS level 
 % 我们引入 \sys{}，它通过 eBPF 在操作系统级别执行智能体意图级策略，并返回语义反馈以实现智能体合规。
 It improves correct violation-trace outcomes by 2.0--3.2$\times$ over prompt-filter, tool-regex, FIDES~\cite{costa2025fides}, and feedback-free kernel IFC, prevents 74\% of baseline-unsafe behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end overhead.
 % 它将正确违规轨迹结果提高到 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}和无反馈内核 IFC 的 2.0--3.2 倍，在 361 个安全任务上阻止了 74\% 的基线不安全行为，并增加 1.9\%--8.4\% 的端到端开销。
-\sys{} targets per-event and cross-event policies, 45\% of the corpus, by design.
-% \sys{} 按设计针对单事件和跨事件策略，占语料库的 45\%。
+\sys{} targets per-event and cross-event policies, 45\% of the dataset, by design.
+% \sys{} 按设计针对单事件和跨事件策略，占数据集的 45\%。
 Content policies are better served by linters and static analyzers.
 % 内容策略更适合由代码检查器和静态分析器处理。
