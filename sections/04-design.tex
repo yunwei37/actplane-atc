@@ -52,15 +52,12 @@ Agent-authored runtime rules, by contrast, provide only compliance assistance un
 
 Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
 % 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
-Whether a violation is caught depends on the effect: block is synchronous (no TOCTOU gap), kill is post-operation, and notify is observation-only.
-% 是否捕获违规取决于效果：阻止是同步的（无 TOCTOU 间隙），终止是操作后的，通知是仅观察的。
-
-The TCB comprises the kernel enforcement engine and higher-authority policy. The compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
-% TCB 包括内核执行引擎和更高权限策略。编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
-Enforcement covers the agent's entire process tree, including indirect execution paths (subprocesses, shell wrappers) that produce hooked OS events.
-% 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径（子进程、shell 包装器）。
-Semantically equivalent operations are not covered: a custom Git client avoids \texttt{exec "git"} rules, but its connect/write syscalls remain visible.
-% 语义等效操作不被覆盖：一个自定义 Git 客户端避开 \texttt{exec "git"} 规则，但其 connect/write 系统调用仍然可见。
+The trusted computing base (TCB) comprises the kernel enforcement engine and higher-authority policy; userspace components such as the compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
+% 可信计算基（TCB）包括内核执行引擎和更高权限策略；用户空间组件如编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
+Enforcement covers the agent's entire process tree, including indirect execution paths such as subprocesses and shell wrappers that produce hooked OS events.
+% 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径如子进程和 shell 包装器。
+Semantically equivalent operations are not covered: a custom Git client avoids command-matching rules like \texttt{exec git}, but its connect/write syscalls remain visible.
+% 语义等效操作不被覆盖：一个自定义 Git 客户端避开命令匹配规则如 \texttt{exec git}，但其 connect/write 系统调用仍然可见。
 File contents, kernel compromise, \texttt{CAP\_BPF} compromise, and side channels are out of scope.
 % 文件内容、内核入侵、\texttt{CAP\_BPF} 入侵和侧信道不在范围内。
 
