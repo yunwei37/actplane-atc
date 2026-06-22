@@ -24,9 +24,8 @@ A \emph{policy} specifies what the agent should do (\emph{instructions}) or shou
 
 To characterize how policies are specified in production agent projects and what enforcement requirements they impose, we conduct an empirical study of 64~popular repositories that contain \texttt{CLAUDE.md} or \texttt{AGENTS.md}.
 % 为了表征策略在生产智能体项目中如何被指定以及它们施加的执行要求，我们对 64 个包含 \texttt{CLAUDE.md} 或 \texttt{AGENTS.md} 的热门仓库进行了实证研究。
-Different from prior studies that analyze instruction files at file- or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}, our study focuses on \emph{statement-level} analysis to understand the enforcement requirements of individual policies, where a \emph{statement} is a coherent unit expressing one claim or constraint. 
-% Zhang et al.~\cite{zhang2026guardrails} further show that negative constraints and positive policies have different effects, but do not analyze enforcement requirements.
-% 与在文件或章节标题粒度分析指令文件的先前研究~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}不同，我们的研究专注于语句级分析，以理解单个策略的执行要求；Zhang 等人~\cite{zhang2026guardrails}进一步表明否定约束和肯定策略具有不同的效果，但未分析执行要求。
+Different from prior studies that analyze instruction files at file- or section-heading granularity~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}, our study focuses on \emph{statement-level} analysis to understand the enforcement requirements of individual policies, where a \emph{statement} is a coherent unit expressing one claim or constraint.
+% 与在文件或章节标题粒度分析指令文件的先前研究~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}不同，我们的研究专注于\emph{语句级}分析，以理解单个策略的执行要求，其中\emph{语句}是表达一个主张或约束的连贯单元。
 Specifically, we aim to answer three questions: (1)~Are instruction files primarily behavioral policies or descriptive context? (2)~Which policies require OS-level enforcement, and what kinds of OS-level checks do they need? (3)~What context is needed to instantiate these policies into concrete, enforceable rules?
 % 具体来说，我们旨在回答三个问题：(1) 指令文件主要是行为策略还是描述性上下文？(2) 哪些策略需要操作系统级执行，需要什么类型的操作系统级检查？(3) 将这些策略实例化为具体可执行规则需要什么上下文？
 
@@ -36,8 +35,9 @@ The snapshot, taken 2026-05-23 UTC, contains 64~repositories with median 20K Git
 % 快照（2026-05-23 UTC）包含 64 个仓库，中位数 20K GitHub 星，84 个指令文件和 2,116 条提取的语句。
 
 
-% 一条 \emph{语句}是表达一个主张或约束的连贯单元。
-We extract and validate statements from raw instruction files in three steps. (1) A two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels: content type, topic, enforcement level, and context requirement.
+We extract and validate statements from raw instruction files in three steps.
+% 我们通过三个步骤从原始指令文件中提取和验证语句。
+(1) A two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels: content type, topic, enforcement level, and context requirement.
 % 一个两遍 LLM 智能体辅助流水线提取了带有源行范围和四个标签的语句：内容类型、主题、执行级别和上下文要求。
 (2) A validation script verified full source coverage and verbatim span matching and was cross-checked by independent Claude and Codex agents.
 % 一个验证脚本验证了完整的源覆盖和逐字跨度匹配，并经独立的 Claude 和 Codex 智能体交叉检查。
