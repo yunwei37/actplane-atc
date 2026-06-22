@@ -175,8 +175,8 @@ If that process later connects to an external endpoint, a rule forbidding that l
 
 To ensure no history is lost and cross-event constraints remain checkable for the entire session, labels are \emph{monotonic}: propagation adds labels but never removes them, so once an object carries a label all subsequent consumers inherit it.
 % 为确保不丢失历史记录且跨事件约束在整个会话中保持可检查，标签是 \emph{单调的}：传播添加标签但从不移除它们，因此一旦一个对象携带一个标签，所有后续消费者都会继承它。
-As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrevocable by default, and declassification is delegated to the domain hierarchy (\S\ref{sec:authority}).
-% 如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密委托给域层次结构（\S\ref{sec:authority}）。
+As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrevocable by default, and declassification (controlled label removal) is delegated to the domain hierarchy (\S\ref{sec:authority}).
+% 如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密（受控的标签移除）委托给域层次结构（\S\ref{sec:authority}）。
 
 \subsection{Layered Policy Domains}
 % \subsection{分层策略域}
@@ -216,8 +216,8 @@ Declassification follows the domain hierarchy, so the author of a rule holds the
 % 解密遵循域层次结构，因此一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
 Inherited safety labels and rules cannot be declassified.
 % 继承的安全标签和规则不能被解密。
-When monotonic labels accumulate excessively (over-tainting), process-level isolation provides a practical mitigation.
-% 当单调标签过度累积（过度标记）时，进程级隔离提供实际的缓解措施。
+When monotonic labels accumulate excessively, objects become overly restricted (over-tainting); spawning a fresh subprocess clears inherited labels, providing a practical mitigation.
+% 当单调标签过度累积时，对象变得过度受限（过度标记）；启动一个新子进程会清除继承的标签，提供实际的缓解措施。
 
 \section{Implementation}
 % \section{实现}
