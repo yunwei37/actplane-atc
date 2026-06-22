@@ -17,7 +17,7 @@ Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/actplane-illustration.pdf}
-    \caption{\sys{} enables the agent closet to the task to write concrete policy DSLs according to the higher authorities' instructions. The DSL is then compiled by \sys{} and enforced inside the OS kernel.}
+    \caption{\sys{} enables the agent closest to the task to write concrete policy DSLs according to the higher authorities' instructions. The DSL is then compiled by \sys{} and enforced inside the OS kernel.}
     \label{fig:actplane-illustration}
 \end{figure}
 
@@ -25,7 +25,7 @@ However, existing policy engines leave a \emph{semantic gap}: \emph{policy inten
 % 然而，现有策略引擎留下了一个 \emph{语义鸿沟}：\emph{策略意图}以欠规范的自然语言表达，但执行必须根据项目或任务上下文对具体的 \emph{系统行为}做出判断。
 For example, as illustrated in Figure~\ref{fig:actplane-illustration}, ``run tests before committing'' requires knowing which test command to run, and ``the worker sub-agent should not delete data files'' needs the sub-agent to locate where the data directories are.
 % ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
-% 例如，"提交前运行测试"需要知道运行哪个测试命令，"审查子智能体只写入其项目目录"需要子智能体的分配范围。
+% 例如，如图~\ref{fig:actplane-illustration}~所示，"提交前运行测试"需要知道运行哪个测试命令，"工作子智能体不应删除数据文件"需要子智能体定位数据目录所在位置。
 Our empirical study of CLAUDE.md and AGENTS.md instruction files in 64~popular projects (\S\ref{sec:empirical}) shows that enforcement must handle context-dependent system actions, with 64\% of statements being policies, 83\% involving system actions, and 74\% depending on context that cannot be pre-defined statically.
 % 我们对 64 个热门项目中 CLAUDE.md 和 AGENTS.md 指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 64\% 的语句是策略，83\% 涉及系统行为，74\% 依赖无法静态预定义的上下文。
 
@@ -55,7 +55,7 @@ Second, agents must not weaken safety constraints from higher authority or affec
 \sys{} is a programmable OS-level policy enforcement system for AI agent harnesses.
 % \sys{} 是一个可编程的操作系统级策略执行系统，用于 AI 智能体 harness。
 \sys{} provides a simple DSL for agents to express policies as deterministic kernel checks, such as \texttt{kill exec "git" "commit" unless after exec "go" "test" exits 0} (Figure~\ref{fig:actplane-illustration}).
-% \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{deny exec "git" "commit" unless after exec "npm" "test"}。
+% \sys{} 提供一个简单的 DSL，让智能体将策略表达为确定性内核检查，例如 \texttt{kill exec "git" "commit" unless after exec "go" "test" exits 0}（图~\ref{fig:actplane-illustration}）。
 To enforce policies with event ordering or data flow, \sys{} compiles DSL rules into an eBPF engine that uses information-flow control (IFC), attaching labels that mark which sources have influenced each object and propagating them across process, file, and network operations.
 % 为了执行具有事件顺序或数据流的策略，\sys{} 将 DSL 规则编译到使用信息流控制（IFC）的 eBPF 引擎中，附加标记哪些源影响了每个对象的标签，并跨进程、文件和网络操作传播它们。
 Policies that express constraints use \texttt{block} or \texttt{kill} to deny violations with semantic feedback, while policies that express instructions use \texttt{notify} to guide the agent, e.g., ``blocked: commit without tests; run npm test first.''
