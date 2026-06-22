@@ -3622,8 +3622,8 @@
 \apptocmd{\@vspacer}{\ClassWarning{\@classname}{\string\vspace\space should
     only be used to provide space above/below surrounding
     objects}}{}{}
-\let\@vspace@acm=\@vspace
-\let\@vspacer@acm=\@vspacer
+\let\@vspace@acm=\@vspace@orig
+\let\@vspacer@acm=\@vspacer@orig
 \let\ACM@origbaselinestretch\baselinestretch
 \AtEndDocument{\ifx\baselinestretch\ACM@origbaselinestretch\else
   \ClassError{\@classname}{An attempt to redefine

@@ -29,7 +29,7 @@ Different from prior studies that analyze instruction files at file- or section-
 Specifically, we aim to answer three questions: (1)~Are instruction files primarily behavioral policies or descriptive context? (2)~Which policies require OS-level enforcement, and what kinds of OS-level checks do they need? (3)~What context is needed to instantiate these policies into concrete, enforceable rules?
 % 具体来说，我们旨在回答三个问题：(1) 指令文件主要是行为策略还是描述性上下文？(2) 哪些策略需要操作系统级执行，需要什么类型的操作系统级检查？(3) 将这些策略实例化为具体可执行规则需要什么上下文？
 
-We collected public GitHub repositories containing \texttt{CLAUDE.md} or \texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025 and excluding non-code, inactive, fake-star, and stub repositories.
+\PHB{Dataset.} We collected public GitHub repositories containing \texttt{CLAUDE.md} or \texttt{AGENTS.md}, prioritizing AI-agent projects created after 2025 and excluding non-code, inactive, fake-star, and stub repositories.
 % 我们收集了包含 \texttt{CLAUDE.md} 或 \texttt{AGENTS.md} 的公开 GitHub 仓库，优先考虑 2025 年后创建的 AI 智能体项目，并排除非代码、不活跃、刷星和占位仓库。
 The snapshot, taken 2026-05-23 UTC, contains 64~repositories with median 20K GitHub stars, 84 instruction files, and 2{,}116~extracted statements.
 % 快照（2026-05-23 UTC）包含 64 个仓库，中位数 20K GitHub 星，84 个指令文件和 2,116 条提取的语句。
@@ -47,7 +47,7 @@ Table~\ref{tab:examples} collects representative statements that illustrate all 
 % 表~\ref{tab:examples}收集了说明所有四个标签的代表性语句，\textbf{S1}--\textbf{S8} 在全文中被引用。
 
 \begin{table*}[t]
-\caption{Representative statements illustrating all four labels. Enforcement level and context requirement apply only to policies (---\,=\,not applicable).}
+\caption{Representative statements illustrating all four labels. Enforcement level and context requirement apply only to policies (``---'' indicates not applicable).}
 % \caption{说明所有四个标签的代表性语句。执行级别和上下文要求仅适用于策略（---\,=\,不适用）。}
 \label{tab:examples}
 \centering
@@ -79,22 +79,9 @@ S8 & ``Do not update dependencies without approval.'' & Dir & Maint. & Per-event
 % \Description{研究中八条代表性语句的表格，每条按类型、主题、执行级别和上下文要求分类。}
 \end{table*}
 
-\subsubsection{Are Instruction Files Behavioral Policies?}
+% \subsubsection{Are Instruction Files Behavioral Policies?}
 % \subsubsection{指令文件是行为策略吗？}
-
-A statement is a \emph{policy} if it asks the agent to perform, avoid, or condition an action, and is otherwise descriptive context.
-% 如果一条语句要求智能体执行、避免或条件化一个行为，它就是一条 \emph{策略}，否则是描述性上下文。
-Of the 2{,}116~statements, 64\% are policies and 36\% are descriptions (Figure~\ref{fig:empirical-rq1}).
-% 在 2,116 条语句中，64\% 是策略，36\% 是描述（图~\ref{fig:empirical-rq1}）。
-
-\noindent\textbf{Instruction files are mainly policies, with the median repository at 71\%.}
-% \noindent\textbf{指令文件主要是策略，中位数仓库达到 71\%。}
-75\% of repositories have a policy fraction above 50\%.
-% 75\% 的仓库有超过 50\% 的策略比例。
-At the extremes, one repository is entirely descriptive while another is 97\% policies.
-% 在极端情况下，一个仓库完全是描述性的，而另一个是 97\% 策略。
-Line-based metrics miss this because descriptions average 6.8 lines while policies average 3.6, so line counts show only 49\% policies.
-% 按行统计会遗漏这一点，因为描述平均 6.8 行而策略平均 3.6 行，所以按行数只显示 49\% 是策略。
+\PHM{Q1: Are Instruction Files Behavioral Policies?} We categorize a statement as a \emph{policy} if it requires, forbids, or conditions an agent action; otherwise, we label it as descriptive context. Policies dominate at both statement and repository granularity. Across 2,116 statements, 64\% are policies and 36\% are descriptions (Figure 2). Across repositories, 75\% have more policy statements than descriptive statements. However, the mix varies widely: one repository contains no policies, while another contains 97\% policies.
 
 \begin{figure}[t]
 \centering
@@ -106,12 +93,29 @@ Line-based metrics miss this because descriptions average 6.8 lines while polici
 \label{fig:empirical-rq1}
 \end{figure}
 
-To understand how policies distribute across topics, we assign each statement to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}).
-% 为了理解策略如何分布在各主题上，我们将每条语句分配到 12 个主题类别之一，这些类别改编自先前的指令文件研究~\cite{chatlatanagulchai2025agentreadmes}，应用于语句粒度而非文件粒度（图~\ref{fig:empirical-rq2}）。
+To understand how policies distribute across topics, we assign each statement to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}). We find that Development Process and Implementation Details are policy-heavy at 87\% and 85\% respectively, while Architecture is mostly descriptive at 23\%  because these sections are dominated by directory layouts and design summaries. 
 
-\noindent\textbf{Policy density ranges from 0\% in System Overview to 87\% in Development Process.}
+\begin{tcolorbox}[colback=blue!5!white,colframe=gray!75!black,left=1mm, right=1mm, top=0.5mm, bottom=0.5mm, arc=1mm]
+\textbf{Takeaway \#1:} Instruction files are primarily behavioral policies (64\% statements), but their policy density varies across repositories and topics.
+\end{tcolorbox}
+
+% In this study, we categorize a statement as a \emph{policy} if it asks the agent to perform, avoid, or condition an action, and otherwise a descriptive context.
+% At the per-statement level, 64\% of the 2{,}116~statements are policies and 36\% are descriptions (Figure~\ref{fig:empirical-rq1}). At the repository level, 75\% of repositories have a policy fraction above 50\%.
+% Although instruction files are mainly policies, the fraction of policies diverges among repositories due to their various topics. At the extremes, one repository is entirely descriptive while another is 97\% policies.
+
+% 如果一条语句要求智能体执行、避免或条件化一个行为，它就是一条 \emph{策略}，否则是描述性上下文。
+% 在 2,116 条语句中，64\% 是策略，36\% 是描述（图~\ref{fig:empirical-rq1}）。
+% \noindent\textbf{Instruction files are mainly policies, with the median repository at 71\%.}
+% \noindent\textbf{指令文件主要是策略，中位数仓库达到 71\%。}
+% 75\% 的仓库有超过 50\% 的策略比例。
+% 在极端情况下，一个仓库完全是描述性的，而另一个是 97\% 策略。
+% Line-based metrics miss this because descriptions average 6.8 lines while policies average 3.6, so line counts show only 49\% policies.
+% 按行统计会遗漏这一点，因为描述平均 6.8 行而策略平均 3.6 行，所以按行数只显示 49\% 是策略。
+
+% To understand how policies distribute across topics, we assign each statement to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}). We find that Development Process and Implementation Details are policy-heavy at 87\% and 85\% respectively, while Architecture is mostly descriptive at 23\% because directory layouts and design summaries dominate by line count.
+% 为了理解策略如何分布在各主题上，我们将每条语句分配到 12 个主题类别之一，这些类别改编自先前的指令文件研究~\cite{chatlatanagulchai2025agentreadmes}，应用于语句粒度而非文件粒度（图~\ref{fig:empirical-rq2}）。
+% \noindent\textbf{Policy density ranges from 0\% in System Overview to 87\% in Development Process.}
 % \noindent\textbf{策略密度从系统概述的 0\% 到开发流程的 87\% 不等。}
-Development Process and Implementation Details are policy-heavy at 87\% and 85\% respectively, while Architecture is mostly descriptive at 23\% because directory layouts and design summaries dominate by line count.
 % 开发流程和实现细节是策略密集的，分别为 87\% 和 85\%，而架构主要是描述性的，为 23\%，因为目录布局和设计摘要在行数上占主导。
 
 \begin{figure}[t]
@@ -124,37 +128,26 @@ Development Process and Implementation Details are policy-heavy at 87\% and 85\%
 \label{fig:empirical-rq2}
 \end{figure}
 
-\subsubsection{Which Policies Require OS-Level Enforcement?}
-% \subsubsection{哪些策略需要操作系统级执行？}
 
+% \subsubsection{哪些策略需要操作系统级执行？}
+\PHM{Q2: Which Policies Require OS-Level Enforcement?}
 Intuitively, some policies in instruction files are semantic-only requirements (e.g., ``please write comments for each function''), while others require OS-level enforcement (e.g., ``don't delete data'').
 % 直观地说，指令文件中的一些策略是仅语义的要求（例如，"请为每个函数写注释"），而另一些则需要操作系统级执行（例如，"不要删除数据"）。
 A natural question is how to categorize them and identify which require OS-level enforcement.
 % 一个自然的问题是如何对它们进行分类，并识别哪些需要操作系统级执行。
 
-Each policy is classified into the first matching tier of an enforcement waterfall (Figure~\ref{fig:waterfall-enforcement}): \emph{semantic-only} covers reasoning, communication, or output style; \emph{content} covers predicates over file contents; \emph{per-event} covers a single command, file access, or network connection; and \emph{cross-event} covers policies that depend on temporal ordering or data lineage across operations.
+To separate the two, we classify each policy into the first matching tier of an enforcement waterfall(Figure~\ref{fig:waterfall-enforcement}): \emph{semantic-only} covers reasoning, communication, or output style; \emph{content} covers predicates over file contents; \emph{per-event} covers a single command, file access, or network connection; and \emph{cross-event} covers policies that depend on temporal ordering or data lineage across operations.
 % 每条策略被分类到执行瀑布的第一个匹配层级（图~\ref{fig:waterfall-enforcement}）：\emph{仅语义}涵盖推理、沟通或输出风格；\emph{内容}涵盖文件内容上的谓词；\emph{单事件}涵盖单个命令、文件访问或网络连接；\emph{跨事件}涵盖依赖于跨操作的时间顺序或数据来源的策略。
 We call the union of content, per-event, and cross-event policies \emph{system-observable}, and the per-event and cross-event subset that \sys{} can enforce at OS hooks is \emph{OS-enforceable}.
 % 我们将内容、单事件和跨事件策略的并集称为 \emph{系统可观察}，\sys{} 可以在操作系统钩子上执行的单事件和跨事件子集是 \emph{操作系统可执行}。
 
-\noindent\textbf{83\% of policies constrain system actions.}
+% \noindent\textbf{83\% of policies constrain system actions.}
 % \noindent\textbf{83\% 的策略约束系统行为。}
-Of 1{,}361~policies, 17\% are semantic-only, 38\% require content inspection, 29\% match a single OS event, and 16\% require cross-event state. Table~\ref{tab:examples} S2--S7 illustrate all four levels.
-% 在 1,361 条策略中，17\% 是仅语义的，38\% 需要内容检查，29\% 匹配单个操作系统事件，16\% 需要跨事件状态。表~\ref{tab:examples} S2--S7 说明所有四个级别。
-Content inspection alone covers 55.4\% of policies, adding per-event matching reaches 84.2\%, and the remaining 15.8\% require cross-event IFC.
-% 仅内容检查覆盖 55.4\% 的策略，加上单事件匹配达到 84.2\%，剩余的 15.8\% 需要跨事件 IFC。
-
-\noindent\textbf{Cross-event policies concentrate in Development Process, which accounts for 39.5\% of all cross-event policies (Figure~\ref{fig:enforcement-by-topic}).}
-% \noindent\textbf{跨事件策略集中在开发流程，占所有跨事件策略的 39.5\%（图~\ref{fig:enforcement-by-topic}）。}
-Four recurring patterns emerge from these cross-event policies: temporal ordering constrains sequencing, as in ``run tests before committing''; cross-file consistency links changes across artifacts, as in ``update docs when behavior changes''; multi-step workflows enforce release checklists with verification gates; and conditional triggers couple operations, as in ``if you change specs, also update SDK.'' All four require tracking event ordering or data flow because the engine must record what ran, in what order, and what has changed since.
-% 这些跨事件策略出现四种反复模式：时间顺序约束排序，如"提交前运行测试"；跨文件一致性链接跨工件的变更，如"行为变化时更新文档"；多步骤工作流执行带有验证门的发布清单；条件触发器耦合操作，如"如果你更改规范，也要更新 SDK"。所有四种都需要追踪事件顺序或数据流，因为引擎必须记录运行了什么、以什么顺序、以及从那时起发生了什么变化。
-
-\noindent\textbf{At the repository level, 81\% of repositories contain at least one cross-event policy, and 43\% require all four enforcement layers.}
-% \noindent\textbf{在仓库级别，81\% 的仓库包含至少一条跨事件策略，43\% 需要所有四个执行层级。}
+Given these tiers, we examine how the collected policies distribute across them. Of 1{,}361~policies, only 17\% are semantic-only; the remaining 83\% are system-observable (38\% require content inspection, 29\% match a single OS event, and 16\% require cross-event state).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\columnwidth]{figures/empirical-waterfall-enforcement.pdf}
+\includegraphics[width=\columnwidth]{figures/empirical-waterfall-enforcement-horizontal.pdf}
 \caption{Enforcement-level waterfall. Each policy exits at the first matching tier.}
 % \caption{执行级别瀑布。每条策略在第一个匹配层级退出。}
 \Description{Flowchart showing the enforcement-level waterfall decision procedure with four outcomes: semantic-only, content, per-event, cross-event.}
@@ -164,7 +157,7 @@ Four recurring patterns emerge from these cross-event policies: temporal orderin
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/empirical_rq3_enforcement_by_topic.pdf}
+\includegraphics[width=0.9\columnwidth]{figures/empirical_rq3_enforcement_by_topic.pdf}
 \caption{Enforcement profile by topic, normalized. Topics exhibit distinct archetypes, and cross-event policies concentrate in Development Process.}
 % \caption{按主题的执行概况，已归一化。主题呈现出不同的原型，跨事件策略集中在开发流程。}
 \Description{Stacked horizontal bar chart showing the normalized enforcement-level breakdown for each topic category.}
@@ -172,35 +165,63 @@ Four recurring patterns emerge from these cross-event policies: temporal orderin
 \label{fig:enforcement-by-topic}
 \end{figure}
 
-\subsubsection{What Context Is Needed to Instantiate Rules?}
-% \subsubsection{实例化规则需要什么上下文？}
+Although most policies are enforceable based on a single event, a non-trivial 16\% cross-event tail is not. These cross-event policies dominated by development workflows, where Development Process accounts for 39.5\% (Figure~\ref{fig:enforcement-by-topic}). These policies follow four recurring patterns: \emph{temporal ordering} constrains sequencing (``run tests before committing''); \emph{cross-file consistency} links changes across artifacts (``update docs when behavior changes''); \emph{multi-step workflows} enforce release checklists with verification gates; and \emph{conditional triggers} couple operations (``if you change specs, also update the SDK''). None can be decided from a single event: enforcement must record what ran, in what order, and what has changed since. Such policies are widespread, with 81\% of repositories containing at least one cross-event policy and 43\% spanning all four enforcement tiers.
 
-Even policies that target OS events cannot be enforced until abstract references are resolved into concrete paths and commands.
+\begin{tcolorbox}[colback=blue!5!white,colframe=gray!75!black,left=1mm, right=1mm, top=0.5mm, bottom=0.5mm, arc=1mm]
+\textbf{Takeaway \#2:} 83\% of policies are system-observable. Most of these are decidable from a single event, but 16\% are \emph{cross-event}, requiring event ordering or data flow monitoring, and appear in most repositories.
+\end{tcolorbox}
+
+% Table~\ref{tab:examples} S2--S7 illustrate all four levels.
+% 在 1,361 条策略中，17\% 是仅语义的，38\% 需要内容检查，29\% 匹配单个操作系统事件，16\% 需要跨事件状态。表~\ref{tab:examples} S2--S7 说明所有四个级别。
+% Content inspection alone covers 55.4\% of policies, adding per-event matching reaches 84.2\%, and the remaining 15.8\% require cross-event IFC.
+% 仅内容检查覆盖 55.4\% 的策略，加上单事件匹配达到 84.2\%，剩余的 15.8\% 需要跨事件 IFC。
+
+% \noindent\textbf{Cross-event policies concentrate in Development Process, which accounts for 39.5\% of all cross-event policies (Figure~\ref{fig:enforcement-by-topic}).}
+% \noindent\textbf{跨事件策略集中在开发流程，占所有跨事件策略的 39.5\%（图~\ref{fig:enforcement-by-topic}）。}
+% Four recurring patterns emerge from these cross-event policies: temporal ordering constrains sequencing, as in ``run tests before committing''; cross-file consistency links changes across artifacts, as in ``update docs when behavior changes''; multi-step workflows enforce release checklists with verification gates; and conditional triggers couple operations, as in ``if you change specs, also update SDK.'' All four require tracking event ordering or data flow because the engine must record what ran, in what order, and what has changed since.
+% 这些跨事件策略出现四种反复模式：时间顺序约束排序，如"提交前运行测试"；跨文件一致性链接跨工件的变更，如"行为变化时更新文档"；多步骤工作流执行带有验证门的发布清单；条件触发器耦合操作，如"如果你更改规范，也要更新 SDK"。所有四种都需要追踪事件顺序或数据流，因为引擎必须记录运行了什么、以什么顺序、以及从那时起发生了什么变化。
+
+% \noindent\textbf{At the repository level, 81\% of repositories contain at least one cross-event policy, and 43\% require all four enforcement layers.}
+% \noindent\textbf{在仓库级别，81\% 的仓库包含至少一条跨事件策略，43\% 需要所有四个执行层级。}
+
+
+% \subsubsection{实例化规则需要什么上下文？}
+\PHM{Q3: What Context Is Needed to Instantiate Rules?} A policy that targets an OS event still cannot be enforced until its abstract references resolve into \emph{concrete paths and commands} (e.g., ``run the test suite'' is not actionable until one knows which test command that is). We therefore classify each system-observable policy by the context an enforcement mechanism needs beyond the policy text (Figure~\ref{fig:waterfall-context}): \emph{self-contained}, if all commands, paths, and patterns are explicit; \emph{project context}, if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context}, if it depends on the current request or a per-session grant such as ``unless explicitly requested'' or ``without approval''.
+
+Most policies are not self-contained. Of the 1{,}127 system-observable policies, only 26.4\% are self-contained; 64.2\% require project context, where concepts such as ``the test suite'' or ``upstream source'' must be resolved against the repository, and the remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}). In Table~\ref{tab:examples}, S4 is self-contained, S5--S7 require project context, and S8 requires task context.
+
+Cross-event policies are both the most stateful and the most context-dependent. These policies are 95\% context-dependent (77\% project, 19\% task), against 58\% for content policies. The two difficulties thus compound: the policies that require tracking state across events are also the ones that rarely specify the concrete commands and paths needed to write the rule. As a result, a fixed set of static rules can cover only the self-contained fraction; instantiating the rest requires reading the repository and interpreting the current task before any check can run.
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=gray!75!black,left=1mm, right=1mm, top=0.5mm, bottom=0.5mm, arc=1mm]
+\textbf{Takeaway \#3:} Most system-observable policies (73.6\%) are \emph{not} self-contained, which must be resolved against the repository or the live task. Context-dependence is highest for the cross-event policies (95\%) that are already hardest to enforce.
+\end{tcolorbox}
+
+% Even policies that target OS events cannot be enforced until abstract references are resolved into concrete paths and commands.
 % 即使针对操作系统事件的策略，在抽象引用被解析为具体路径和命令之前也无法执行。
-Each system-observable policy is therefore classified by what additional context an enforcement mechanism needs beyond the policy text itself (Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all commands, paths, and patterns are explicit; \emph{project context} if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context} if it depends on the current user request or a per-session grant such as ``unless explicitly requested'' or ``without approval.''
+% Each system-observable policy is therefore classified by what additional context an enforcement mechanism needs beyond the policy text itself (Figure~\ref{fig:waterfall-context}): \emph{self-contained} if all commands, paths, and patterns are explicit; \emph{project context} if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context} if it depends on the current user request or a per-session grant such as ``unless explicitly requested'' or ``without approval.''
 % 每条系统可观察的策略按执行机制除了策略文本本身还需要什么额外上下文来分类（图~\ref{fig:waterfall-context}）：如果所有命令、路径和模式都是显式的，则为 \emph{自包含}；如果它引用一个未解析的仓库特定概念如"完整测试套件"或"迁移工具"，则为 \emph{项目上下文}；如果它依赖于当前用户请求或每会话授权如"除非明确请求"或"未经批准"，则为 \emph{任务上下文}。
 
-\noindent\textbf{74\% of system-observable policies require project or task context to instantiate as concrete rules.}
+% \noindent\textbf{74\% of system-observable policies require project or task context to instantiate as concrete rules.}
 % \noindent\textbf{74\% 的系统可观察策略需要项目或任务上下文才能实例化为具体规则。}
-Of the 1{,}127~system-observable policies, only 26.4\% are self-contained.
+% Of the 1{,}127~system-observable policies, only 26.4\% are self-contained.
 % 在 1,127 条系统可观察的策略中，只有 26.4\% 是自包含的。
-Another 64.2\% require project context because the policy mentions ``the test suite,'' ``the linter,'' or ``upstream source,'' whose concrete command or path needs to be resolved from the repository.
+% Another 64.2\% require project context because the policy mentions ``the test suite,'' ``the linter,'' or ``upstream source,'' whose concrete command or path needs to be resolved from the repository.
 % 另外 64.2\% 需要项目上下文，因为策略提到"测试套件"、"代码检查器"或"上游源码"，其具体命令或路径需要从仓库中解析。
-The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}); in Table~\ref{tab:examples}, S4 is self-contained, S5--S7 require project context, and S8 requires task context.
+% The remaining 9.4\% require task context (Figure~\ref{fig:empirical-rq4}); in Table~\ref{tab:examples}, S4 is self-contained, S5--S7 require project context, and S8 requires task context.
 % 剩余 9.4\% 需要任务上下文（图~\ref{fig:empirical-rq4}）；在表~\ref{tab:examples} 中，S4 是自包含的，S5--S7 需要项目上下文，S8 需要任务上下文。
 
-\noindent\textbf{Cross-event policies are 95\% context-dependent, compared to 58\% for content policies.}
+% \noindent\textbf{Cross-event policies are 95\% context-dependent, compared to 58\% for content policies.}
 % \noindent\textbf{跨事件策略 95\% 依赖上下文，相比之下内容策略为 58\%。}
-Of cross-event policies, 77\% require project context and 19\% task context, totaling 95\%, while content policies are only 58\% context-dependent.
+% Of cross-event policies, 77\% require project context and 19\% task context, totaling 95\%, while content policies are only 58\% context-dependent.
 % 在跨事件策略中，77\% 需要项目上下文，19\% 需要任务上下文，共 95\%，而内容策略只有 58\% 依赖上下文。
-This compounds the enforcement challenge because policies that require cross-event IFC rarely specify the concrete commands and paths needed to write the rule.
+% This compounds the enforcement challenge because policies that require cross-event IFC rarely specify the concrete commands and paths needed to write the rule.
 % 这加剧了执行挑战，因为需要跨事件 IFC 的策略很少指定编写规则所需的具体命令和路径。
-Generic static rules can cover only the self-contained fraction, and the majority require the agent itself to read the repository, interpret the current task, and produce a concrete policy before enforcement begins.
+% Generic static rules can cover only the self-contained fraction, and the majority require the agent itself to read the repository, interpret the current task, and produce a concrete policy before enforcement begins.
 % 通用静态规则只能覆盖自包含的部分，大多数需要智能体自己读取仓库、解释当前任务，并在执行开始前生成具体策略。
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.78\columnwidth]{figures/empirical-waterfall-context.pdf}
+\includegraphics[width=0.8\columnwidth]{figures/empirical-waterfall-context-horizontal.pdf}
 \caption{Context-requirement waterfall. Each system-level policy exits at the first matching tier.}
 % \caption{上下文要求瀑布。每条系统级策略在第一个匹配层级退出。}
 \Description{Flowchart showing the context-requirement waterfall with three outcomes: none, project, task.}
@@ -220,7 +241,7 @@ Generic static rules can cover only the self-contained fraction, and the majorit
 
 \subsection{Why Existing Approaches Fall Short}
 % \subsection{为何现有方法不足}
-Given most policies requires OS-level enforcement, while a large fraction of them contains complex dependencies, existing enforcement falls into two categories.
+Given most policies requires OS-level enforcement, while a non-trivial fraction of them contains complex dependencies, existing enforcement falls into two categories.
 % 现有执行分为两类。
 Above the OS, prompt instructions rely on the model's own compliance capabilities~\cite{liu2024lost,jiang2024followbench,qi2025agentif} but are vulnerable to prompt injection~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}.
 % 在操作系统之上，提示词指令依赖于模型自身的遵循能力~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，但容易受到提示词注入攻击~\cite{greshake2023indirectprompt,zhan2024injecagent,debenedetti2024agentdojo}。

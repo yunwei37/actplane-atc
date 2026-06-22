@@ -5,7 +5,7 @@
 \sys{} is a harness-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a challenge: designing a high-level yet kernel-enforceable DSL, and enabling runtime adaptation without weakening security.
 % \sys{} 是一个 harness 无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个挑战：设计一个高级但可内核执行的 DSL，以及在不削弱安全性的情况下启用运行时适配。
 
-\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address R1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, and an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address R2's safety, efficiency, and isolation, \sys{} compiles rules into config and uses layered policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
+\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address R1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, a compiler that compiles these DSL rules into eBPF programs that can be enforced in the OS kernel, and an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address R2's safety, efficiency, and isolation, \sys{} compiles rules into config and uses hierarchical policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
 % \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：为解决 R1，\sys{} 使用策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，以及信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态；为解决 R2 的安全性、效率和隔离性，\sys{} 将规则编译为配置，并使用分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（\S\ref{sec:eval:rq3}）。
 
 \begin{figure}[t]
@@ -99,30 +99,32 @@ An \texttt{exits~$N$} qualifier further requires the gating command to have term
 % 一个 \texttt{exits~$N$} 限定符进一步要求门控命令以退出码~$N$ 终止，区分成功运行与崩溃或失败的运行。
 
 \begin{figure}[t]
-\begin{verbatim}
-source AGENT = exec "claude"
+\centering
+\includegraphics[width=0.9\linewidth]{figures/dsl-example.pdf}
+% \begin{verbatim}
+% source AGENT = exec "claude"
 
-# Per-event: from cloudflare/moltworker
-rule no-delete-data:
-  block unlink "/data/moltbot/**" if AGENT
-  because "Never delete R2 data;
-    the mount IS the bucket."
+% # Per-event: from cloudflare/moltworker
+% rule no-delete-data:
+%   block unlink "/data/moltbot/**" if AGENT
+%   because "Never delete R2 data;
+%     the mount IS the bucket."
 
-# Cross-event: from chenhg5/cc-connect
-rule tests-before-commit:
-  kill exec "git" "commit"
-    if AGENT unless after exec "go" "test" exits 0
-      since write "**/*.go"
-  because "Run `go test ./...` before committing."
+% # Cross-event: from chenhg5/cc-connect
+% rule tests-before-commit:
+%   kill exec "git" "commit"
+%     if AGENT unless after exec "go" "test" exits 0
+%       since write "**/*.go"
+%   because "Run `go test ./...` before committing."
 
-# Cross-event notify: from vxcontrol/pentagi
-rule regen-after-schema:
-  notify exec "git" "commit"
-    if AGENT unless after exec "gqlgen"
-      since write "**/schema.graphqls"
-  because "Re-run gqlgen after schema changes."
-\end{verbatim}
-\caption{Three \sys{} rules drawn from real projects: a per-event block, a cross-event kill gate, and a cross-event notify gate.}
+% # Cross-event notify: from vxcontrol/pentagi
+% rule regen-after-schema:
+%   notify exec "git" "commit"
+%     if AGENT unless after exec "gqlgen"
+%       since write "**/schema.graphqls"
+%   because "Re-run gqlgen after schema changes."
+% \end{verbatim}
+\caption{Three \sys{} DSL rule examples drawn from real projects: a per-event block (no-delete-data), a cross-event kill gate (tests-before-commit), and a cross-event notify gate (regen-after-schema).}
 % \caption{三条来自真实项目的 \sys{} 规则：一个单事件阻止、一个跨事件终止门控和一个跨事件通知门控。}
 \Description{Code listing of three \sys{} rules from real projects.}
 % \Description{来自真实项目的三条 \sys{} 规则的代码清单。}
@@ -173,7 +175,7 @@ To ensure no history is lost and cross-event constraints remain checkable for th
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrevocable by default, and declassification (controlled label removal) is delegated to the domain hierarchy (\S\ref{sec:authority}).
 % 如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密（受控的标签移除）委托给域层次结构（\S\ref{sec:authority}）。
 
-\subsection{Layered Policy Domains}
+\subsection{Hierarchical Policy Domains}
 % \subsection{分层策略域}
 \label{sec:authority}
 
@@ -233,7 +235,7 @@ A scheduler tracepoint reads the task exit code to arm exit-qualified gates only
 % 一个调度器 tracepoint 读取任务退出码，仅在以指定状态正常终止时激活退出限定门控。
 Userspace does not re-detect violations but only formats kernel-reported matches into semantic feedback.
 % 用户空间不重新检测违规，仅将内核报告的匹配格式化为语义反馈。
-The engine supports up to 128 concurrent rules, exceeding the largest observed repository's 66 policies and leaving room for layered domains.
+The engine supports up to 128 concurrent rules, exceeding the largest observed repository's 66 policies and leaving room for hierarchical domains.
 % 引擎支持最多 128 条并发规则，超过观察到的最大仓库的 66 条策略，并为分层域留有余量。
 
 The runner compiles and loads policy before the target starts, seeds the agent label, and records kernel-reported matches in a feedback file for agent hooks to relay to the model.

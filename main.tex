@@ -1,5 +1,6 @@
 \documentclass[sigplan,10pt]{acmart}
 
+\usepackage[most]{tcolorbox}
 \setcopyright{none}
 \renewcommand\footnotetextcopyrightpermission[1]{}
 \settopmatter{printfolios=true}
@@ -20,6 +21,8 @@
 \definecolor{YZColor}{HTML}{009900}
 \newcommand{\yuzheng}[1]{\ifcomments\textcolor{YZColor}{[[YZ: #1]]}\fi}
 
+\newcommand{\PHB}[1]{\noindent\textbf{#1}\hspace{.5em}} % paragraph at the beginning
+\newcommand{\PHM}[1]{\vspace{.4em} \noindent\textbf{#1}\hspace{.5em}} % paragraph in the middle
 
 % \title[\sys{}]{\sys{}: Letting Agents Harness Their Own System-Level Behavior with eBPF}
 % \title[\sys{}]{\sys{}: Programmable OS-Level IFC Policy Enforcement for AI Agent Harnesses}
