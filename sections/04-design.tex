@@ -2,22 +2,11 @@
 % \section{设计}
 \label{sec:design}
 
-\sys{} is a harness-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a key challenge:
-% \sys{} 是一个 harness 无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个关键挑战：
+\sys{} is a harness-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a challenge: (C1) designing a high-level yet kernel-enforceable DSL, and (C2) enabling runtime adaptation without weakening security.
+% \sys{} 是一个 harness 无关的、可编程的操作系统级策略执行系统，设计用于满足上述两项要求，每项都提出一个挑战：(C1) 设计一个高级但可内核执行的 DSL，以及 (C2) 在不削弱安全性的情况下启用运行时适配。
 
-\textbf{C1: High-level yet kernel-enforceable policy specification} (\S\ref{sec:dsl}, \S\ref{sec:ifc}).
-% \textbf{C1：高级但可内核执行的策略规范}（\S\ref{sec:dsl}、\S\ref{sec:ifc}）。
-The specification must be \emph{high-level} enough for agents to write intent with minimal expertise, reducing cost and errors, yet \emph{concrete} enough to compile to deterministic kernel checks.
-% 规范必须足够 \emph{高级} 使智能体能以最少的专业知识编写意图，减少成本和出错的机会，同时又足够 \emph{具体} 以编译为确定性内核检查。
-
-\textbf{C2: Safe, isolated, and efficient agent programmability} (\S\ref{sec:authority}).
-% \textbf{C2：安全的、隔离的和高效的智能体可编程性}（\S\ref{sec:authority}）。
-R2 requires agents to adapt IFC policies at runtime, since a sub-agent may need a narrower scope or the current task may require a new constraint. Such adaptation must not affect other agents' policies, weaken inherited constraints, or slow the agent's normal workload.
-% R2 要求智能体在运行时调整 IFC 策略，因为一个子智能体可能需要更窄的范围，或当前任务可能需要一个新的约束。这种调整不能影响其他智能体的策略、削弱继承的约束或减慢智能体的正常工作负载。
-
-
-\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address C1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, and an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address C2's safety, efficiency, and isolation, \sys{} compiles rules into config and uses layered policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
-% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：为解决 C1，\sys{} 使用策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，以及信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态；为解决 C2 的安全性、效率和隔离性，\sys{} 将规则编译为配置，并使用分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（\S\ref{sec:eval:rq3}）。
+\sys{} addresses these challenges with three abstractions (Figure~\ref{fig:architecture}): to address R1, \sys{} uses a policy DSL (\S\ref{sec:dsl}) that lets agents express policy intent in a form close to natural language, and an information-flow model (\S\ref{sec:ifc}) that tracks cross-event state at OS level; to address R2's safety, efficiency, and isolation, \sys{} compiles rules into config and uses layered policy domains (\S\ref{sec:authority}) that let agents adapt policy at runtime without weakening inherited constraints (\S\ref{sec:eval:rq3}).
+% \sys{} 通过三个抽象解决这些挑战（图~\ref{fig:architecture}）：为解决 R1，\sys{} 使用策略 DSL（\S\ref{sec:dsl}）让智能体以接近自然语言的形式表达策略意图，以及信息流模型（\S\ref{sec:ifc}）在操作系统级别追踪跨事件状态；为解决 R2 的安全性、效率和隔离性，\sys{} 将规则编译为配置，并使用分层策略域（\S\ref{sec:authority}）让智能体在运行时调整策略而不削弱继承的约束（\S\ref{sec:eval:rq3}）。
 
 \begin{figure}[t]
 \centering
