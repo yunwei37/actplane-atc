@@ -146,8 +146,8 @@ Content inspection alone covers 55.4\% of policies, adding per-event matching re
 
 \noindent\textbf{Cross-event policies concentrate in Development Process, which accounts for 39.5\% of all cross-event policies (Figure~\ref{fig:enforcement-by-topic}).}
 % \noindent\textbf{跨事件策略集中在开发流程，占所有跨事件策略的 39.5\%（图~\ref{fig:enforcement-by-topic}）。}
-Four recurring patterns emerge from these cross-event policies: temporal ordering constrains sequencing, as in ``run tests before committing''; cross-file consistency links changes across artifacts, as in ``update docs when behavior changes''; multi-step workflows enforce release checklists with verification gates; and conditional triggers couple operations, as in ``if you change specs, also update SDK.'' All four require state that spans multiple operations because the engine must track what ran, in what order, and what has changed since.
-% 这些跨事件策略出现四种反复模式：时间顺序约束排序，如"提交前运行测试"；跨文件一致性链接跨工件的变更，如"行为变化时更新文档"；多步骤工作流执行带有验证门的发布清单；条件触发器耦合操作，如"如果你更改规范，也要更新 SDK"。所有四种都需要跨越多个操作的状态，因为引擎必须追踪运行了什么、以什么顺序、以及从那时起发生了什么变化。
+Four recurring patterns emerge from these cross-event policies: temporal ordering constrains sequencing, as in ``run tests before committing''; cross-file consistency links changes across artifacts, as in ``update docs when behavior changes''; multi-step workflows enforce release checklists with verification gates; and conditional triggers couple operations, as in ``if you change specs, also update SDK.'' All four require tracking event ordering or data flow because the engine must record what ran, in what order, and what has changed since.
+% 这些跨事件策略出现四种反复模式：时间顺序约束排序，如"提交前运行测试"；跨文件一致性链接跨工件的变更，如"行为变化时更新文档"；多步骤工作流执行带有验证门的发布清单；条件触发器耦合操作，如"如果你更改规范，也要更新 SDK"。所有四种都需要追踪事件顺序或数据流，因为引擎必须记录运行了什么、以什么顺序、以及从那时起发生了什么变化。
 
 \noindent\textbf{At the repository level, 81\% of repositories contain at least one cross-event policy, and 43\% require all four enforcement layers.}
 % \noindent\textbf{在仓库级别，81\% 的仓库包含至少一条跨事件策略，43\% 需要所有四个执行层级。}
@@ -241,8 +241,8 @@ These findings establish two requirements for a policy engine in AI agent harnes
 % \emph{R1：智能体可编写的、操作系统可执行的策略规范。}
 Most rules need project or task context that resides with the agent, so the agent itself must be able to turn policies into concrete rules with minimal expertise, reducing cost and errors, and it needs semantic feedback to understand violations and recover.
 % 大多数规则需要存在于智能体处的项目或任务上下文，因此智能体自身必须能够以最少的专业知识将策略转化为具体规则，减少成本和错误，并且它需要语义反馈来理解违规并恢复。
-Yet many policies constrain system actions that span multiple operations and are invisible to tool-call guardrails, so the rules must be concrete enough for deterministic OS-level cross-event enforcement.
-% 然而许多策略约束跨越多个操作的系统行为，这对工具调用护栏是不可见的，因此规则必须足够具体以进行确定性操作系统级跨事件执行。
+Yet many policies define event ordering or data flow and are invisible to tool-call guardrails, so the rules must be concrete enough for deterministic OS-level cross-event enforcement.
+% 然而许多策略定义事件顺序或数据流，这对工具调用护栏是不可见的，因此规则必须足够具体以进行确定性操作系统级跨事件执行。
 
 \emph{R2: safe, isolated, and efficient enforcement.}
 % \emph{R2：安全的、隔离的和高效的执行。}
