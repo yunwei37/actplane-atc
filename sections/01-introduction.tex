@@ -8,16 +8,17 @@ Besides the LLM, agents require \emph{harnesses}, software layers around the mod
 
 
 A major component of the harness is a \emph{policy engine}, which observes and enforces instructions and constraints (e.g., run tests before commit) over the agent's concrete actions.
-% harness 的一个主要组件是 \emph{策略引擎}，它观察并对智能体的具体行为执行指令和约束。
+% harness 的一个主要组件是 \emph{策略引擎}，它观察并对智能体的具体行为执行指令和约束（例如，提交前运行测试）。
 Projects encode many such policies in instruction files (e.g., \texttt{CLAUDE.md}, \texttt{AGENTS.md})~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}, so harnesses can provide them to the model directly.
 % 项目在指令文件（例如 \texttt{CLAUDE.md}、\texttt{AGENTS.md}）中编码许多此类策略~\cite{chatlatanagulchai2025manifests,chatlatanagulchai2025agentreadmes,santos2025claudeconfig,lulla2026agentsmd}，因此 harness 可以直接将它们提供给模型。
 Because LLMs comply with instructions probabilistically~\cite{liu2024lost,jiang2024followbench,qi2025agentif} and may violate them due to planning errors, prompt-injection drift, and tool or script side-effects~\cite{greshake2023indirectprompt,zhan2024injecagent}, harnesses require deterministic policy engines to enforce compliance~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}.
-% 因为 LLM 概率性地遵循指令~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并可能由于规划错误、提示词注入漂移和工具或脚本副作用而违反它们~\cite{greshake2023indirectprompt,zhan2024injecagent}，harness 还需要确定性策略引擎来强制合规~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}。
+% 因为 LLM 概率性地遵循指令~\cite{liu2024lost,jiang2024followbench,qi2025agentif}，并可能由于规划错误、提示词注入漂移和工具或脚本副作用而违反它们~\cite{greshake2023indirectprompt,zhan2024injecagent}，harness 需要确定性策略引擎来强制合规~\cite{rebedea2023nemo,wang2025agentspec,debenedetti2025camel}。
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/actplane-illustration.pdf}
     \caption{\sys{} enables the agent closest to the task to write concrete policy DSLs according to its intent or the higher authorities' instructions. The DSL is then compiled by \sys{} and enforced inside the OS kernel.}
+    % \caption{\sys{} 使最接近任务的智能体能够根据其意图或更高权限的指令编写具体的策略 DSL。然后 DSL 由 \sys{} 编译并在操作系统内核中执行。}
     \label{fig:actplane-illustration}
 \end{figure}
 

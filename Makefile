@@ -9,7 +9,7 @@ STANDALONE_FIGURE_TEX := $(shell for f in figures/*.tex; do head -n 1 "$$f" | gr
 STANDALONE_FIGURE_PDFS := $(STANDALONE_FIGURE_TEX:.tex=.pdf)
 STATIC_FIGURES := $(filter-out $(STANDALONE_FIGURE_PDFS),$(wildcard figures/*.pdf figures/*.png))
 
-.PHONY: all paper abstract figures clean clean-figures distclean
+.PHONY: all paper abstract figures clean clean-figures distclean arxiv
 
 all: figures paper abstract
 
@@ -42,3 +42,13 @@ clean-figures:
 
 distclean: clean
 	rm -f main.pdf extended-abstract.pdf $(STANDALONE_FIGURE_PDFS)
+
+arxiv: main.pdf
+	rm -rf arxiv-submission
+	mkdir -p arxiv-submission/sections arxiv-submission/figures
+	cp main.tex main.bbl acmart.cls ACM-Reference-Format.bst arxiv-submission/
+	cp $(SECTION_TEX) arxiv-submission/sections/
+	cp $(wildcard figures/*.pdf figures/*.png) arxiv-submission/figures/
+	cd arxiv-submission && zip -r ../arxiv-submission.zip .
+	rm -rf arxiv-submission
+	@echo "Created arxiv-submission.zip"
