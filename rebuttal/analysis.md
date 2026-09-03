@@ -6,7 +6,7 @@
 
 使用 academic-writing-skills/domain-skills/rebuttal/SKILL.md 及 references/workflow.md。输出只有本分析及 rebuttal.md；问题、证据、承诺、审计都在本文件。评审先于论文进入上下文，因此不声称完成 blind review；不执行 iter-review-critique 的盲审循环。
 
-2026-08-31，作者在获知 actplane-atc 为公开仓库且草稿含评审引文后，明确授权 commit/push。本文件与 rebuttal.md 随该授权提交到论文仓库，完整评审原文仍只保留在本地私有记录。精确投稿 PDF 由已登录 Chrome 下载并核对 HotCRP checksum。读远端源码只作证据，不重跑实验、不启动服务、不编译代码。
+2026-08-31，作者在获知 actplane-atc 为公开仓库且草稿含评审引文后，明确授权 commit/push。本文件与 rebuttal.md 随该授权提交到论文仓库，完整评审原文 rebuttal/reviews.txt 现已提交到本公开仓库。精确投稿 PDF 由已登录 Chrome 下载并核对 HotCRP checksum。读远端源码只作证据，不重跑实验、不启动服务、不编译代码。
 
 
 投稿: https://atc26.hotcrp.com/u/1/paper/479
@@ -104,6 +104,8 @@ Round 1（覆盖与事实）：12 问对应 concern board；保留 12 条评审�
 Round 2（过度声称与承诺）：去掉整会话自动 taint、持久化、绝对安全和 FP 已解决的暗示；保留 26/28 为 failed-trace repair，非 held-out generalization；无新增实验/公开/改稿承诺。
 
 Round 3（写作与词数）：每个实质 Response 为 3-4 句，无写作指令混入英文回应；最终计数见 rebuttal.md，未进入 HotCRP 输入框。最终状态 draft-ready / not submission-ready；Q6 逐 trace 解释和高权限生成边界仍待作者确认。
+
+2026-09-02 语言与直接性修订：Q1-Q12 的 Response 均改为 direct-answer-first 结构，评审引文与数字保持不变，并落实 Q1/Q6/Q8/Q12 的直接性修正；最终作者说明已纠正，当前 Response 按空白分隔计数为 896 words。
 
 ## Follow-up log
 
