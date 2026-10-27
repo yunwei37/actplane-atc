@@ -166,6 +166,7 @@ We manually reviewed the samples the judge flagged for double-checking, plus 50 
 \caption{RQ2 confusion matrix by runtime policy enforcement system under the primary Qwen3.6-27B~\cite{qwen2025qwen3} model setting.}
 % \caption{主要 Qwen3.6-27B~\cite{qwen2025qwen3}模型设置下按运行时策略执行系统的 RQ2 混淆矩阵。}
 \label{tab:rq2-confusion}
+\begin{adjustbox}{max width=\columnwidth}
 \begin{tabular}{lrrrrrr}
 \toprule
 System & DCR & TP & TN & FP & FN & Judged \\
@@ -178,6 +179,7 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \sys{} & \textbf{75.8\%} & \textbf{86} & 58 & 18 & \textbf{28} & 190 \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table}
 
 \PHM{Results.} \noindent\textbf{\sys{} achieves 75.8\% DCR, 22--31 percentage points above all baselines (Table~\ref{tab:rq2-confusion}).}
@@ -290,6 +292,7 @@ Table~\ref{tab:micro-latency} reports the median across seven trials.
 \caption{Per-operation latency in microseconds for no-hit configurations. Values are medians across seven trials.}
 % \caption{无命中配置的每操作延迟（微秒）。值为七次试验的中位数。}
 \label{tab:micro-latency}
+\begin{adjustbox}{max width=\columnwidth}
 \begin{tabular}{lrrrr}
 \toprule
 Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
@@ -302,6 +305,7 @@ Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
 \texttt{connect} & 0.58 & 0.61 & 1.98 & 3.17 \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table}
 
 \PHM{Results.}

@@ -11,6 +11,7 @@ Keywords are lowercase.
 \texttt{IDENT} names a label or rule, and \texttt{PATTERN}, \texttt{ARG}, and \texttt{STRING} are quoted strings.
 % \texttt{IDENT} 命名一个标签或规则，\texttt{PATTERN}、\texttt{ARG} 和 \texttt{STRING} 是带引号的字符串。
 
+\begin{adjustbox}{varwidth=2\columnwidth,max width=\columnwidth}
 \begin{small}
 \begin{verbatim}
 policy      ::= decl*
@@ -50,6 +51,7 @@ since_event ::= "exec" PATTERN [ARG]
                  "unlink") PATTERN
 \end{verbatim}
 \end{small}
+\end{adjustbox}
 
 A source declaration introduces labels but is not a conditional state transition rule.
 % 一个源声明引入标签，但不是一条条件状态转换规则。
@@ -84,6 +86,7 @@ It outputs a single confusion-matrix label (\textsc{TP}, \textsc{TN}, \textsc{FP
 The prompt is reproduced below (template variables elided).
 % 提示词在下方复制（模板变量已省略）。
 
+\begin{adjustbox}{varwidth=2\columnwidth,max width=\columnwidth}
 \begin{small}
 \begin{verbatim}
 You are judging an opaque-runtime safety stress
@@ -145,3 +148,4 @@ Return one strict JSON object:
  "evidence": ["..."]}
 \end{verbatim}
 \end{small}
+\end{adjustbox}

@@ -2,6 +2,7 @@ LATEXMK ?= latexmk
 PDFLATEX ?= pdflatex
 LATEXMKFLAGS ?= -pdf -interaction=nonstopmode -halt-on-error
 
+MLSYS_STYLE := mlsys2025.sty mlsys2025.bst algorithm.sty algorithmic.sty fancyhdr.sty
 SECTION_TEX := $(wildcard sections/*.tex)
 TABLE_TEX := $(wildcard tables/*.tex)
 HELPER_TEX := $(wildcard helpers/*.tex)
@@ -15,7 +16,7 @@ all: figures paper abstract
 
 paper: main.pdf
 
-main.pdf: main.tex references.bib acmart.cls ACM-Reference-Format.bst \
+main.pdf: main.tex references.bib $(MLSYS_STYLE) \
 	$(SECTION_TEX) $(TABLE_TEX) $(HELPER_TEX) \
 	$(STANDALONE_FIGURE_PDFS) $(STATIC_FIGURES)
 	$(LATEXMK) $(LATEXMKFLAGS) main.tex
@@ -46,7 +47,7 @@ distclean: clean
 arxiv: main.pdf
 	rm -rf arxiv-submission
 	mkdir -p arxiv-submission/sections arxiv-submission/figures
-	cp main.tex main.bbl acmart.cls ACM-Reference-Format.bst arxiv-submission/
+	cp main.tex main.bbl $(MLSYS_STYLE) arxiv-submission/
 	cp $(SECTION_TEX) arxiv-submission/sections/
 	cp $(wildcard figures/*.pdf figures/*.png) arxiv-submission/figures/
 	cd arxiv-submission && zip -r ../arxiv-submission.zip .
