@@ -68,8 +68,6 @@ On a decision-compliance benchmark, \sys{} resolves 2.0--3.2$\times$ more policy
 % 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}（工具级 IFC）和无反馈内核 IFC 多 2.0--3.2 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
 On a safety benchmark of 361 personal-assistant tasks, \sys{} prevents 74\% of baseline-unsafe behaviors by loading agent-generated safety policies as higher-authority rules before task execution.
 % 在一个包含 361 个个人助理任务的安全基准上，\sys{} 通过在任务执行前将智能体生成的安全策略作为更高权限规则加载，阻止了 74\% 的基线不安全行为。
-\sys{} is open-sourced at \url{https://github.com/eunomia-bpf/ActPlane}.
-% \sys{} 已在 \url{https://github.com/eunomia-bpf/ActPlane} 开源。
 
 
 To summarize, we make three contributions:

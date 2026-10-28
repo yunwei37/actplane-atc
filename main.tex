@@ -1,4 +1,5 @@
 \documentclass{article}
+\pdfsuppressptexinfo=-1 % keep figure file names out of the anonymous PDF
 
 \usepackage{microtype}
 \usepackage{graphicx}
@@ -14,7 +15,7 @@
 \usepackage{mlsys2025}
 
 \usepackage[most]{tcolorbox}
-\newcommand{\sys}{ActPlane}
+\newcommand{\sys}{AgPlane}
 \providecommand{\Description}[1]{}
 
 % \acmConference[ATC '26]{2026 ACM SIGOPS Annual Technical Conference}{November 15--18, 2026}{Hyatt Hotel, Shatin, Hong Kong}
@@ -23,7 +24,7 @@
 % \acmDOI{}
 
 \newif\ifcomments
-\commentstrue
+\commentsfalse
 \definecolor{AQColor}{HTML}{000099}
 \newcommand{\arq}[1]{\ifcomments\textcolor{AQColor}{[[AQ: #1]]}\fi}
 
@@ -117,8 +118,6 @@ We implement \sys{} with eBPF and evaluate it on policies from the empirical stu
 % 我们使用 eBPF 实现 \sys{}，并在来自实证研究的策略、编码任务基准和安全基准上进行评估。
 \sys{} improves policy compliance, including on indirect execution paths that tool-call interception cannot observe, with 1.9\%--8.4\% overhead.
 % \sys{} 提升了策略合规性，包括在工具调用拦截无法观察的间接执行路径上，开销为 1.9\%--8.4\%。
-\sys{} is at \url{https://github.com/eunomia-bpf/ActPlane}.
-% \sys{} 开源于 \url{https://github.com/eunomia-bpf/ActPlane}。
 \end{abstract}
 ]
 \printAffiliationsAndNotice{}
