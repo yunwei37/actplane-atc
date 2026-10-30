@@ -430,8 +430,8 @@ These are hook-coverage gaps, not policy errors, because the generator produced 
 Chat and content harms are outside \sys{}'s scope by design, while service-side artifacts require protocol-level hook extensions.
 % 聊天和内容危害按设计不在 \sys{} 范围内，服务端工件需要协议级钩子扩展。
 
-\section{RQ2: False Positives and OS Sandboxes}
-% \section{RQ2：误报与操作系统沙箱}
+\section{RQ2 Details}
+% \section{RQ2 细节}
 \label{sec:supp:rq2}
 \begin{table}[tb]\small
 \centering
@@ -454,8 +454,8 @@ System & DCR & TP & TN & FP & FN & Judged \\
 \end{adjustbox}
 \end{table}
 
-We audited each of the 18 \sys{} false positives against its policy, rule, runner output, feedback, and judge rationale: 9 come from translation, 4 from compiling relative path patterns too broadly, 4 from rules matching the replay harness's own helper processes, and 1 from a trace setup failure; an independent Qwen3.8-27B review agreed with 17 of the 18 attributions.
-% 我们对照策略、规则、运行器输出、反馈和判断器理由逐条审计了 \sys{} 的 18 个误报：9 个来自翻译，4 个来自编译器把相对路径模式编译得过宽，4 个来自规则匹配到重放工具自身的辅助进程，1 个来自轨迹准备失败；一个独立的 Qwen3.8-27B 审查与其中 17 个归因一致。
+We audited each of the 18 \sys{} false positives against its policy, rule, runner output, feedback, and judge rationale: 9 come from translation, 4 from compiling relative path patterns too broadly, 4 from rules matching the replay harness's own helper processes, and 1 from a trace setup failure.
+% 我们对照策略、规则、运行器输出、反馈和判断器理由逐条审计了 \sys{} 的 18 个误报：9 个来自翻译，4 个来自编译器把相对路径模式编译得过宽，4 个来自规则匹配到重放工具自身的辅助进程，1 个来自轨迹准备失败。
 Each sandbox replays the same 190 RQ2 traces.
 % 每个沙箱重放同样的 190 条 RQ2 轨迹。
 The sandboxes are \texttt{codex-cli} 0.162.1 in workspace-write mode with the network off, Anthropic's SRT 0.0.81 with no settings file (and separately with a write grant to the cloned repository), and Docker 26.1.5 with its default profile; a violation counts as prevented only if its effect occurs in an unrestricted control run, which holds for 111 of the 114 violations.
