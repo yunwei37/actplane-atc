@@ -154,8 +154,8 @@ Cross-event rules, 18 of 38, widen the gap further because tool-call baselines l
 % \noindent\textbf{智能体可以从失败中学习，一次修订将检测率从 77.2\% 提高到 94.7\%。}
 We decompose violation-trace outcomes into \emph{detection rate}, the fraction of 114 violation traces on which enforcement triggered, and \emph{recovery rate}, the fraction of detected violations where the agent subsequently complied.
 % 我们将违规轨迹结果分解为 \emph{检测率}，即 114 条违规轨迹中执行触发的比例，和 \emph{恢复率}，即检测到的违规中智能体随后合规的比例。
-Translation quality drives both rates because rules that are too narrow miss violations, whereas rules that are too broad match compliant actions, causing 17 of the 18 false positives, 9 of them from translation (Appendix~\ref{sec:supp:rq2}).
-% 翻译质量驱动这两个比率，因为过窄的规则会遗漏违规，而过宽的规则会匹配合规操作，导致 18 个误报中的 17 个，其中 9 个来自翻译（附录~\ref{sec:supp:rq2}）。
+Rule precision drives both rates because rules that are too narrow miss violations, whereas rules that are too broad match compliant actions, causing 17 of the 18 false positives.
+% 规则精度驱动这两个比率，因为规则过窄会遗漏违规，而规则过宽会匹配合规操作，导致 18 个误报中的 17 个。
 
 To measure improvability, we feed each false-negative trace's evidence and corrective feedback to the translation agent and let it revise the rule once.
 % 为衡量可改进性，我们将每条假阴性轨迹的证据和纠正反馈提供给翻译智能体，让其修订规则一次。

@@ -360,10 +360,12 @@ Each sandbox replays the same 190 RQ2 traces.
 % 每个沙箱重放同样的 190 条 RQ2 轨迹。
 The sandboxes are \texttt{codex-cli} 0.162.1 in workspace-write mode with the network off, Anthropic's SRT 0.0.81 with no settings file (and separately with a write grant to the cloned repository), and Docker 26.1.5 with its default profile; a violation counts as prevented only if its effect occurs in an unrestricted control run, which holds for 111 of the 114 violations.
 % 沙箱为关闭网络、workspace-write 模式的 \texttt{codex-cli} 0.162.1，没有配置文件的 Anthropic SRT 0.0.81（另有一组授予克隆仓库写权限），以及使用默认配置的 Docker 26.1.5；只有当违规效果在无限制的对照运行中确实发生时才算作被阻止，114 个违规中有 111 个满足这一条件。
-By trace family (37 each), Codex prevents 5, 5, and 5 direct, script, and hidden violations, SRT's defaults 28, 37, and 28, SRT with the write grant 0, 33, and 0, and Docker none.
-% 按轨迹类别（每类 37 条），Codex 分别阻止 5、5、5 个 direct、script、hidden 违规，SRT 默认配置为 28、37、28，授予写权限的 SRT 为 0、33、0，Docker 一个也没有。
-Codex's 15 preventions all come from its protected Git metadata; with the write grant that Claude Code's enabled sandbox uses, SRT prevents 33 and denies 1 compliant trace, but the 33 block writes to temporary paths outside the workspace, not the prohibited actions.
-% Codex 的 15 个阻止全部来自其受保护的 Git 元数据；授予 Claude Code 启用沙箱时相同的写权限后，SRT 阻止 33 个、误拒 1 条合规轨迹，但这 33 个拦的是对工作区外临时路径的写入，而不是被禁止的操作。
+By trace family (37 each), Codex prevents 5, 5, and 5 direct, script, and hidden violations, SRT's defaults 28, 37, and 28, and Docker none.
+% 按轨迹类别（每类 37 条），Codex 分别阻止 5、5、5 个 direct、script、hidden 违规，SRT 默认配置为 28、37、28，Docker 一个也没有。
+Codex's 15 preventions all come from its protected Git metadata.
+% Codex 的 15 个阻止全部来自其受保护的 Git 元数据。
+With the write grant that Claude Code's sandbox uses, SRT blocks only incidental writes to temporary paths outside the workspace, not the prohibited actions, and denies 1 compliant trace.
+% 授予 Claude Code 沙箱所用的写权限后，SRT 只附带拦下对工作区外临时路径的写入，而不是被禁止的操作，并误拒 1 条合规轨迹。
 
 \section{Over-Tainting}
 % \section{过度标记}
@@ -372,8 +374,8 @@ Because labels are monotonic, a broadly specified source can make \sys{} block b
 % 由于标签是单调的，宽泛指定的源可能使 \sys{} 阻止良性工作。
 With a policy that blocks new IPv4 connections after a process opens a credential file, generic filename globs such as \texttt{**/*.pem} falsely block 12 of 51 covered commands in three networked Terminal-Bench~2.0~\cite{terminalbench2} tasks and about 2.9\% of calls in the 40 trajectories of \S\ref{sec:indirect}, mostly after reads of public certificates.
 % 对于一个在进程打开凭证文件后阻止其新 IPv4 连接的策略，\texttt{**/*.pem} 这类通用文件名通配在三个联网的 Terminal-Bench~2.0~\cite{terminalbench2}任务中错误阻止了 51 条被覆盖命令中的 12 条，在 \S\ref{sec:indirect} 的 40 条轨迹中错误阻止了约 2.9\% 的调用，主要发生在读取公共证书之后。
-Scoping the sources to the task's credential files reduces this to 1 of 67 and 0, and task success stays at 2/3 in every condition.
-% 把源限定为任务的凭证文件后，误干预降到 67 条中的 1 条和 0，且每种条件下任务成功率都保持 2/3。
+Scoping the sources to the task's credential files reduces this to 1 of 67 and 0.
+% 把源限定为任务的凭证文件后，误干预降到 67 条中的 1 条和 0。
 Broad sources use globs such as \texttt{**/*.env}, \texttt{**/*.pem}, \texttt{**/*.key}, and \texttt{**/*id\_rsa}; narrowed sources list the task's credential paths, such as \texttt{/app/.env}; the three networked tasks are \texttt{build-cython-ext}, \texttt{git-multibranch}, and \texttt{pypi-server}.
 % 宽泛源使用 \texttt{**/*.env}、\texttt{**/*.pem}、\texttt{**/*.key} 和 \texttt{**/*id\_rsa} 等通配；收窄源列出任务的凭证路径，例如 \texttt{/app/.env}；三个联网任务是 \texttt{build-cython-ext}、\texttt{git-multibranch} 和 \texttt{pypi-server}。
 With \texttt{source SECRET = file "/session.env"} and \texttt{notify connect endpoint "*" if SECRET} on Linux~6.8, a lineage that read the file triggers 1, 5, and 20 notifications for 1, 5, and 20 later connections and a descendant 5 of 5, while a clean lineage and a sibling started after the reader exits trigger none.
