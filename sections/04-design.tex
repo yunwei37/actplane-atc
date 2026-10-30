@@ -29,6 +29,8 @@ The agent may then author additional rules at runtime, following the self-restri
 % 然后智能体可以在运行时编写额外规则，遵循 Landlock~\cite{landlock} 和 Capsicum~\cite{watson2010capsicum} 的自我限制原则。
 The \emph{trust boundary} is temporal, meaning any rule loaded before the enforced agent starts is higher-authority, regardless of whether a human or a separate policy-generation agent authored it.
 % \emph{信任边界}是时间性的，即任何在被执行智能体启动前加载的规则都是更高权限的，无论是人工还是独立的策略生成智能体编写的。
+The author can be the agent itself before it reads untrusted content, a parent agent, or a dedicated policy agent.
+% 编写者可以是读取不可信内容之前的智能体自身、父智能体，也可以是专门的策略智能体。
 
 This separation yields two levels of assurance.
 % 这种分离产生两个级别的保证。
@@ -139,6 +141,8 @@ Figure~\ref{fig:policy-example} illustrates three rules drawn from real projects
 % \texttt{tests-before-commit} 添加了一个跨事件终止门控，因此只有当 \texttt{go test} 在最近的源写入后运行并成功退出（\texttt{exits~0}）时，提交才被允许。
 \texttt{regen-after-schema} uses a notify effect instead, guiding the agent to re-run the code generator before committing after a schema change.
 % \texttt{regen-after-schema} 使用一个通知效果，指导智能体在模式更改后提交前重新运行代码生成器。
+In all three rules, \texttt{if AGENT} restricts the rule to processes that carry the \texttt{AGENT} label, which the runner seeds on the agent's root process and which propagates to its descendants (\S\ref{sec:ifc}).
+% 在这三条规则中，\texttt{if AGENT} 将规则限定于携带 \texttt{AGENT} 标签的进程，该标签由运行器播种在智能体的根进程上并传播到其后代（\S\ref{sec:ifc}）。
 Appendix~\ref{sec:appendix:dsl-grammar} gives the concrete grammar.
 % 附录~\ref{sec:appendix:dsl-grammar}给出具体语法。
 
@@ -211,10 +215,12 @@ Accepted deltas are merged into the domain's effective policy.
 % 接受的增量被合并到域的有效策略中。
 Declassification follows the domain hierarchy, so the author of a rule holds the declassification privilege and can disable it and clear its labels within the authoring domain and descendants.
 % 解密遵循域层次结构，因此一条规则的作者持有解密特权，并可以在编写域及后代中禁用它并清除其标签。
+In the DSL, \texttt{declassify SECRET by exec "P"} designates a program \texttt{P} that the author trusts to sanitize data.
+% 在 DSL 中，\texttt{declassify SECRET by exec "P"} 指定作者信任能净化数据的程序 \texttt{P}。
 Inherited safety labels and rules cannot be declassified.
 % 继承的安全标签和规则不能被解密。
-When monotonic labels accumulate excessively, objects become overly restricted (over-tainting); spawning a fresh subprocess clears inherited labels, providing a practical mitigation.
-% 当单调标签过度累积时，对象变得过度受限（过度标记）；启动一个新子进程会清除继承的标签，提供实际的缓解措施。
+When monotonic labels accumulate excessively, objects become overly restricted (over-tainting), but labels attach to the reading process lineage and the files it writes, not to the whole session: a sibling that never read the source stays clean, so secret-reading steps can run in fresh subprocesses (Appendix~\ref{sec:supp:utility}).
+% 当单调标签过度累积时，对象变得过度受限（过度标记），但标签附着在读取进程的谱系及其写入的文件上，而非整个会话：从未读取该源的兄弟进程保持干净，因此读取秘密的步骤可以在新子进程中运行（附录~\ref{sec:supp:utility}）。
 
 \section{Implementation}
 % \section{实现}
@@ -235,8 +241,8 @@ A scheduler tracepoint reads the task exit code to arm exit-qualified gates only
 % 一个调度器 tracepoint 读取任务退出码，仅在以指定状态正常终止时激活退出限定门控。
 Userspace does not re-detect violations but only formats kernel-reported matches into semantic feedback.
 % 用户空间不重新检测违规，仅将内核报告的匹配格式化为语义反馈。
-The engine supports up to 128 concurrent rules, exceeding the largest observed repository's 66 policies and leaving room for hierarchical domains.
-% 引擎支持最多 128 条并发规则，超过观察到的最大仓库的 66 条策略，并为分层域留有余量。
+The engine supports up to 128 concurrent rules, enough for the OS-enforceable policies of 360 of the 362 observed repositories; the largest has 141.
+% 引擎支持最多 128 条并发规则，足以容纳观察到的 362 个仓库中 360 个仓库的操作系统可执行策略；最大的仓库有 141 条。
 
 The runner compiles and loads policy before the target starts, seeds the agent label, and records kernel-reported matches in a feedback file for agent hooks to relay to the model.
 % 运行器在目标启动前编译并加载策略，播种智能体标签，并在反馈文件中记录内核报告的匹配，供智能体钩子传递给模型。

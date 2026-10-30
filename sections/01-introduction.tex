@@ -27,15 +27,17 @@ However, existing policy engines leave a \emph{semantic gap}: \emph{policy inten
 For example, as illustrated in Figure~\ref{fig:actplane-illustration}, ``run tests before committing'' requires knowing which test command to run, and ``the worker sub-agent should not delete data files'' needs the sub-agent to locate where the data directories are.
 % ``the reviewer sub-agent only writes to its project directory'' needs the sub-agent's assigned scope.
 % 例如，如图~\ref{fig:actplane-illustration}~所示，"提交前运行测试"需要知道运行哪个测试命令，"工作子智能体不应删除数据文件"需要子智能体定位数据目录所在位置。
-Our empirical study of CLAUDE.md and AGENTS.md instruction files in 64~popular projects (\S\ref{sec:empirical}) shows that enforcement must handle context-dependent system actions, with 64\% of statements being policies, 83\% involving system actions, and 74\% depending on context that cannot be pre-defined statically.
-% 我们对 64 个热门项目中 CLAUDE.md 和 AGENTS.md 指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 64\% 的语句是策略，83\% 涉及系统行为，74\% 依赖无法静态预定义的上下文。
+Our empirical study of instruction files such as CLAUDE.md and AGENTS.md in 362~popular projects (\S\ref{sec:empirical}) shows that enforcement must handle context-dependent system actions, with 58\% of statements being policies, 88\% involving system actions, and 59\% depending on context that cannot be pre-defined statically.
+% 我们对 362 个热门项目中 CLAUDE.md、AGENTS.md 等指令文件的实证研究（\S\ref{sec:empirical}）表明执行层必须处理依赖上下文的系统操作，其中 58\% 的语句是策略，88\% 涉及系统行为，59\% 依赖无法静态预定义的上下文。
 
 Existing approaches fall short.
 % 现有方法存在不足。
 Tool-call guardrails~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel} miss indirect system actions that bypass the tool layer, such as a \texttt{git~commit} inside a script the agent wrote earlier.
 % 工具调用护栏~\cite{xiang2025guardagent,wang2025agentspec,shi2025progent,costa2025fides,debenedetti2025camel}会遗漏绕过工具层的间接系统操作，例如智能体之前编写的脚本中的 \texttt{git~commit}。
-OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) expect static pre-defined policy, control resource access instead of actions, and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
-% 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）需要静态预定义的策略，控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
+For example, in public agent trajectories, 45.7\% of writes to tracked project files are not named in the triggering tool call, so tool-call guardrails cannot check them (\S\ref{sec:indirect}).
+% 在公开的智能体轨迹中，对已跟踪项目文件的写入有 45.7\% 没有出现在触发它的工具调用中，因此工具调用护栏无法检查这些写入（\S\ref{sec:indirect}）。
+OS-level enforcement systems (e.g., sandboxes~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}) typically expect static pre-defined policy, control resource access instead of actions, and return opaque denials (e.g., \texttt{EPERM}) without explaining which policy was violated or how to comply.
+% 操作系统级执行系统（例如沙箱~\cite{seccomp-bpf,apparmor,landlock,ciliumtetragon,gvisor}）通常需要静态预定义的策略，控制资源访问而非操作，并返回不透明的拒绝（例如 \texttt{EPERM}），而不解释违反了哪条策略或如何合规。
 
 To bridge the gap, we argue that an agent-harness policy engine should let agents define policies and enforce them at the OS level, where all execution paths are visible including subprocesses and shell-outs that bypass tool-call interception.
 % 为弥合这一鸿沟，我们主张智能体 harness 策略引擎应该让智能体定义策略，并在操作系统级别执行，该层级可见所有执行路径，包括绕过工具调用拦截的子进程和 shell 调用。
@@ -48,8 +50,8 @@ Agent-authored, OS-enforced policy has two design requirements.
 % 智能体编写、操作系统执行的策略有两个设计要求。
 First, policy expressions must be high-level enough for agents to generate reliably, yet concrete enough to compile to deterministic kernel checks.
 % 首先，策略表达必须足够高级使智能体能够可靠生成，同时又足够具体以编译为确定性内核检查。
-Since 81\% of projects contain policies that define event ordering or data flow, they must also track state across operations.
-% 由于 81\% 的项目包含定义事件顺序或数据流的策略，它们还必须跨操作追踪状态。
+Since 94\% of projects contain policies that define event ordering or data flow, they must also track state across operations.
+% 由于 94\% 的项目包含定义事件顺序或数据流的策略，它们还必须跨操作追踪状态。
 Second, agents must not weaken safety constraints from higher authority or affect other agents' policies.
 % 其次，智能体不能削弱来自更高权限的安全约束或影响其他智能体的策略。
 
@@ -63,6 +65,8 @@ Policies that express constraints use \texttt{block} or \texttt{kill} to deny vi
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：未经测试的提交；请先运行 npm test。"
 \sys{} uses policy domains bound to process subtrees to isolate agents from each other and prevent them from weakening higher-authority constraints.
 % \sys{} 使用绑定到进程子树的策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
+These higher-authority rules are written before the agent reads untrusted input, so a compromised agent cannot remove them (\S\ref{sec:design}).
+% 这些更高权限的规则在智能体读取不可信输入之前写好，因此被攻陷的智能体无法移除它们（\S\ref{sec:design}）。
 
 On a decision-compliance benchmark, \sys{} resolves 2.0--3.2$\times$ more policy violations than prompt-filter, tool-regex, FIDES~\cite{costa2025fides} (tool-level IFC), and feedback-free kernel IFC by covering indirect execution paths that tool-call interception cannot observe, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
 % 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}（工具级 IFC）和无反馈内核 IFC 多 2.0--3.2 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。
@@ -73,8 +77,8 @@ On a safety benchmark of 361 personal-assistant tasks, \sys{} prevents 74\% of b
 To summarize, we make three contributions:
 % 总结起来，我们做出三项贡献：
 \begin{enumerate}
-\item An \textbf{empirical study} of 64~projects that characterizes these gaps (\S\ref{sec:empirical}) and motivates \sys{}.
-% \item 一项对 64 个项目的 \textbf{实证研究}，表征这些鸿沟（\S\ref{sec:empirical}）并激励 \sys{}。
+\item An \textbf{empirical study} of 362~projects, together with a measurement of indirect execution in public agent trajectories, that characterizes these gaps (\S\ref{sec:empirical}) and motivates \sys{}.
+% \item 一项对 362 个项目的 \textbf{实证研究}（以及对公开智能体轨迹中间接执行的测量），表征这些鸿沟（\S\ref{sec:empirical}）并激励 \sys{}。
 \item \textbf{\sys{}}, a programmable OS-level policy enforcement system that addresses them (\S\ref{sec:design}--\ref{sec:implementation}).
 % \item \textbf{\sys{}}，一个可编程的操作系统级策略执行系统，解决这些问题（\S\ref{sec:design}--\ref{sec:implementation}）。
 \item An \textbf{evaluation} on a decision-compliance benchmark built on the empirical study, together with external coding-task and safety benchmarks covering workplace and personal-assistant tasks (\S\ref{sec:evaluation}).

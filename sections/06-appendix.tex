@@ -149,3 +149,69 @@ Return one strict JSON object:
 \end{verbatim}
 \end{small}
 \end{adjustbox}
+
+\section{Indirect Execution in Agent Trajectories}
+% \section{智能体轨迹中的间接执行}
+\label{sec:supp:indirect}
+We parse every tool call in public SWE-agent, OpenHands, mini-SWE-agent, Claude Code, and Codex trajectories; a call is \emph{indirect} if it runs a file, script, module, project executable, or build, test, package, or lint tool (Table~\ref{tab:supp:static}).
+% 我们解析公开的 SWE-agent、OpenHands、mini-SWE-agent、Claude Code 和 Codex 轨迹中的每次工具调用；如果一次调用运行文件、脚本、模块、项目可执行文件，或构建、测试、包管理、lint 工具，就算作\emph{间接}调用（表~\ref{tab:supp:static}）。
+The dynamic replay runs 40 trajectories call by call on freshly cloned repositories while eBPF monitoring records successful writes and execs, and counts a write as named if its file name appears in the call's arguments.
+% 动态重放在全新克隆的仓库上逐个调用地重放 40 条轨迹，由 eBPF 监控记录成功的写入和进程执行；如果写入的文件名出现在调用参数中，就算作已指明。
+
+\begin{table}[t]\small
+\centering
+\caption{Static indirect execution by harness and model. ``Any'' is the share of trajectories with at least one indirect call.}
+\label{tab:supp:static}
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{lrrrr}
+\toprule
+Harness / model & Traj. & Calls & Indirect & Any \\
+\midrule
+Claude Code / fable-5 & 111 & 5{,}794 & 20.9\% & 100.0\% \\
+Codex / gpt-5.6-sol & 111 & 2{,}209 & 33.9\% & 100.0\% \\
+OpenHands / GPT-4o+Claude-3.5 & 491 & 8{,}779 & 19.3\% & 99.2\% \\
+SWE-agent / Llama-405B & 245 & 7{,}546 & 16.2\% & 83.7\% \\
+SWE-agent / Llama-70B & 1{,}000 & 25{,}662 & 14.5\% & 71.5\% \\
+SWE-agent / Llama-8B & 798 & 25{,}791 & 13.2\% & 76.1\% \\
+mini-SWE-agent / Opus 4.6 & 200 & 5{,}968 & 27.5\% & 93.0\% \\
+mini-SWE-agent / GPT-5.2 & 200 & 7{,}427 & 11.8\% & 97.0\% \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Policy Translation Across Models}
+% \section{跨模型的策略翻译}
+\label{sec:supp:translation}
+Each model receives the policy, its source text, the root instruction files, and the DSL reference, without repository access, and may retry twice on compiler errors.
+% 每个模型收到策略、其来源文本、根目录的指令文件和 DSL 参考，不能访问仓库，并可在编译错误时重试两次。
+Of the 607 policies, 544 (Qwen3.8-27B), 605 (GLM-5.3), 606 (GLM-5.3-Flash), 604 (GLM-4.5-Air), 572 (GPT-6 Astra), and 607 (Claude Opus~4.6) compile.
+% 在 607 条策略中，能编译的分别为 544 条（Qwen3.8-27B）、605 条（GLM-5.3）、606 条（GLM-5.3-Flash）、604 条（GLM-4.5-Air）、572 条（GPT-6 Astra）和 607 条（Claude Opus~4.6）。
+
+\section{RQ2: False Positives and OS Sandboxes}
+% \section{RQ2：误报与操作系统沙箱}
+\label{sec:supp:rq2}
+We audited each of the 18 \sys{} false positives against its policy, rule, runner output, feedback, and judge rationale: 9 come from translation, 4 from compiling relative path patterns too broadly, 4 from rules matching the replay harness's own helper processes, and 1 from a trace setup failure; an independent Qwen3.8-27B review agreed with 17 of the 18 attributions.
+% 我们对照策略、规则、运行器输出、反馈和判断器理由逐条审计了 \sys{} 的 18 个误报：9 个来自翻译，4 个来自编译器把相对路径模式编译得过宽，4 个来自规则匹配到重放工具自身的辅助进程，1 个来自轨迹准备失败；一个独立的 Qwen3.8-27B 审查与其中 17 个归因一致。
+Each sandbox replays the same 190 RQ2 traces.
+% 每个沙箱重放同样的 190 条 RQ2 轨迹。
+The sandboxes are \texttt{codex-cli} 0.162.1 in workspace-write mode with the network off, Anthropic's SRT 0.0.81 with no settings file (and separately with a write grant to the cloned repository), and Docker 26.1.5 with its default profile; a violation counts as prevented only if its effect occurs in an unrestricted control run, which holds for 111 of the 114 violations.
+% 沙箱为关闭网络、workspace-write 模式的 \texttt{codex-cli} 0.162.1，没有配置文件的 Anthropic SRT 0.0.81（另有一组授予克隆仓库写权限），以及使用默认配置的 Docker 26.1.5；只有当违规效果在无限制的对照运行中确实发生时才算作被阻止，114 个违规中有 111 个满足这一条件。
+By trace family (37 each), Codex prevents 5, 5, and 5 direct, script, and hidden violations, SRT's defaults 28, 37, and 28, SRT with the write grant 0, 33, and 0, and Docker none.
+% 按轨迹类别（每类 37 条），Codex 分别阻止 5、5、5 个 direct、script、hidden 违规，SRT 默认配置为 28、37、28，授予写权限的 SRT 为 0、33、0，Docker 一个也没有。
+Codex's 15 preventions all come from its protected Git metadata; with the write grant that Claude Code's enabled sandbox uses, SRT prevents 33 and denies 1 compliant trace, but the 33 block writes to temporary paths outside the workspace, not the prohibited actions.
+% Codex 的 15 个阻止全部来自其受保护的 Git 元数据；授予 Claude Code 启用沙箱时相同的写权限后，SRT 阻止 33 个、误拒 1 条合规轨迹，但这 33 个拦的是对工作区外临时路径的写入，而不是被禁止的操作。
+
+\section{Over-Tainting}
+% \section{过度标记}
+\label{sec:supp:utility}
+Because labels are monotonic, a broadly specified source can make \sys{} block benign work.
+% 由于标签是单调的，宽泛指定的源可能使 \sys{} 阻止良性工作。
+With a policy that blocks new IPv4 connections after a process opens a credential file, generic filename globs such as \texttt{**/*.pem} falsely block 12 of 51 covered commands in three networked Terminal-Bench~2.0~\cite{terminalbench2} tasks and about 2.9\% of calls in the 40 trajectories of \S\ref{sec:indirect}, mostly after reads of public certificates.
+% 对于一个在进程打开凭证文件后阻止其新 IPv4 连接的策略，\texttt{**/*.pem} 这类通用文件名通配在三个联网的 Terminal-Bench~2.0~\cite{terminalbench2}任务中错误阻止了 51 条被覆盖命令中的 12 条，在 \S\ref{sec:indirect} 的 40 条轨迹中错误阻止了约 2.9\% 的调用，主要发生在读取公共证书之后。
+Scoping the sources to the task's credential files reduces this to 1 of 67 and 0, and task success stays at 2/3 in every condition.
+% 把源限定为任务的凭证文件后，误干预降到 67 条中的 1 条和 0，且每种条件下任务成功率都保持 2/3。
+Broad sources use globs such as \texttt{**/*.env}, \texttt{**/*.pem}, \texttt{**/*.key}, and \texttt{**/*id\_rsa}; narrowed sources list the task's credential paths, such as \texttt{/app/.env}; the three networked tasks are \texttt{build-cython-ext}, \texttt{git-multibranch}, and \texttt{pypi-server}.
+% 宽泛源使用 \texttt{**/*.env}、\texttt{**/*.pem}、\texttt{**/*.key} 和 \texttt{**/*id\_rsa} 等通配；收窄源列出任务的凭证路径，例如 \texttt{/app/.env}；三个联网任务是 \texttt{build-cython-ext}、\texttt{git-multibranch} 和 \texttt{pypi-server}。
+With \texttt{source SECRET = file "/session.env"} and \texttt{notify connect endpoint "*" if SECRET} on Linux~6.8, a lineage that read the file triggers 1, 5, and 20 notifications for 1, 5, and 20 later connections and a descendant 5 of 5, while a clean lineage and a sibling started after the reader exits trigger none.
+% 在 Linux~6.8 上使用 \texttt{source SECRET = file "/session.env"} 和 \texttt{notify connect endpoint "*" if SECRET}，读取过该文件的谱系在之后 1、5、20 次连接时分别触发 1、5、20 次通知，其后代 5 次中触发 5 次，而干净的谱系和读取者退出后启动的兄弟进程都不触发。
