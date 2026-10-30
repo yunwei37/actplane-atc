@@ -252,8 +252,6 @@ For each rule, the agent produces two compliant traces and three violation trace
 % 对于每条规则，智能体生成两条合规轨迹和三条违规轨迹。
 The compliant traces stress false-positive detection, with allowed-effect traces exercising permitted actions close to the boundary and lookalike traces performing technically compliant operations that resemble violations.
 % 合规轨迹强调误报检测，允许效果轨迹演练接近边界的允许操作，相似轨迹执行技术上合规但类似违规的操作。
-The three violation families reflect execution-path categories observed in deployed coding agents~\cite{anthropic2026containment,maloyan2026sok}: \emph{direct} traces trigger the prohibited operation via a tool call, \emph{script} traces move the side effect into a subprocess by splitting authoring and execution~\cite{maloyan2026sok}, and \emph{hidden} traces embed the side effect in an auxiliary artifact whose entrypoint appears benign~\cite{wu2026skillject}.
-% 三个违规族反映了部署的编码智能体中观察到的执行路径类别~\cite{anthropic2026containment,maloyan2026sok}：\emph{直接}轨迹通过工具调用触发禁止操作，\emph{脚本}轨迹通过拆分编写和执行将副作用移入子进程~\cite{maloyan2026sok}，\emph{隐藏}轨迹将副作用嵌入入口点看起来无害的辅助工件中~\cite{wu2026skillject}。
 This design yields 190 traces from 38 rules with 5 traces each.
 % 此设计从 38 条规则各 5 条轨迹产生 190 条轨迹。
 
@@ -262,10 +260,6 @@ This design yields 190 traces from 38 rules with 5 traces each.
 % \paragraph{比较系统。}
 RQ2 compares five enforcement systems on the same 190 traces (Figure~\ref{fig:rq2-pipeline}).
 % RQ2 在相同的 190 条轨迹上比较五个执行系统（图~\ref{fig:rq2-pipeline}）。
-Three baselines represent common runtime enforcement layers: \emph{prompt-filter}, an LLM that decides allow/block per tool call~\cite{rebedea2023nemo,xiang2025guardagent}; \emph{tool-regex}, deterministic pattern matching as deployed in Claude Code hooks~\cite{anthropic2026hooks}, Codex approval policies~\cite{openai2025codex}, and AgentSpec~\cite{wang2025agentspec}; and \emph{FIDES}~\cite{costa2025fides}, tool-level IFC.
-% 三个基线代表常见的运行时执行层：\emph{提示过滤}，按工具调用决定允许/阻止的 LLM~\cite{rebedea2023nemo,xiang2025guardagent}；\emph{工具正则}，Claude Code hooks~\cite{anthropic2026hooks}、Codex 批准策略~\cite{openai2025codex}和 AgentSpec~\cite{wang2025agentspec}中部署的确定性模式匹配；以及 \emph{FIDES}~\cite{costa2025fides}，工具级 IFC。
-We add \textsc{\sys{}-opaque}, which runs \sys{}'s kernel engine without semantic feedback, as both a proxy for sandbox-style kernel IFC~\cite{pasquier2018camquery,flume,zeldovich2006histar} and an ablation for feedback.
-% 我们添加 \textsc{\sys{}-opaque}，它运行无语义反馈的 \sys{} 内核引擎，既作为沙箱式内核 IFC~\cite{pasquier2018camquery,flume,zeldovich2006histar}的代理，也作为反馈的消融实验。
 Full \sys{} is the fifth system.
 % 完整 \sys{} 是第五个系统。
 
@@ -320,11 +314,6 @@ An AI agent, Codex~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt55}, r
 % 一个 AI 智能体 Codex~\cite{openai2025codex} 配合 GPT-5.5~\cite{openai2026gpt55} 读取任务描述并在无人工参与的情况下生成初始策略。
 During execution, the same Codex agent adjusts policies at runtime by submitting deltas through the runtime interface (\S\ref{sec:authority}), refining rules for itself or the task-executing sub-agent based on enforcement feedback.
 % 在执行期间，同一 Codex 智能体通过运行时接口（\S\ref{sec:authority}）提交增量来调整策略，根据执行反馈为自己或任务执行子智能体完善规则。
-
-\PHM{Metrics.}
-% \paragraph{指标。}
-The primary metric is official OctoBench reward, and we additionally report three diagnostic submetrics from the same checklist results: \emph{user-query reward} for user-task checks only, \emph{implementation/test reward} for implementation and testing checks, and \emph{compliance reward} for compliance-typed checks, all evaluated by the official LLM-based checklist judge.
-% 主要指标是官方 OctoBench 奖励，我们另外报告来自相同清单结果的三个诊断子指标：\emph{用户查询奖励}仅用于用户任务检查，\emph{实现/测试奖励}用于实现和测试检查，\emph{合规奖励}用于合规类型检查，所有由官方 LLM 基础清单判断器评估。
 
 \subsection{RQ5 OpenAgentSafety}
 % \subsection{RQ5 OpenAgentSafety}
