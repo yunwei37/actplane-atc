@@ -228,11 +228,8 @@ Replaying 40 of these trajectories under eBPF monitoring shows that 45.7\% of wr
 At the OS level, mechanisms such as seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Landlock~\cite{landlock}, and Tetragon~\cite{ciliumtetragon} restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they control resource access instead of actions, expect statically pre-written policies, and return opaque errors that confuse the agent.
 % 在操作系统层，seccomp~\cite{seccomp-bpf}、AppArmor~\cite{apparmor}、Landlock~\cite{landlock} 和 Tetragon~\cite{ciliumtetragon} 等机制在工具层之下限制进程、文件和网络访问，并越来越多地被采用为智能体沙箱，但它们控制资源访问而非操作，期望静态预写的策略，并返回令智能体困惑的不透明错误。
 
-\subsection{Design Requirements}
-% \subsection{设计要求}
-
-These findings establish two requirements for a policy engine in AI agent harnesses.
-% 这些发现为 AI 智能体 harness 中的策略引擎确立了两项要求。
+\PHM{Design Requirements.} These findings establish two requirements for a policy engine in AI agent harnesses.
+% \PHM{设计要求。}这些发现为 AI 智能体 harness 中的策略引擎确立了两项要求。
 
 \emph{R1: agent-writable, OS-enforceable policy specification.}
 % \emph{R1：智能体可编写的、操作系统可执行的策略规范。}

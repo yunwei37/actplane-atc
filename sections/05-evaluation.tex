@@ -79,7 +79,7 @@ We define outcomes relative to policy compliance. TP and TN are correct outcomes
 \label{fig:rq2-dcr}
 \end{figure}
 
-\PHM{Results.} \noindent\textbf{\sys{} achieves 75.8\% DCR, 22--31 points above all baselines (Figure~\ref{fig:rq2-dcr}; Appendix~\ref{sec:supp:rq2}).}
+\noindent\textbf{\sys{} achieves 75.8\% DCR, 22--31 points above all baselines (Figure~\ref{fig:rq2-dcr}; Appendix~\ref{sec:supp:rq2}).}
 % \noindent\textbf{\sys{} 达到 75.8\% DCR，比所有基线高 22--31 个百分点（图~\ref{fig:rq2-dcr}；附录~\ref{sec:supp:rq2}）。}
 The gap concentrates on violation traces, where \sys{} correctly resolves 86 of 114 at 75\%, compared with 27--44 for baselines or 2.0--3.2$\times$ improvement.
 % 差距集中在违规轨迹上，\sys{} 正确解决 114 条中的 86 条达 75\%，而基线为 27--44 条，即 2.0--3.2 倍改进。
@@ -180,8 +180,6 @@ The primary metric is official OctoBench reward, and we additionally report thre
 \label{fig:rq4-octobench}
 \end{figure}
 
-\PHM{Results.}
-% \paragraph{结果。}
 \noindent\textbf{\sys{} improves user-query and implementation/test reward metrics over baseline.}
 % \noindent\textbf{\sys{} 在用户查询和实现/测试奖励指标上优于基线。}
 The improvement concentrates on task-specific checks, with user-query reward rising by 9.9 points and implementation/test reward by 9.7 points over baseline, while compliance reward shows a smaller 2.8-point gain.
@@ -218,8 +216,6 @@ Because the generator completes before the agent starts, the policies are loaded
 \label{fig:rq5-safety}
 \end{figure}
 
-\PHM{Results.}
-% \paragraph{结果。}
 \noindent\textbf{On 361 safety tasks, \sys{} prevents 74\% of baseline-unsafe behaviors; see Figure~\ref{fig:rq5-safety}.}
 % \noindent\textbf{在 361 个安全任务上，\sys{} 阻止了 74\% 的基线不安全行为；见图~\ref{fig:rq5-safety}。}
 Of 106~baseline-unsafe tasks, \sys{} terminated the unsafe operation in 78~cases before the harmful effect completed, while in 28~cases the agent completed the unsafe action without triggering a policy.

@@ -1,5 +1,5 @@
-\section{Design}
-% \section{设计}
+\section{Design and Implementation}
+% \section{设计与实现}
 \label{sec:design}
 
 \sys{} is a harness-agnostic, programmable OS-level policy enforcement system designed to meet the two requirements above, each raising a challenge: designing a high-level yet kernel-enforceable DSL, and enabling runtime adaptation without weakening security.
@@ -218,8 +218,8 @@ Inherited safety labels and rules cannot be declassified.
 When monotonic labels accumulate excessively, objects become overly restricted (over-tainting), but labels attach to the reading process lineage and the files it writes: a sibling that never read the source stays clean, so secret-reading steps can run in fresh subprocesses (Appendix~\ref{sec:supp:utility}).
 % 当单调标签过度累积时，对象变得过度受限（过度标记），但标签附着在读取进程的谱系及其写入的文件上：从未读取该源的兄弟进程保持干净，因此读取秘密的步骤可以在新子进程中运行（附录~\ref{sec:supp:utility}）。
 
-\section{Implementation}
-% \section{实现}
+\subsection{Implementation}
+% \subsection{实现}
 \label{sec:implementation}
 
 \sys{} consists of a Rust userspace compiler/runner (roughly 3.2\,K\,LoC) and an eBPF enforcement engine (roughly 1.8\,K\,LoC of BPF C).
