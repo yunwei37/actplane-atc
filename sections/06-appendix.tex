@@ -364,8 +364,8 @@ Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
 \end{figure}
 A one-rule hot reload submitted through the userspace ring buffer reaches the kernel drain path in 26.3\,\textmu s on average, and an immediate \texttt{exec} violation is observed at p50 176.4\,\textmu s including process launch and event delivery.
 % 通过用户空间环形缓冲区提交的单规则热重载平均 26.3\,\textmu s 到达内核排空路径，立即 \texttt{exec} 违规在 p50 176.4\,\textmu s 被观察到，包括进程启动和事件传递。
-The cumulative \sys{} overhead of an entire tool-call's syscall sequence is 5--6 orders of magnitude smaller than a single LLM inference turn of 2--10\,s. All overhead measurements use no-hit configurations.
-% 整个工具调用系统调用序列的累积 \sys{} 开销比单次 LLM 推理轮 2--10\,s 小 5--6 个数量级。所有开销测量使用无命中配置。
+The cumulative \sys{} overhead of an entire tool-call's syscall sequence is orders of magnitude smaller than a single LLM inference turn of 2--10\,s. All overhead measurements use no-hit configurations.
+% 整个工具调用系统调用序列的累积 \sys{} 开销比单次 LLM 推理轮 2--10\,s 小几个数量级。所有开销测量使用无命中配置。
 
 \subsection{RQ4 OctoBench Subset}
 % \subsection{RQ4 OctoBench 子集}
@@ -480,8 +480,8 @@ With the write grant that Claude Code's sandbox uses, SRT blocks only incidental
 Feedback also improves detection indirectly because an agent that receives a corrective payload after a first denial revises its approach, allowing the engine to catch the revised attempt if it still violates.
 % 反馈还间接提高检测，因为收到第一次拒绝后纠正载荷的智能体会修改其方法，使引擎能够在修改后的尝试仍然违规时捕获它。
 
-The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication preserves the system ranking, with \sys{} highest at 77.4\% DCR, and per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$.
-% DeepSeek-Pro~V4~\cite{deepseek2026v4}端到端复现保持系统排名，\sys{} 以 77.4\% DCR 最高，两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$。
+The DeepSeek-Pro~V4~\cite{deepseek2026v4} end-to-end replication keeps \sys{} highest at 77.4\% DCR, and per-cell agreement between the two model settings yields Cohen's $\kappa=0.822$.
+% DeepSeek-Pro~V4~\cite{deepseek2026v4}端到端复现中 \sys{} 仍以 77.4\% DCR 最高，两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$。
 % 两个模型设置之间的每单元一致性产生 Cohen's $\kappa=0.822$。
 As expected, deterministic systems show the highest stability with tool-regex at $\kappa=0.920$, FIDES at $\kappa=0.919$, and \sys{} at $\kappa=0.852$, while prompt-filter is lowest at $\kappa=0.592$ because its decisions depend on model-specific reasoning.
 % 如预期，确定性系统稳定性最高，工具正则 $\kappa=0.920$、FIDES $\kappa=0.919$、\sys{} $\kappa=0.852$，而提示过滤最低 $\kappa=0.592$，因为其决策依赖于模型特定的推理。
@@ -493,8 +493,8 @@ Because labels are monotonic, a broadly specified source can make \sys{} block b
 % 由于标签是单调的，宽泛指定的源可能使 \sys{} 阻止良性工作。
 With a policy that blocks new IPv4 connections after a process opens a credential file, generic filename globs such as \texttt{**/*.pem} falsely block 12 of 51 covered commands in three networked Terminal-Bench~2.0~\cite{terminalbench2} tasks and about 2.9\% of calls in the 40 trajectories of \S\ref{sec:indirect}, mostly after reads of public certificates.
 % 对于一个在进程打开凭证文件后阻止其新 IPv4 连接的策略，\texttt{**/*.pem} 这类通用文件名通配在三个联网的 Terminal-Bench~2.0~\cite{terminalbench2}任务中错误阻止了 51 条被覆盖命令中的 12 条，在 \S\ref{sec:indirect} 的 40 条轨迹中错误阻止了约 2.9\% 的调用，主要发生在读取公共证书之后。
-Scoping the sources to the task's credential files reduces this to 1 of 67 and 0.
-% 把源限定为任务的凭证文件后，误干预降到 67 条中的 1 条和 0。
+Scoping the sources to the task's credential files reduces this to 1 of 67 commands and none of the trajectory calls.
+% 把源限定为任务的凭证文件后，误干预降到 67 条命令中的 1 条，轨迹调用中为 0。
 Broad sources use globs such as \texttt{**/*.env}, \texttt{**/*.pem}, \texttt{**/*.key}, and \texttt{**/*id\_rsa}; narrowed sources list the task's credential paths, such as \texttt{/app/.env}; the three networked tasks are \texttt{build-cython-ext}, \texttt{git-multibranch}, and \texttt{pypi-server}.
 % 宽泛源使用 \texttt{**/*.env}、\texttt{**/*.pem}、\texttt{**/*.key} 和 \texttt{**/*id\_rsa} 等通配；收窄源列出任务的凭证路径，例如 \texttt{/app/.env}；三个联网任务是 \texttt{build-cython-ext}、\texttt{git-multibranch} 和 \texttt{pypi-server}。
 With \texttt{source SECRET = file "/session.env"} and \texttt{notify connect endpoint "*" if SECRET} on Linux~6.8, a lineage that read the file triggers 1, 5, and 20 notifications for 1, 5, and 20 later connections and a descendant 5 of 5, while a clean lineage and a sibling started after the reader exits trigger none.

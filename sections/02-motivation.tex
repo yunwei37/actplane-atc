@@ -31,7 +31,7 @@ Specifically, we aim to answer three questions: (1)~Are instruction files primar
 
 \PHB{Dataset.} The snapshot, collected between 2026-05-23 and 2026-10-28 UTC, contains 362~repositories with median 35K GitHub stars, 775 instruction files, and 29{,}717~extracted statements.
 % 语料收集于 2026-05-23 至 2026-10-28 UTC 之间，包含 362 个仓库，中位数 35K GitHub 星，775 个指令文件和 29,717 条提取的语句。
-We extract and validate statements from raw instruction files in three steps: an LLM Agent-assisted pipeline extracts statements with four labels, a validation script checks them and is cross-checked by independent Claude and Codex agents before a final Codex review of every label, and human annotators review a stratified sample of 100~statements (Appendix~\ref{sec:supp:empirical}).
+We extract and validate statements from raw instruction files in three steps: an LLM Agent-assisted pipeline extracts statements with four labels; a validation script checks them, independent Claude and Codex agents cross-check the result, and a Codex agent makes a final review of every label; and human annotators review a stratified sample of 100~statements (Appendix~\ref{sec:supp:empirical}).
 % 我们通过三个步骤从原始指令文件中提取和验证语句：一个 LLM 智能体辅助流水线提取带有四个标签的语句，一个验证脚本进行检查，并经独立的 Claude 和 Codex 智能体交叉检查、最后由 Codex 智能体核对全部标签，人工标注者审查 100 条语句的分层样本（附录~\ref{sec:supp:empirical}）。
 Table~\ref{tab:examples} collects representative statements that illustrate all four labels, and \textbf{S1}--\textbf{S8} are referenced throughout.
 % 表~\ref{tab:examples}收集了说明所有四个标签的代表性语句，\textbf{S1}--\textbf{S8} 在全文中被引用。
@@ -173,7 +173,7 @@ Cross-event policies are both the most stateful and the most context-dependent. 
 % 跨事件策略既是最有状态的，也是最依赖上下文的。这些策略 81\% 依赖上下文（56\% 项目，25\% 任务），而内容策略为 44\%。两种困难因此叠加：需要跨事件追踪状态的策略也是那些很少指定编写规则所需的具体命令和路径的策略。因此，一组固定的静态规则只能覆盖自包含的部分；实例化其余部分需要在任何检查运行之前读取仓库并解释当前任务。
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=gray!75!black,left=1mm, right=1mm, top=0.5mm, bottom=0.5mm, arc=1mm]
-\textbf{Takeaway \#3:} Most system-observable policies (59.1\%) are \emph{not} self-contained, which must be resolved against the repository or the live task. Context-dependence is highest for the cross-event policies (81\%) that are already hardest to enforce.
+\textbf{Takeaway \#3:} Most system-observable policies (59.1\%) are \emph{not} self-contained and must be resolved against the repository or the live task. Context-dependence is highest for the cross-event policies (81\%) that are already hardest to enforce.
 % \textbf{要点 \#3：}大多数系统可观察的策略（59.1\%）\emph{不是}自包含的，必须根据仓库或当前任务解析。上下文依赖性在最难执行的跨事件策略（81\%）中最高。
 \end{tcolorbox}
 
