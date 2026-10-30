@@ -2,12 +2,12 @@
 % \section{评估}
 \label{sec:evaluation}
 
-We evaluate \sys{} along five research questions, RQ1--RQ5, distinct from the empirical E-RQs in \S\ref{sec:empirical}.
-% 我们沿五个研究问题 RQ1--RQ5 评估 \sys{}，与 \S\ref{sec:empirical} 中的实证 E-RQ 不同。
+We evaluate \sys{} along five research questions:
+% 我们沿五个研究问题 RQ1--RQ5 评估 \sys{}
 
 \begin{description}
-\item[RQ1 (DSL coverage)] Can a translation agent generate \sys{} policies for all 607 OS-enforceable policies, and can other models do so too?
-% \item[RQ1（DSL 覆盖）] 一个翻译智能体能否为所有 607 条操作系统可执行策略生成 \sys{} 规则？其他模型是否也能做到？
+\item[RQ1 (DSL coverage)] Can a translation agent generate \sys{} policies for the 607 sampled OS-enforceable policies, and can other models do so too?
+% \item[RQ1（DSL 覆盖）] 一个翻译智能体能否为抽样的 607 条操作系统可执行策略生成 \sys{} 规则？其他模型是否也能做到？
 \item[RQ2 (Policy engine effectiveness)] Compared with tool-level baselines and OS sandboxes, does \sys{} improve policy compliance for rules from our empirical study across direct and indirect execution paths?
 % \item[RQ2（策略引擎有效性）] 与工具级基线和操作系统沙箱相比，\sys{} 是否提高了来自我们实证研究的规则在直接和间接执行路径上的策略合规性？
 \item[RQ3 (Overhead)] What is the per-event and end-to-end overhead of \sys{}'s label propagation and rule checking?
@@ -23,8 +23,8 @@ We evaluate \sys{} along five research questions, RQ1--RQ5, distinct from the em
 % \subsection{RQ1：DSL 生成成本和覆盖}
 \label{sec:eval:rq1}
 
-The empirical study identifies 9{,}434 OS-enforceable policies, and RQ1 evaluates whether an agent can translate a sample of 607 of them, drawn from 64 repositories, into compilable \sys{} rules.
-% 实证研究识别了 9,434 条操作系统可执行策略，RQ1 评估智能体能否将其中取自 64 个仓库的 607 条样本翻译为可编译的 \sys{} 规则。
+The empirical study identifies 9{,}434 OS-enforceable policies, and RQ1 evaluates whether an agent can translate a sample of 607 of them, drawn from 62 repositories, into compilable \sys{} rules.
+% 实证研究识别了 9,434 条操作系统可执行策略，RQ1 评估智能体能否将其中取自 62 个仓库的 607 条样本翻译为可编译的 \sys{} 规则。
 A Codex agent~\cite{openai2025codex} with GPT-5.5~\cite{openai2026gpt55} reads each policy, the repository context, and the DSL reference, then writes the corresponding \sys{} rule. The runner invokes the compiler and retries once on syntax errors to allow minor self-correction.
 % 一个 Codex 智能体~\cite{openai2025codex}配合 GPT-5.5~\cite{openai2026gpt55}读取每条策略、仓库上下文和 DSL 参考，然后编写相应的 \sys{} 规则。运行器调用编译器，语法错误时重试一次以允许小幅自我修正。
 The translator compiled rules for all 607 policies on the first or second attempt, with only 2 requiring a retry, demonstrating that the DSL is accessible to current-generation LLMs.
@@ -134,7 +134,7 @@ Of the 111 violations that take effect without a sandbox, the Codex CLI sandbox 
 % \subsection{RQ3：开销}
 \label{sec:eval:rq3}
 
-\PHM{Macrobenchmarks (End-to-End Workloads)}
+\PHM{Macrobenchmarks (End-to-End Workloads).}
 % \subsubsection{宏基准（端到端工作负载）}
 We measure end-to-end overhead on an agent-trace replay and a Linux kernel build under no-hit \sys{} configurations where policies are loaded but no rule fires (Appendix~\ref{sec:supp:setup:rq3}). AP-$N$ denotes \sys{} with $N$ active rules.
 % 我们在无命中 \sys{} 配置下测量智能体轨迹重放和 Linux 内核构建的端到端开销，策略已加载但无规则触发（附录~\ref{sec:supp:setup:rq3}）。AP-$N$ 表示有 $N$ 条活动规则的 \sys{}。
@@ -143,14 +143,14 @@ We measure end-to-end overhead on an agent-trace replay and a Linux kernel build
 The agent-trace workload exhibits lower overhead because tool actions are interspersed with model inference pauses that dwarf syscall cost, whereas the kernel build stresses sustained I/O and process creation, exposing more of \sys{}'s per-event cost.
 % 智能体轨迹工作负载表现出较低开销，因为工具操作穿插着远超系统调用成本的模型推理暂停，而内核构建压力持续 I/O 和进程创建，暴露更多 \sys{} 的每事件成本。
 
-\PHM{Microbenchmarks (Per-Syscall Latency)}
+\PHM{Microbenchmarks (Per-Syscall Latency).}
 % \paragraph{微基准（每系统调用延迟）}
 We measure \sys{}'s per-event latency for five syscall types, \texttt{fork}, \texttt{exec}, \texttt{open}, \texttt{write}, and \texttt{connect}, under five no-hit configurations: native, and \sys{} with 1, 10, 32, and 100 active rules (Appendix~\ref{sec:supp:setup:rq3}).
 % 我们在五个无命中配置下测量五种系统调用类型 \texttt{fork}、\texttt{exec}、\texttt{open}、\texttt{write}、\texttt{connect} 的 \sys{} 每事件延迟：原生，以及有 1、10、32 和 100 条活动规则的 \sys{}（附录~\ref{sec:supp:setup:rq3}）。
 Per-call overhead is dominated by process operations, while file and network operations add single-digit microseconds (Appendix~\ref{sec:supp:setup:rq3}).
 % 每调用开销由进程操作主导，而文件和网络操作增加个位数微秒（附录~\ref{sec:supp:setup:rq3}）。
-\texttt{fork} and \texttt{exec} incur the highest absolute added cost at 3--69\,\textmu s under AP-100, but this overhead remains modest relative to their native latency because process-management already dominates the baseline.
-% \texttt{fork} 和 \texttt{exec} 产生最高的绝对增加成本，AP-100 时 3--69\,\textmu s，但这一开销相对于原生延迟仍然适度，因为进程管理本身已主导基线。
+\texttt{fork} and \texttt{exec} incur the highest absolute added cost at 20--69\,\textmu s under AP-100, but this overhead remains modest relative to their native latency because process-management already dominates the baseline.
+% \texttt{fork} 和 \texttt{exec} 产生最高的绝对增加成本，AP-100 时 20--69\,\textmu s，但这一开销相对于原生延迟仍然适度，因为进程管理本身已主导基线。
 File operations \texttt{open} and \texttt{write} plus \texttt{connect} are sub-microsecond natively, but \sys{} adds a path-hash lookup and rule scan, raising \texttt{open} to 13.4\,\textmu s at AP-100.
 % 文件操作 \texttt{open}、\texttt{write} 和 \texttt{connect} 原生为亚微秒级，但 \sys{} 增加路径哈希查找和规则扫描，使 \texttt{open} 在 AP-100 时升至 13.4\,\textmu s。
 Despite these per-call additions, the macrobenchmark impact remains low at 1.9\%--8.4\% because absolute added cost is small relative to the computation, I/O, and LLM inference time that dominates agent workloads.
@@ -203,8 +203,8 @@ A Codex policy generator writes each task's policy from the task description alo
 % 一个 Codex 策略生成器在智能体启动前仅根据任务描述为每个任务编写策略（附录~\ref{sec:supp:setup:rq5}）。
 Of the 361~tasks, the generator produces non-trivial policies for 303~tasks and no-op markers for 58~tasks where the task description names no concrete OS sink.
 % 在 361 个任务中，生成器为 303 个任务生成非平凡策略，为 58 个任务描述未命名具体操作系统汇的任务发出空操作标记。
-Because the generator completes before the agent starts, the policies are loaded at higher-domain level (\S\ref{sec:design}) and cannot be weakened at runtime.
-% 因为生成器在智能体启动前完成，策略在更高域级别加载（\S\ref{sec:design}），且不能在运行时被削弱。
+Because the generator completes before the agent starts, the policies are loaded in a higher-authority domain (\S\ref{sec:design}) and cannot be weakened at runtime.
+% 因为生成器在智能体启动前完成，策略在更高权限域中加载（\S\ref{sec:design}），且不能在运行时被削弱。
 
 \begin{figure}[tb]
 \centering
@@ -256,7 +256,7 @@ We introduce \sys{}, which enforces agent intent-level policies at the OS level 
 % 我们引入 \sys{}，它通过 eBPF 在操作系统级别执行智能体意图级策略，并返回语义反馈以实现智能体合规。
 It improves correct violation-trace outcomes by 2.0--3.2$\times$ over prompt-filter, tool-regex, FIDES~\cite{costa2025fides}, and feedback-free kernel IFC, prevents 74\% of baseline-unsafe behaviors on 361 safety tasks, and adds 1.9\%--8.4\% end-to-end overhead.
 % 它将正确违规轨迹结果提高到 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}和无反馈内核 IFC 的 2.0--3.2 倍，在 361 个安全任务上阻止了 74\% 的基线不安全行为，并增加 1.9\%--8.4\% 的端到端开销。
-\sys{} targets per-event and cross-event policies, 55\% of the dataset, by design.
-% \sys{} 按设计针对单事件和跨事件策略，占数据集的 55\%。
+\sys{} targets per-event and cross-event policies, 55\% of policies, by design.
+% \sys{} 按设计针对单事件和跨事件策略，占策略的 55\%。
 Content policies are better served by linters and static analyzers.
 % 内容策略更适合由代码检查器和静态分析器处理。
