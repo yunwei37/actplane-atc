@@ -29,20 +29,10 @@ Different from prior studies that analyze instruction files at file- or section-
 Specifically, we aim to answer three questions: (1)~Are instruction files primarily behavioral policies or descriptive context? (2)~Which policies require OS-level enforcement, and what kinds of OS-level checks do they need? (3)~What context is needed to instantiate these policies into concrete, enforceable rules?
 % 具体来说，我们旨在回答三个问题：(1) 指令文件主要是行为策略还是描述性上下文？(2) 哪些策略需要操作系统级执行，需要什么类型的操作系统级检查？(3) 将这些策略实例化为具体可执行规则需要什么上下文？
 
-\PHB{Dataset.} We collected public GitHub repositories containing agent instruction files such as \texttt{CLAUDE.md} or \texttt{AGENTS.md}, covering AI-agent projects and other popular repositories active since 2025 and excluding inactive repositories.
-% 我们收集了包含 \texttt{CLAUDE.md}、\texttt{AGENTS.md} 等智能体指令文件的公开 GitHub 仓库，涵盖 2025 年以来活跃的 AI 智能体项目和其他热门仓库，并排除不活跃的仓库。
-The snapshot, collected between 2026-05-23 and 2026-10-28 UTC, contains 362~repositories with median 35K GitHub stars, 775 instruction files, and 29{,}717~extracted statements.
+\PHB{Dataset.} The snapshot, collected between 2026-05-23 and 2026-10-28 UTC, contains 362~repositories with median 35K GitHub stars, 775 instruction files, and 29{,}717~extracted statements.
 % 语料收集于 2026-05-23 至 2026-10-28 UTC 之间，包含 362 个仓库，中位数 35K GitHub 星，775 个指令文件和 29,717 条提取的语句。
-
-
-We extract and validate statements from raw instruction files in three steps.
-% 我们通过三个步骤从原始指令文件中提取和验证语句。
-(1) A two-pass LLM Agent-assisted pipeline extracted statements with source line ranges and four labels: content type, topic, enforcement level, and context requirement.
-% 一个两遍 LLM 智能体辅助流水线提取了带有源行范围和四个标签的语句：内容类型、主题、执行级别和上下文要求。
-(2) A validation script verified full source coverage and verbatim span matching and was cross-checked by independent Claude and Codex agents; a Codex agent then reviewed every label and made the final decision.
-% 一个验证脚本验证了完整的源覆盖和逐字跨度匹配，并经独立的 Claude 和 Codex 智能体交叉检查；随后由一个 Codex 智能体核对全部标签并做最终决定。
-(3) A stratified sample of 100~statements was independently reviewed by human annotators, who verified the labels were correct.
-% 100 条语句的分层样本由人工标注者独立审查，他们验证标签正确。
+We extract and validate statements from raw instruction files in three steps: LLM-agent extraction and labeling, script validation cross-checked by Claude and Codex agents with a final Codex review of every label, and human review of a stratified sample of 100 statements (Appendix~\ref{sec:supp:empirical}).
+% 我们通过三个步骤从原始指令文件中提取和验证语句：由 LLM 智能体提取并标注，由脚本验证并经 Claude 和 Codex 智能体交叉检查、最后由 Codex 智能体核对全部标签，以及人工审查 100 条语句的分层样本（附录~\ref{sec:supp:empirical}）。
 Table~\ref{tab:examples} collects representative statements that illustrate all four labels, and \textbf{S1}--\textbf{S8} are referenced throughout.
 % 表~\ref{tab:examples}收集了说明所有四个标签的代表性语句，\textbf{S1}--\textbf{S8} 在全文中被引用。
 
@@ -94,8 +84,8 @@ S8 & ``Do not update dependencies without approval.'' & Dir & Maint. & Per-event
 \label{fig:empirical-rq1}
 \end{figure}
 
-To understand how policies distribute across topics, we assign each statement to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Figure~\ref{fig:empirical-rq2}). We find that Development Process and Implementation Details are policy-heavy at 73\% and 69\% respectively, while Architecture is mostly descriptive at 20\%  because these sections are dominated by directory layouts and design summaries.
-% 为了理解策略如何分布在各主题上，我们将每条语句分配到改编自先前指令文件研究~\cite{chatlatanagulchai2025agentreadmes}的 12 个主题类别之一，应用于语句粒度而非文件粒度（图~\ref{fig:empirical-rq2}）。我们发现开发流程和实现细节是策略密集的，分别为 73\% 和 69\%，而架构主要是描述性的，为 20\%，因为这些部分以目录布局和设计摘要为主。
+To understand how policies distribute across topics, we assign each statement to one of 12~topic categories adapted from prior instruction-file studies~\cite{chatlatanagulchai2025agentreadmes}, applied at statement granularity rather than file granularity (Appendix~\ref{sec:supp:empirical}). We find that Development Process and Implementation Details are policy-heavy at 73\% and 69\% respectively, while Architecture is mostly descriptive at 20\%  because these sections are dominated by directory layouts and design summaries.
+% 为了理解策略如何分布在各主题上，我们将每条语句分配到改编自先前指令文件研究~\cite{chatlatanagulchai2025agentreadmes}的 12 个主题类别之一，应用于语句粒度而非文件粒度（附录~\ref{sec:supp:empirical}）。我们发现开发流程和实现细节是策略密集的，分别为 73\% 和 69\%，而架构主要是描述性的，为 20\%，因为这些部分以目录布局和设计摘要为主。
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=gray!75!black,left=1mm, right=1mm, top=0.5mm, bottom=0.5mm, arc=1mm]
 \textbf{Takeaway \#1:} Instruction files are primarily behavioral policies (58\% statements), but their policy density varies across repositories and topics.
@@ -120,16 +110,6 @@ To understand how policies distribute across topics, we assign each statement to
 % \noindent\textbf{Policy density ranges from 0\% in System Overview to 87\% in Development Process.}
 % \noindent\textbf{策略密度从系统概述的 0\% 到开发流程的 87\% 不等。}
 % 开发流程和实现细节是策略密集的，分别为 87\% 和 85\%，而架构主要是描述性的，为 23\%，因为目录布局和设计摘要在行数上占主导。
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/empirical_rq2_policy_ratio.pdf}
-\caption{Policy ratio by topic.}
-% \caption{按主题的策略比例。}
-\Description{Bar chart showing policy ratio for each topic.}
-% \Description{显示每个主题策略比例的条形图。}
-\label{fig:empirical-rq2}
-\end{figure}
 
 
 % \subsubsection{哪些策略需要操作系统级执行？}
@@ -250,17 +230,6 @@ Cross-event policies are both the most stateful and the most context-dependent. 
 \label{fig:empirical-rq4}
 \end{figure}
 
-\subsection{Indirect Execution in Agent Trajectories}
-% \subsection{智能体轨迹中的间接执行}
-\label{sec:indirect}
-
-Tool-call guardrails see only each call's arguments.
-% 工具调用护栏只能看到每次调用的参数。
-Across 89{,}176 tool calls in 3{,}156 public trajectories from five agent harnesses, 11.8--33.9\% of calls per model group are \emph{indirect}: they run a script, project executable, or build, test, or package tool.
-% 在五个智能体 harness 的 3{,}156 条公开轨迹、89{,}176 次工具调用中，每组模型有 11.8--33.9\% 的调用是\emph{间接}的：它们运行脚本、项目可执行文件或构建、测试、包管理工具。
-Replaying 40 of these trajectories under eBPF monitoring shows that 45.7\% of writes to tracked project files are not named in the triggering call (Appendix~\ref{sec:supp:indirect}), so tool-call guardrails cannot check them.
-% 在 eBPF 监控下重放其中 40 条轨迹表明，对项目已跟踪文件的写入有 45.7\% 没有出现在触发它的调用中（附录~\ref{sec:supp:indirect}），因此工具调用护栏无法检查它们。
-
 \subsection{Why Existing Approaches Fall Short}
 % \subsection{为何现有方法不足}
 Given most policies requires OS-level enforcement, while a non-trivial fraction of them contains complex dependencies, existing enforcement falls into two categories.
@@ -271,6 +240,11 @@ Separate agents or LLM guards can check prompts, responses, or action trajectori
 % 独立的智能体或 LLM 守卫可以在运行时检查提示词、响应或行为轨迹~\cite{rebedea2023nemo,xiang2025guardagent,chennabasappa2025llamafirewall}，但本质上是概率性的。
 Tool-call guardrails and application-level IFC systems~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel} intercept at the harness boundary deterministically, but all these approaches observe only harness-mediated requests, not system-level effects once a tool starts executing, so an indirect subprocess, shell-out, or compiled binary can bypass the tool boundary.
 % 工具调用护栏和应用级 IFC 系统~\cite{wang2025agentspec,shi2025progent,invariant-guardrails,costa2025fides,debenedetti2025camel}在 harness 边界确定性地拦截，但所有这些方法仅观察 harness 中介的请求，而不是工具开始执行后的系统级效果，因此间接子进程、shell 调用或编译的二进制文件可以绕过工具边界。
+\label{sec:indirect}
+Across 89{,}176 tool calls in 3{,}156 public trajectories from five agent harnesses, 11.8--33.9\% of calls per model group are \emph{indirect}: they run a script, project executable, or build, test, or package tool.
+% 在五个智能体 harness 的 3{,}156 条公开轨迹、89{,}176 次工具调用中，每组模型有 11.8--33.9\% 的调用是\emph{间接}的：它们运行脚本、项目可执行文件或构建、测试、包管理工具。
+Replaying 40 of these trajectories under eBPF monitoring shows that 45.7\% of writes to tracked project files are not named in the triggering call (Appendix~\ref{sec:supp:indirect}), so tool-call guardrails cannot check them.
+% 在 eBPF 监控下重放其中 40 条轨迹表明，对项目已跟踪文件的写入有 45.7\% 没有出现在触发它的调用中（附录~\ref{sec:supp:indirect}），因此工具调用护栏无法检查它们。
 At the OS level, mechanisms such as seccomp~\cite{seccomp-bpf}, AppArmor~\cite{apparmor}, Landlock~\cite{landlock}, and Tetragon~\cite{ciliumtetragon} restrict process, file, and network access below the tool layer and are increasingly adopted as agent sandboxes, but they control resource access instead of actions, expect statically pre-written policies, and return opaque errors that confuse the agent.
 % 在操作系统层，seccomp~\cite{seccomp-bpf}、AppArmor~\cite{apparmor}、Landlock~\cite{landlock} 和 Tetragon~\cite{ciliumtetragon} 等机制在工具层之下限制进程、文件和网络访问，并越来越多地被采用为智能体沙箱，但它们控制资源访问而非操作，期望静态预写的策略，并返回令智能体困惑的不透明错误。
 
