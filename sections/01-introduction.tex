@@ -65,8 +65,6 @@ Policies that express constraints use \texttt{block} or \texttt{kill} to deny vi
 % 表达约束的策略使用 \texttt{block} 或 \texttt{kill} 拒绝违规并提供语义反馈，而表达指令的策略使用 \texttt{notify} 指导智能体，例如"已阻止：未经测试的提交；请先运行 npm test。"
 \sys{} uses policy domains bound to process subtrees to isolate agents from each other and prevent them from weakening higher-authority constraints.
 % \sys{} 使用绑定到进程子树的策略域将智能体相互隔离，并防止它们削弱更高权限的约束。
-These higher-authority rules are written before the agent reads untrusted input, so a compromised agent cannot remove them (\S\ref{sec:design}).
-% 这些更高权限的规则在智能体读取不可信输入之前写好，因此被攻陷的智能体无法移除它们（\S\ref{sec:design}）。
 
 On a decision-compliance benchmark, \sys{} resolves 2.0--3.2$\times$ more policy violations than prompt-filter, tool-regex, FIDES~\cite{costa2025fides} (tool-level IFC), and feedback-free kernel IFC by covering indirect execution paths that tool-call interception cannot observe, while adding 1.9\% end-to-end overhead on agent workloads and up to 8.4\% on kernel builds.
 % 在决策合规基准上，\sys{} 通过覆盖工具调用拦截无法观察的间接执行路径，解决了比 prompt-filter、tool-regex、FIDES~\cite{costa2025fides}（工具级 IFC）和无反馈内核 IFC 多 2.0--3.2 倍的违规，同时在智能体工作负载上增加 1.9\% 的端到端开销，在内核构建上最高 8.4\%。

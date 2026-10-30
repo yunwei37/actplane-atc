@@ -120,8 +120,8 @@ Intuitively, some policies in instruction files are semantic-only requirements (
 A natural question is how to categorize them and identify which require OS-level enforcement.
 % 一个自然的问题是如何对它们进行分类，并识别哪些需要操作系统级执行。
 
-To separate the two, we classify each policy into the first matching tier of an enforcement waterfall(Figure~\ref{fig:waterfall-enforcement}): \emph{semantic-only} covers reasoning, communication, or output style; \emph{content} covers predicates over file contents; \emph{per-event} covers a single command, file access, or network connection; and \emph{cross-event} covers policies that depend on temporal ordering or data lineage across operations.
-% 为区分两者，我们将每条策略分类到执行瀑布的第一个匹配层级（图~\ref{fig:waterfall-enforcement}）：\emph{仅语义}涵盖推理、沟通或输出风格；\emph{内容}涵盖文件内容上的谓词；\emph{单事件}涵盖单个命令、文件访问或网络连接；\emph{跨事件}涵盖依赖于跨操作的时间顺序或数据来源的策略。
+To separate the two, we classify each policy into the first matching tier of an enforcement waterfall (Appendix~\ref{sec:supp:empirical}): \emph{semantic-only} covers reasoning, communication, or output style; \emph{content} covers predicates over file contents; \emph{per-event} covers a single command, file access, or network connection; and \emph{cross-event} covers policies that depend on temporal ordering or data lineage across operations.
+% 为区分两者，我们将每条策略分类到执行瀑布的第一个匹配层级（附录~\ref{sec:supp:empirical}）：\emph{仅语义}涵盖推理、沟通或输出风格；\emph{内容}涵盖文件内容上的谓词；\emph{单事件}涵盖单个命令、文件访问或网络连接；\emph{跨事件}涵盖依赖于跨操作的时间顺序或数据来源的策略。
 We call the union of content, per-event, and cross-event policies \emph{system-observable}, and the per-event and cross-event subset that \sys{} can enforce at OS hooks is \emph{OS-enforceable}.
 % 我们将内容、单事件和跨事件策略的并集称为 \emph{系统可观察}，\sys{} 可以在操作系统钩子上执行的单事件和跨事件子集是 \emph{操作系统可执行}。
 
@@ -129,16 +129,6 @@ We call the union of content, per-event, and cross-event policies \emph{system-o
 % \noindent\textbf{83\% 的策略约束系统行为。}
 Given these tiers, we examine how the collected policies distribute across them. Of 17{,}163~policies, only 12\% are semantic-only; the remaining 88\% are system-observable (33\% require content inspection, 24\% match a single OS event, and 31\% require cross-event state).
 % 基于这些层级，我们检查收集的策略如何分布在各层。在 17,163 条策略中，只有 12\% 是仅语义的；其余 88\% 是系统可观察的（33\% 需要内容检查，24\% 匹配单个操作系统事件，31\% 需要跨事件状态）。
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/empirical-waterfall-enforcement-horizontal.pdf}
-\caption{Enforcement-level waterfall. Each policy exits at the first matching tier.}
-% \caption{执行级别瀑布。每条策略在第一个匹配层级退出。}
-\Description{Flowchart showing the enforcement-level waterfall decision procedure with four outcomes: semantic-only, content, per-event, cross-event.}
-% \Description{显示执行级别瀑布决策过程的流程图，有四个结果：仅语义、内容、单事件、跨事件。}
-\label{fig:waterfall-enforcement}
-\end{figure}
 
 \begin{figure}[t]
 \centering
@@ -150,8 +140,8 @@ Given these tiers, we examine how the collected policies distribute across them.
 \label{fig:enforcement-by-topic}
 \end{figure}
 
-Although most policies are enforceable based on a single event, the 31\% that are cross-event are not. These cross-event policies concentrate in testing and development workflows, where Development Process and Testing account for 22.4\% and 18.6\% (Figure~\ref{fig:enforcement-by-topic}). These policies follow four recurring patterns: \emph{temporal ordering} constrains sequencing (``run tests before committing''); \emph{cross-file consistency} links changes across artifacts (``update docs when behavior changes''); \emph{multi-step workflows} enforce release checklists with verification gates; and \emph{conditional triggers} couple operations (``if you change specs, also update the SDK''). None can be decided from a single event: enforcement must record what ran, in what order, and what has changed since. Such policies are widespread, with 94\% of repositories containing at least one cross-event policy and 66\% spanning all four enforcement tiers.
-% 虽然大多数策略可基于单个事件执行，但 31\% 的跨事件策略不能。这些跨事件策略集中在测试和开发工作流，其中开发流程和测试分别占 22.4\% 和 18.6\%（图~\ref{fig:enforcement-by-topic}）。这些策略遵循四种反复模式：\emph{时间顺序}约束排序（"提交前运行测试"）；\emph{跨文件一致性}链接跨工件的变更（"行为变化时更新文档"）；\emph{多步骤工作流}执行带有验证门的发布清单；\emph{条件触发器}耦合操作（"如果你更改规范，也要更新 SDK"）。这些都无法从单个事件判断：执行必须记录运行了什么、以什么顺序、以及从那时起发生了什么变化。此类策略很普遍，94\% 的仓库包含至少一条跨事件策略，66\% 跨越所有四个执行层级。
+Although most policies are enforceable based on a single event, the 31\% that are cross-event are not. They concentrate in testing and development workflows, where Development Process and Testing account for 22.4\% and 18.6\% (Figure~\ref{fig:enforcement-by-topic}). These policies follow four recurring patterns: \emph{temporal ordering} constrains sequencing (``run tests before committing''); \emph{cross-file consistency} links changes across artifacts (``update docs when behavior changes''); \emph{multi-step workflows} enforce release checklists with verification gates; and \emph{conditional triggers} couple operations (``if you change specs, also update the SDK''). None can be decided from a single event: enforcement must record what ran, in what order, and what has changed since. Such policies are widespread, with 94\% of repositories containing at least one cross-event policy and 66\% spanning all four tiers.
+% 虽然大多数策略可基于单个事件执行，但 31\% 的跨事件策略不能。它们集中在测试和开发工作流，其中开发流程和测试分别占 22.4\% 和 18.6\%（图~\ref{fig:enforcement-by-topic}）。这些策略遵循四种反复模式：\emph{时间顺序}约束排序（"提交前运行测试"）；\emph{跨文件一致性}链接跨工件的变更（"行为变化时更新文档"）；\emph{多步骤工作流}执行带有验证门的发布清单；\emph{条件触发器}耦合操作（"如果你更改规范，也要更新 SDK"）。这些都无法从单个事件判断：执行必须记录运行了什么、以什么顺序、以及从那时起发生了什么变化。此类策略很普遍，94\% 的仓库包含至少一条跨事件策略，66\% 跨越所有四个层级。
 
 \begin{tcolorbox}[colback=blue!5!white,colframe=gray!75!black,left=1mm, right=1mm, top=0.5mm, bottom=0.5mm, arc=1mm]
 \textbf{Takeaway \#2:} 88\% of policies are system-observable. Most of these are decidable from a single event, but 31\% are \emph{cross-event}, requiring event ordering or data flow monitoring, and appear in most repositories.
@@ -173,8 +163,8 @@ Although most policies are enforceable based on a single event, the 31\% that ar
 
 
 % \subsubsection{实例化规则需要什么上下文？}
-\PHM{Q3: What Context Is Needed to Instantiate Rules?} A policy that targets an OS event still cannot be enforced until its abstract references resolve into \emph{concrete paths and commands} (e.g., ``run the test suite'' is not actionable until one knows which test command that is). We therefore classify each system-observable policy by the context an enforcement mechanism needs beyond the policy text (Figure~\ref{fig:waterfall-context}): \emph{self-contained}, if all commands, paths, and patterns are explicit; \emph{project context}, if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context}, if it depends on the current request or a per-session grant such as ``unless explicitly requested'' or ``without approval''.
-% \PHM{Q3：实例化规则需要什么上下文？}针对操作系统事件的策略在其抽象引用解析为\emph{具体路径和命令}之前仍无法执行（例如，"运行测试套件"在知道具体测试命令之前不可操作）。因此我们按执行机制除了策略文本还需要什么上下文来分类每条系统可观察的策略（图~\ref{fig:waterfall-context}）：如果所有命令、路径和模式都是显式的，则为\emph{自包含}；如果它引用一个未解析的仓库特定概念如"完整测试套件"或"迁移工具"，则为\emph{项目上下文}；如果它依赖于当前请求或每会话授权如"除非明确请求"或"未经批准"，则为\emph{任务上下文}。
+\PHM{Q3: What Context Is Needed to Instantiate Rules?} A policy that targets an OS event still cannot be enforced until its abstract references resolve into \emph{concrete paths and commands} (e.g., ``run the test suite'' is not actionable until one knows which test command that is). We therefore classify each system-observable policy by the context an enforcement mechanism needs beyond the policy text (Appendix~\ref{sec:supp:empirical}): \emph{self-contained}, if all commands, paths, and patterns are explicit; \emph{project context}, if it references an unresolved repository-specific concept such as ``the full test suite'' or ``the migration tool''; or \emph{task context}, if it depends on the current request or a per-session grant such as ``unless explicitly requested'' or ``without approval''.
+% \PHM{Q3：实例化规则需要什么上下文？}针对操作系统事件的策略在其抽象引用解析为\emph{具体路径和命令}之前仍无法执行（例如，"运行测试套件"在知道具体测试命令之前不可操作）。因此我们按执行机制除了策略文本还需要什么上下文来分类每条系统可观察的策略（附录~\ref{sec:supp:empirical}）：如果所有命令、路径和模式都是显式的，则为\emph{自包含}；如果它引用一个未解析的仓库特定概念如"完整测试套件"或"迁移工具"，则为\emph{项目上下文}；如果它依赖于当前请求或每会话授权如"除非明确请求"或"未经批准"，则为\emph{任务上下文}。
 
 Most policies are not self-contained. Of the 15{,}080 system-observable policies, only 40.9\% are self-contained; 39.7\% require project context, where concepts such as ``the test suite'' or ``upstream source'' must be resolved against the repository, and the remaining 19.3\% require task context (Figure~\ref{fig:empirical-rq4}). In Table~\ref{tab:examples}, S4 is self-contained, S5--S7 require project context, and S8 requires task context.
 % 大多数策略不是自包含的。在 15,080 条系统可观察的策略中，只有 40.9\% 是自包含的；39.7\% 需要项目上下文，其中"测试套件"或"上游源码"等概念必须从仓库中解析，剩余 19.3\% 需要任务上下文（图~\ref{fig:empirical-rq4}）。在表~\ref{tab:examples} 中，S4 是自包含的，S5--S7 需要项目上下文，S8 需要任务上下文。
@@ -209,16 +199,6 @@ Cross-event policies are both the most stateful and the most context-dependent. 
 % 这加剧了执行挑战，因为需要跨事件 IFC 的策略很少指定编写规则所需的具体命令和路径。
 % Generic static rules can cover only the self-contained fraction, and the majority require the agent itself to read the repository, interpret the current task, and produce a concrete policy before enforcement begins.
 % 通用静态规则只能覆盖自包含的部分，大多数需要智能体自己读取仓库、解释当前任务，并在执行开始前生成具体策略。
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.8\columnwidth]{figures/empirical-waterfall-context-horizontal.pdf}
-\caption{Context-requirement waterfall. Each system-level policy exits at the first matching tier.}
-% \caption{上下文要求瀑布。每条系统级策略在第一个匹配层级退出。}
-\Description{Flowchart showing the context-requirement waterfall with three outcomes: none, project, task.}
-% \Description{显示上下文要求瀑布的流程图，有三个结果：无、项目、任务。}
-\label{fig:waterfall-context}
-\end{figure}
 
 \begin{figure}[t]
 \centering
