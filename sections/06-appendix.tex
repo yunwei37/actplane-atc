@@ -175,6 +175,26 @@ We extract and validate statements from raw instruction files in three steps.
 \label{fig:empirical-rq2}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/empirical-waterfall-enforcement-horizontal.pdf}
+\caption{Enforcement-level waterfall. Each policy exits at the first matching tier.}
+% \caption{执行级别瀑布。每条策略在第一个匹配层级退出。}
+\Description{Flowchart showing the enforcement-level waterfall decision procedure with four outcomes: semantic-only, content, per-event, cross-event.}
+% \Description{显示执行级别瀑布决策过程的流程图，有四个结果：仅语义、内容、单事件、跨事件。}
+\label{fig:waterfall-enforcement}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\columnwidth]{figures/empirical-waterfall-context-horizontal.pdf}
+\caption{Context-requirement waterfall. Each system-level policy exits at the first matching tier.}
+% \caption{上下文要求瀑布。每条系统级策略在第一个匹配层级退出。}
+\Description{Flowchart showing the context-requirement waterfall with three outcomes: none, project, task.}
+% \Description{显示上下文要求瀑布的流程图，有三个结果：无、项目、任务。}
+\label{fig:waterfall-context}
+\end{figure}
+
 \section{Indirect Execution in Agent Trajectories}
 % \section{智能体轨迹中的间接执行}
 \label{sec:supp:indirect}
@@ -292,6 +312,39 @@ Each configuration $\times$ syscall type runs 10K--100K iterations pinned to a s
 Table~\ref{tab:micro-latency} reports the median across seven trials.
 % 表~\ref{tab:micro-latency}报告七次试验的中位数。
 
+\begin{table}[tb]\small
+\centering
+\caption{Per-operation latency in microseconds for no-hit configurations. Values are medians across seven trials.}
+% \caption{无命中配置的每操作延迟（微秒）。值为七次试验的中位数。}
+\label{tab:micro-latency}
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{lrrrr}
+\toprule
+Operation & Native p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
+% 操作 & 原生 p50 & AP-1 p50 & AP-32 p50 & AP-100 p50 \\
+\midrule
+\texttt{fork}    & 48.94 & 52.06 & 74.05 & 69.33 \\
+\texttt{exec}    & 248.30 & 263.95 & 314.86 & 317.03 \\
+\texttt{open}    & 0.58 & 1.24 & 6.92 & 13.40 \\
+\texttt{write}   & 0.27 & 0.78 & 0.79 & 0.84 \\
+\texttt{connect} & 0.58 & 0.61 & 1.98 & 3.17 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\columnwidth]{figures/rq2_macro_overhead.png}
+\caption{End-to-end overhead normalized to native execution.}
+% \caption{相对于原生执行归一化的端到端开销。}
+\Description{Grouped bar chart of AP-32 and AP-100 overhead for agent trace replay and Linux build.}
+% \Description{智能体轨迹重放和 Linux 构建的 AP-32 和 AP-100 开销分组条形图。}
+\label{fig:rq3-macro}
+\end{figure}
+All overhead measurements use no-hit configurations.
+% 所有开销测量使用无命中配置。
+
 \subsection{RQ4 OctoBench Subset}
 % \subsection{RQ4 OctoBench 子集}
 \label{sec:supp:setup:rq4}
@@ -339,10 +392,33 @@ The generator does not read the evaluator, checkpoints, trajectories, or any pri
 % 生成器不读取评估器、检查点、轨迹或任何先前运行结果，因此策略生成对评估标准一无所知。
 The generator runs before the agent starts and does not ingest untrusted content, so the resulting policy is independent of unsafe execution.
 % 生成器在测试的智能体启动前运行且不摄取不受信任的内容，因此结果策略独立于不安全执行。
+Chat and content harms are outside \sys{}'s scope by design, while service-side artifacts require protocol-level hook extensions.
+% 聊天和内容危害按设计不在 \sys{} 范围内，服务端工件需要协议级钩子扩展。
 
 \section{RQ2: False Positives and OS Sandboxes}
 % \section{RQ2：误报与操作系统沙箱}
 \label{sec:supp:rq2}
+\begin{table}[tb]\small
+\centering
+\caption{RQ2 confusion matrix by runtime policy enforcement system under the primary Qwen3.6-27B~\cite{qwen2025qwen3} model setting.}
+% \caption{主要 Qwen3.6-27B~\cite{qwen2025qwen3}模型设置下按运行时策略执行系统的 RQ2 混淆矩阵。}
+\label{tab:rq2-confusion}
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{lrrrrrr}
+\toprule
+System & DCR & TP & TN & FP & FN & Judged \\
+% 系统 & DCR & TP & TN & FP & FN & 已判断 \\
+\midrule
+\textsc{Prompt-filter} & 48.4\% & 44 & 48 & 28 & 70 & 190 \\
+\textsc{Tool-regex} & 45.3\% & 38 & 48 & 28 & 76 & 190 \\
+\textsc{FIDES} & 48.9\% & 41 & 52 & 24 & 73 & 190 \\
+\textsc{\sys{}-opaque} & 53.7\% & 27 & \textbf{75} & \textbf{1} & 87 & 190 \\
+\sys{} & \textbf{75.8\%} & \textbf{86} & 58 & 18 & \textbf{28} & 190 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
 We audited each of the 18 \sys{} false positives against its policy, rule, runner output, feedback, and judge rationale: 9 come from translation, 4 from compiling relative path patterns too broadly, 4 from rules matching the replay harness's own helper processes, and 1 from a trace setup failure; an independent Qwen3.8-27B review agreed with 17 of the 18 attributions.
 % 我们对照策略、规则、运行器输出、反馈和判断器理由逐条审计了 \sys{} 的 18 个误报：9 个来自翻译，4 个来自编译器把相对路径模式编译得过宽，4 个来自规则匹配到重放工具自身的辅助进程，1 个来自轨迹准备失败；一个独立的 Qwen3.8-27B 审查与其中 17 个归因一致。
 Each sandbox replays the same 190 RQ2 traces.

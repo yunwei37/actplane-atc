@@ -41,12 +41,12 @@ In the worst case, the agent has no self-imposed rules, but inherited constraint
 Agent-authored runtime rules, by contrast, provide only compliance assistance under a cooperative-but-fallible model.
 % 相比之下，智能体编写的运行时规则仅在合作但可能出错的模型下提供合规辅助。
 
-Given loaded rules, \sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
-% 给定已加载的规则，\sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
+\sys{} enforces two properties: (1)~agent-authored rules never weaken inherited constraints, and (2)~every event delivered to a configured hook is checked.
+% \sys{} 执行两个属性：（1）智能体编写的规则从不削弱继承的约束，（2）每个传递到配置钩子的事件都会被检查。
 The trusted computing base (TCB) comprises the kernel enforcement engine and higher-authority policy; userspace components such as the compiler and runner sit outside it, so their bugs weaken only the agent's own rules.
 % 可信计算基（TCB）包括内核执行引擎和更高权限策略；用户空间组件如编译器和运行器在其外部，因此它们的 bug 仅削弱智能体自己的规则。
-Enforcement covers the agent's entire process tree, including indirect execution paths such as subprocesses and shell wrappers that produce hooked OS events.
-% 执行覆盖智能体的整个进程树，包括产生钩子操作系统事件的间接执行路径如子进程和 shell 包装器。
+Enforcement covers the agent's process tree, including indirect execution paths such as subprocesses and shell wrappers that produce hooked OS events.
+% 执行覆盖智能体的进程树，包括产生钩子操作系统事件的间接执行路径如子进程和 shell 包装器。
 Semantically equivalent operations are not covered: a custom Git client avoids command-matching rules like \texttt{exec git}, but its connect/write syscalls remain visible.
 % 语义等效操作不被覆盖：一个自定义 Git 客户端避开命令匹配规则如 \texttt{exec git}，但其 connect/write 系统调用仍然可见。
 File contents, kernel compromise, \texttt{CAP\_BPF} compromise, and side channels are out of scope.
@@ -91,14 +91,14 @@ Some cross-event policies require temporal ordering or lineage checks.
 % 一些跨事件策略需要时间顺序或血统检查。
 For example, ``run tests before committing'' means tests must have run \emph{after} the most recent edit, not merely at some earlier point.
 % 例如，"提交前运行测试"意味着测试必须在最近的编辑 \emph{之后}运行，而不仅仅是在某个更早的时间点。
-Similarly, ``sub-agents may only write to their assigned directory'' requires verifying the process was spawned by a specific parent.
-% 类似地，"子智能体只能写入其分配的目录"需要验证进程是由特定父进程生成的。
+``Sub-agents may only write to their assigned directory'' requires verifying the process was spawned by a specific parent.
+% "子智能体只能写入其分配的目录"需要验证进程是由特定父进程生成的。
 \emph{Gates} capture such conditions by attaching them to rules.
 % \emph{门控}通过将这些条件附加到规则来捕获它们。
 A lineage gate checks whether the subject descends from a particular process, while a temporal gate uses \texttt{after~...~since~...} to enforce ordering.
 % 血统门控检查主体是否来自一个特定进程，而时间门控使用 \texttt{after~...~since~...} 来强制顺序。
-An \texttt{exits~$N$} qualifier further requires the gating command to have terminated with exit code~$N$, distinguishing a successful run from a crashed or failing one.
-% 一个 \texttt{exits~$N$} 限定符进一步要求门控命令以退出码~$N$ 终止，区分成功运行与崩溃或失败的运行。
+An \texttt{exits~$N$} qualifier requires the gating command to have terminated with exit code~$N$, distinguishing a successful run from a crashed or failing one.
+% 一个 \texttt{exits~$N$} 限定符要求门控命令以退出码~$N$ 终止，区分成功运行与崩溃或失败的运行。
 
 \begin{figure}[t]
 \centering
@@ -126,8 +126,8 @@ An \texttt{exits~$N$} qualifier further requires the gating command to have term
 %       since write "**/schema.graphqls"
 %   because "Re-run gqlgen after schema changes."
 % \end{verbatim}
-\caption{Three \sys{} DSL rule examples drawn from real projects: a per-event block (no-delete-data), a cross-event kill gate (tests-before-commit), and a cross-event notify gate (regen-after-schema).}
-% \caption{三个来自真实项目的 \sys{} DSL 规则示例：一个单事件阻止（no-delete-data）、一个跨事件终止门控（tests-before-commit）和一个跨事件通知门控（regen-after-schema）。}
+\caption{Three rule examples from real projects: a per-event block (no-delete-data), a cross-event kill gate (tests-before-commit), and a cross-event notify gate (regen-after-schema).}
+% \caption{三个来自真实项目的规则示例：一个单事件阻止（no-delete-data）、一个跨事件终止门控（tests-before-commit）和一个跨事件通知门控（regen-after-schema）。}
 \Description{Code listing of three \sys{} rules from real projects.}
 % \Description{来自真实项目的三条 \sys{} 规则的代码清单。}
 \label{fig:policy-example}
@@ -157,25 +157,25 @@ Enforcing the DSL's source-to-target constraints requires tracking which sources
 Following classical IFC~\cite{flume,zeldovich2006histar}, \sys{} uses an \emph{information-flow} model that operates as a \emph{state machine}: each tracked object carries state that is updated at system events, so rules can be checked without reconstructing the history log.
 % 遵循经典 IFC~\cite{flume,zeldovich2006histar}，\sys{} 使用一个 \emph{信息流}模型作为 \emph{状态机}运行：每个被追踪的对象携带在系统事件时更新的状态，因此可以检查规则而无需重建历史日志。
 
-To determine whether a subject or target has been influenced by certain sources, each process, file, and network endpoint carries a set of \emph{labels}.
-% 为确定一个主体或目标是否受到某些源的影响，每个进程、文件和网络端点携带一组 \emph{标签}。
-Each source declaration in the DSL defines a label that is added when a system object matches the source pattern.
-% DSL 中的每个源声明定义一个标签，当一个系统对象匹配源模式时添加该标签。
+To determine whether a subject or target has been influenced by sources, each process, file, and network endpoint carries \emph{labels}.
+% 为确定一个主体或目标是否受到源的影响，每个进程、文件和网络端点携带 \emph{标签}。
+Each source declaration defines a label that is added when a system object matches the source pattern.
+% 每个源声明定义一个标签，当一个系统对象匹配源模式时添加该标签。
 At each event the engine evaluates every rule against the subject's and target's labels (required labels present, forbidden labels absent, gate satisfied) and applies matching effects.
 % 在每个事件时，引擎针对主体和目标的标签评估每条规则（所需标签存在、禁止标签不存在、门控满足），并应用匹配的效果。
 
-Because cross-event rules depend on sources from earlier events, labels must \emph{propagate} along OS data-flow edges (fork, exec, read, write, connect).
-% 因为跨事件规则依赖于早期事件的源，标签必须沿操作系统数据流边（fork、exec、read、write、connect）\emph{传播}。
-This maintains a key \emph{invariant}: if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
-% 这维护一个关键 \emph{不变量}：如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
+Because cross-event rules depend on sources from earlier events, labels \emph{propagate} along OS data-flow edges (fork, exec, read, write, connect).
+% 因为跨事件规则依赖于早期事件的源，标签沿操作系统数据流边（fork、exec、read、write、connect）\emph{传播}。
+This maintains an \emph{invariant}: if an object carries label~$\ell$, then information from a source tagged with~$\ell$ may have reached it through observed edges.
+% 这维护一个 \emph{不变量}：如果一个对象携带标签~$\ell$，则来自标记为~$\ell$ 的源的信息可能已通过观察到的边到达它。
 
 For example, a process that reads \texttt{.env} acquires its source label.
 % 例如，一个读取 \texttt{.env} 的进程获得其源标签。
-If that process later connects to an external endpoint, a rule forbidding that label at network targets fires and blocks the connection.
-% 如果该进程稍后连接到一个外部端点，一条在网络目标上禁止该标签的规则触发并阻止连接。
+If that process connects to an endpoint, a rule forbidding that label at network targets blocks the connection.
+% 如果该进程连接到一个端点，一条在网络目标上禁止该标签的规则会阻止连接。
 
-To ensure no history is lost and cross-event constraints remain checkable for the entire session, labels are \emph{monotonic}: propagation adds labels but never removes them, so once an object carries a label all subsequent consumers inherit it.
-% 为确保不丢失历史记录且跨事件约束在整个会话中保持可检查，标签是 \emph{单调的}：传播添加标签但从不移除它们，因此一旦一个对象携带一个标签，所有后续消费者都会继承它。
+To ensure no history is lost and cross-event constraints remain checkable for the session, labels are \emph{monotonic}: propagation never removes labels, so once an object carries a label subsequent consumers inherit it.
+% 为确保不丢失历史记录且跨事件约束在会话中保持可检查，标签是 \emph{单调的}：传播从不移除标签，因此一旦一个对象携带一个标签，后续消费者都会继承它。
 As in Flume~\cite{flume} and HiStar~\cite{zeldovich2006histar}, labels are irrevocable by default, and declassification (controlled label removal) is delegated to the domain hierarchy (\S\ref{sec:authority}).
 % 如 Flume~\cite{flume} 和 HiStar~\cite{zeldovich2006histar}，标签默认是不可撤销的，解密（受控的标签移除）委托给域层次结构（\S\ref{sec:authority}）。
 
@@ -219,8 +219,8 @@ In the DSL, \texttt{declassify SECRET by exec "P"} designates a program \texttt{
 % 在 DSL 中，\texttt{declassify SECRET by exec "P"} 指定作者信任能净化数据的程序 \texttt{P}。
 Inherited safety labels and rules cannot be declassified.
 % 继承的安全标签和规则不能被解密。
-When monotonic labels accumulate excessively, objects become overly restricted (over-tainting), but labels attach to the reading process lineage and the files it writes, not to the whole session: a sibling that never read the source stays clean, so secret-reading steps can run in fresh subprocesses (Appendix~\ref{sec:supp:utility}).
-% 当单调标签过度累积时，对象变得过度受限（过度标记），但标签附着在读取进程的谱系及其写入的文件上，而非整个会话：从未读取该源的兄弟进程保持干净，因此读取秘密的步骤可以在新子进程中运行（附录~\ref{sec:supp:utility}）。
+When monotonic labels accumulate excessively, objects become overly restricted (over-tainting), but labels attach to the reading process lineage and the files it writes: a sibling that never read the source stays clean, so secret-reading steps can run in fresh subprocesses (Appendix~\ref{sec:supp:utility}).
+% 当单调标签过度累积时，对象变得过度受限（过度标记），但标签附着在读取进程的谱系及其写入的文件上：从未读取该源的兄弟进程保持干净，因此读取秘密的步骤可以在新子进程中运行（附录~\ref{sec:supp:utility}）。
 
 \section{Implementation}
 % \section{实现}
@@ -228,10 +228,10 @@ When monotonic labels accumulate excessively, objects become overly restricted (
 
 \sys{} consists of a Rust userspace compiler/runner (roughly 3.2\,K\,LoC) and an eBPF enforcement engine (roughly 1.8\,K\,LoC of BPF C).
 % \sys{} 由一个 Rust 用户空间编译器/运行器（约 3.2K LoC）和一个 eBPF 执行引擎（约 1.8K LoC BPF C）组成。
-The compiler parses the DSL, lowers Boolean label expressions and path/network patterns, and emits a fixed-size configuration consumed directly by the eBPF loader.
-% 编译器解析 DSL，降低布尔标签表达式和路径/网络模式，并发出一个由 eBPF 加载器直接消费的固定大小配置。
-Human-readable rule names and reasons stay in userspace metadata, so the kernel receives only compact rule tables and emits rule identifiers when events match.
-% 人类可读的规则名称和原因留在用户空间元数据中，因此内核仅接收紧凑的规则表，并在事件匹配时发出规则标识符。
+The compiler parses the DSL, lowers Boolean label expressions and path/network patterns, and emits a fixed-size configuration consumed by the eBPF loader.
+% 编译器解析 DSL，降低布尔标签表达式和路径/网络模式，并发出一个由 eBPF 加载器消费的固定大小配置。
+Rule names and reasons stay in userspace metadata, so the kernel receives only compact rule tables and emits rule identifiers when events match.
+% 规则名称和原因留在用户空间元数据中，因此内核仅接收紧凑的规则表，并在事件匹配时发出规则标识符。
 
 The eBPF engine attaches to process, file, and network hooks (exec, open, read, write, unlink, connect, fork, exit) via BPF-LSM for pre-operation enforcement (block effects) and tracepoints for observation and post-operation termination (kill effects).
 % eBPF 引擎通过 BPF-LSM 附加到进程、文件和网络钩子（exec、open、read、write、unlink、connect、fork、exit）以进行操作前执行（阻止效果），通过 tracepoint 进行观察和操作后终止（终止效果）。
